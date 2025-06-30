@@ -1,5 +1,19 @@
-# VitaLit 🔥 – Offline-First Hospital Management System
+# VitaLit OS
 
-Minimalist, resilient hospital infra for places the cloud forgot.
+> 🏥 Offline-first hospital operating system for underconnected clinics.  
+> Simple. Local. Reliable. No cloud required.
 
-Coming soon.
+---
+
+### 📦 Planned Modules
+
+- [ ] Patient Records  
+- [ ] Appointment Scheduling  
+- [ ] Billing & Reports  
+- [ ] Local Backup System  
+- [ ] Offline-first Sync (TBD)
+
+---
+
+This project is under active development.  
+Follow progress → [@basedavishkar](https://twitter.com/basedavishkar)
