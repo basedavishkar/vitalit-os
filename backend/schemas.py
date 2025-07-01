@@ -1,4 +1,3 @@
-# backend/schemas.py
 from pydantic import BaseModel, Field
 
 class PatientCreate(BaseModel):
