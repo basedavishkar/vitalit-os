@@ -2,7 +2,13 @@ import React, { useState } from "react";
 import { addPatient } from "../lib/api";
 
 export default function AddPatientForm() {
-  const [form, setForm] = useState({ name: "", age: "", gender: "" });
+  const [form, setForm] = useState({
+    name: "",
+    age: "",
+    gender: "",
+    address: "",
+    phone: ""
+  });
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -12,7 +18,13 @@ export default function AddPatientForm() {
     try {
       await addPatient(form);
       alert("Patient added successfully!");
-      setForm({ name: "", age: "", gender: "" });
+      setForm({
+        name: "",
+        age: "",
+        gender: "",
+        address: "",
+        phone: ""
+      });
     } catch (err) {
       alert("Error adding patient.");
     }
@@ -24,6 +36,7 @@ export default function AddPatientForm() {
       className="max-w-md mx-auto p-4 bg-white rounded shadow"
     >
       <h2 className="text-xl font-semibold mb-4">Add New Patient</h2>
+
       <input
         name="name"
         value={form.name}
@@ -31,6 +44,7 @@ export default function AddPatientForm() {
         placeholder="Name"
         className="w-full p-2 mb-2 border rounded"
       />
+
       <input
         name="age"
         type="number"
@@ -39,6 +53,7 @@ export default function AddPatientForm() {
         placeholder="Age"
         className="w-full p-2 mb-2 border rounded"
       />
+
       <select
         name="gender"
         value={form.gender}
@@ -48,8 +63,29 @@ export default function AddPatientForm() {
         <option value="">Select Gender</option>
         <option>Male</option>
         <option>Female</option>
+        <option>Other</option>
       </select>
-      <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">
+
+      <input
+        name="address"
+        value={form.address}
+        onChange={handleChange}
+        placeholder="Address"
+        className="w-full p-2 mb-2 border rounded"
+      />
+
+      <input
+        name="phone"
+        value={form.phone}
+        onChange={handleChange}
+        placeholder="Phone"
+        className="w-full p-2 mb-2 border rounded"
+      />
+
+      <button
+        type="submit"
+        className="bg-green-600 text-white px-4 py-2 rounded"
+      >
         Add Patient
       </button>
     </form>
