@@ -1,11 +1,9 @@
-import React from 'react';
+import AddPatientForm from "./components/AddPatientForm";
 
-export default function App() {
+function App() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <h1 className="text-4xl font-bold text-blue-500">
-        Hello from Tailwind v4!
-      </h1>
+    <div className="min-h-screen bg-gray-100 p-4">
+      <AddPatientForm />
     </div>
   );
 }
