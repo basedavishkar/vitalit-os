@@ -1,2 +1,23 @@
-venv
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
 *.db
+.env
+
+# VSCode
+.vscode/
+
+# MacOS
+.DS_Store
+
+# Node.js
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+
+# Logs
+*.log
