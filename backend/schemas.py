@@ -1,12 +1,15 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
-class PatientCreate(BaseModel):
+class PatientBase(BaseModel):
     name: str
-    age: int = Field(..., ge=0, le=120)
-    address: str
-    phone: str
+    age: int
+    gender: str
 
-class DoctorCreate(BaseModel):
-    name: str
-    specialization: str
-    phone: str
+class PatientCreate(PatientBase):
+    pass
+
+class Patient(PatientBase):
+    id: int
+
+    class Config:
+        orm_mode = True
