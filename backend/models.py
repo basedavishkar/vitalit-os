@@ -8,3 +8,12 @@ class Patient(Base):
     name = Column(String, index=True)
     age = Column(Integer)
     gender = Column(String)
+
+class Doctor(Base):
+    __tablename__ = "doctors"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String)
+    specialization = Column(String)
+    phone = Column(String)
+    email = Column(String)
