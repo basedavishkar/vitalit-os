@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { createPatient } from "@/api/patients"; // shared API logic
 
 export default function PatientForm() {
   const [formData, setFormData] = useState({
@@ -8,7 +9,7 @@ export default function PatientForm() {
     age: "",
     gender: "",
     address: "",
-    contact_number: "",
+    contact: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -17,33 +18,51 @@ export default function PatientForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await fetch("http://localhost:8000/patients", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData),
+
+    const payload = new FormData();
+    Object.entries(formData).forEach(([key, value]) => {
+      payload.append(key, value);
     });
-    setFormData({
-      name: "",
-      age: "",
-      gender: "",
-      address: "",
-      contact_number: "",
-    });
+
+    try {
+      const res = await createPatient(payload);
+      console.log("Patient created:", res);
+      alert("Patient added successfully");
+      setFormData({
+        name: "",
+        age: "",
+        gender: "",
+        address: "",
+        contact: "",
+      });
+    } catch (err: any) {
+      console.error("Patient creation failed:", err.response?.data || err.message);
+      alert(
+        err.response?.data?.detail
+          ? `Error: ${err.response.data.detail[0].msg}`
+          : "Failed to create patient. Check form values."
+      );
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 p-4 bg-white rounded shadow">
-      {["name", "age", "gender", "address", "contact_number"].map((field) => (
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-4 p-4 bg-white rounded shadow max-w-md mx-auto"
+    >
+      {["name", "age", "gender", "address", "contact"].map((field) => (
         <input
           key={field}
           name={field}
+          type={field === "age" ? "number" : "text"}
           placeholder={field.replace("_", " ")}
           value={(formData as any)[field]}
           onChange={handleChange}
           className="block w-full px-4 py-2 border rounded"
+          required
         />
       ))}
-      <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
+      <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded w-full">
         Add Patient
       </button>
     </form>
