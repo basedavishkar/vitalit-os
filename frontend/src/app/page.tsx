@@ -1,11 +1,5 @@
-import PatientForm from "@/components/patients/PatientForm";
-import PatientList from "@/components/patients/PatientList";
+import { redirect } from "next/navigation";
 
 export default function Home() {
-  return (
-    <main className="max-w-xl mx-auto mt-10">
-      <PatientForm />
-      <PatientList />
-    </main>
-  );
+  redirect("/dashboard");
 }
