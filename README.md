@@ -16,4 +16,4 @@
 ---
 
 This project is under active development.  
-Follow progress → [@basedavishkar](https://twitter.com/basedavishkar)
+Follow progress(not updating lol) → [@basedavishkar](https://twitter.com/basedavishkar)
