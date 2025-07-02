@@ -9,6 +9,7 @@ class Patient(Base):
     name = Column(String, index=True)
     age = Column(Integer)
     gender = Column(String)
+    address = Column(String, nullable=True) 
 
 class Doctor(Base):
     __tablename__ = "doctors"

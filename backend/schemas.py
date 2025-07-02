@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 from pydantic import BaseModel
 from pydantic.config import ConfigDict  # ✅ CORRECT
 
@@ -9,8 +10,12 @@ class PatientBase(BaseModel):
     age: int
     gender: str
 
-class PatientCreate(PatientBase):
-    pass
+class PatientCreate(BaseModel):
+    name: str
+    age: int
+    gender: str
+    address: Optional[str] = None
+
 
 class Patient(PatientBase):
     id: int
