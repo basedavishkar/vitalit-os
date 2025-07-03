@@ -1,6 +1,6 @@
-# VITALIt-OS
+# VITALIt-OS 🔥
 
-Open-source hospital management system.
+🏥 Offline-first hospital operating system for underconnected clinics. 
 
 ✅ Patients  
 ✅ Doctors  
