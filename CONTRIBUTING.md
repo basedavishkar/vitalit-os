@@ -9,7 +9,7 @@ VITALIt-OS is a fast, open-source hospital management system built with FastAPI 
 Clone the repo:
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/vitalit-os.git
+git clone https://github.com/basedavishkar/vitalit-os.git
 cd vitalit-os
 ```
 
@@ -64,7 +64,6 @@ requirements.txt
   - `feat:` new features
   - `fix:` bug fixes
   - `chore:` tooling/setup
-- No emojis in commits
 
 ---
 
