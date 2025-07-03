@@ -1,4 +1,4 @@
-# VITALIt-OS 🔥
+# VITALIt 🔥
 
 🏥 Offline-first hospital operating system for underconnected clinics. 
 
