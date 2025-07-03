@@ -24,27 +24,17 @@ def get_db():
 def get_patients(db: Session = Depends(get_db)):
     return db.query(models.Patient).all()
 
-
 @router.post("/patients", response_model=schemas.Patient)
 def create_patient(
-    name: str = Form(...),
-    age: int = Form(...),
-    gender: str = Form(...),
-    address: str = Form(...),
-    contact: str = Form(...),
+    patient: schemas.PatientCreate,      
     db: Session = Depends(get_db)
 ):
-    new_patient = models.Patient(
-        name=name,
-        age=age,
-        gender=gender,
-        address=address,
-        contacts=contact
-    )
+    new_patient = models.Patient(**patient.dict())
     db.add(new_patient)
     db.commit()
     db.refresh(new_patient)
     return new_patient
+
 
 
 @router.get("/patients/{patient_id}", response_model=schemas.Patient)

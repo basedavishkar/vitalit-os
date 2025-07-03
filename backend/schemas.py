@@ -14,8 +14,8 @@ class PatientCreate(BaseModel):
     name: str
     age: int
     gender: str
-    address: Optional[str] = None
-
+    address: str
+    contact: str
 
 class Patient(PatientBase):
     id: int

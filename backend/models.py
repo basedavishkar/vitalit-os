@@ -9,7 +9,7 @@ class Patient(Base):
     age = Column(Integer)
     gender = Column(String)
     address = Column(String)
-    contacts = Column(String)   # ← plural or different
+    contact = Column(String)   # ← plural or different
 
 class Doctor(Base):
     __tablename__ = "doctors"

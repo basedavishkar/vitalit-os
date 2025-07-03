@@ -18,16 +18,16 @@ export default function PatientForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    const payload = new FormData();
-    Object.entries(formData).forEach(([key, value]) => {
-      payload.append(key, value);
-    });
-
+  
     try {
+      const payload = {
+        ...formData,
+        age: Number(formData.age), 
+      };
+  
       const res = await createPatient(payload);
-      console.log("Patient created:", res);
       alert("Patient added successfully");
+  
       setFormData({
         name: "",
         age: "",
@@ -37,14 +37,11 @@ export default function PatientForm() {
       });
     } catch (err: any) {
       console.error("Patient creation failed:", err.response?.data || err.message);
-      alert(
-        err.response?.data?.detail
-          ? `Error: ${err.response.data.detail[0].msg}`
-          : "Failed to create patient. Check form values."
-      );
+      alert("Submission failed. See console for details.");
     }
   };
-
+  
+  
   return (
     <form
       onSubmit={handleSubmit}
