@@ -8,3 +8,5 @@
 🔜 Billing, Inventory, Records
 
 Tech: FastAPI + Next.js + Tailwind
+
+WIP --/ I'll be back
