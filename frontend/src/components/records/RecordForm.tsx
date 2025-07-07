@@ -1,68 +1,57 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { createRecord } from "@/api/records";
-import { getPatients } from "@/api/patients";
-import { getDoctors } from "@/api/doctors";
+import Card from "@/components/ui/Card";
 
 export default function RecordForm({ onRecordAdded }: { onRecordAdded?: () => void }) {
-  const [formData, setFormData] = useState({
+  const [form, setForm] = useState({
     patient_id: "",
     doctor_id: "",
-    date: "",
     diagnosis: "",
-    prescription: "",
-    notes: "",
+    treatment: "",
+    date: "",
   });
-  const [patients, setPatients] = useState<any[]>([]);
-  const [doctors, setDoctors] = useState<any[]>([]);
 
-  useEffect(() => {
-    (async () => {
-      setPatients(await getPatients());
-      setDoctors(await getDoctors());
-    })();
-  }, []);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      await createRecord({
-        ...formData,
-        patient_id: Number(formData.patient_id),
-        doctor_id: Number(formData.doctor_id),
-      });
-      setFormData({ patient_id: "", doctor_id: "", date: "", diagnosis: "", prescription: "", notes: "" });
-      if (onRecordAdded) onRecordAdded();
-      alert("Medical record added");
-    } catch (err) {
-      alert("Failed to add record");
-    }
+    await createRecord(form);
+    setForm({ patient_id: "", doctor_id: "", diagnosis: "", treatment: "", date: "" });
+    if (onRecordAdded) onRecordAdded();
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 p-4 bg-white rounded shadow max-w-md mx-auto">
-      <select name="patient_id" value={formData.patient_id} onChange={handleChange} className="block w-full px-4 py-2 border rounded" required>
-        <option value="">Select Patient</option>
-        {patients.map((p) => (
-          <option key={p.id} value={p.id}>{p.name}</option>
-        ))}
-      </select>
-      <select name="doctor_id" value={formData.doctor_id} onChange={handleChange} className="block w-full px-4 py-2 border rounded" required>
-        <option value="">Select Doctor</option>
-        {doctors.map((d) => (
-          <option key={d.id} value={d.id}>{d.name} – {d.specialization}</option>
-        ))}
-      </select>
-      <input name="date" type="date" value={formData.date} onChange={handleChange} className="block w-full px-4 py-2 border rounded" required />
-      <textarea name="diagnosis" placeholder="Diagnosis" value={formData.diagnosis} onChange={handleChange} className="block w-full px-4 py-2 border rounded" required />
-      <textarea name="prescription" placeholder="Prescription" value={formData.prescription} onChange={handleChange} className="block w-full px-4 py-2 border rounded" required />
-      <textarea name="notes" placeholder="Notes" value={formData.notes} onChange={handleChange} className="block w-full px-4 py-2 border rounded" required />
-      <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded w-full">Add Record</button>
-    </form>
+    <Card className="max-w-lg mx-auto mb-8">
+      <h2 className="text-2xl font-extrabold text-emerald-700 mb-6 text-center tracking-tight">Add Medical Record</h2>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+        <div className="flex flex-col gap-2">
+          <label className="font-bold text-emerald-700 text-lg">Patient ID</label>
+          <input name="patient_id" value={form.patient_id} onChange={handleChange} required />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="font-bold text-emerald-700 text-lg">Doctor ID</label>
+          <input name="doctor_id" value={form.doctor_id} onChange={handleChange} required />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="font-bold text-emerald-700 text-lg">Diagnosis</label>
+          <input name="diagnosis" value={form.diagnosis} onChange={handleChange} required />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="font-bold text-emerald-700 text-lg">Treatment</label>
+          <input name="treatment" value={form.treatment} onChange={handleChange} required />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="font-bold text-emerald-700 text-lg">Date</label>
+          <input name="date" type="date" value={form.date} onChange={handleChange} required />
+        </div>
+        <button type="submit" className="mt-4 w-full flex items-center justify-center gap-2 text-lg">
+          <span>➕</span> Add Record
+        </button>
+      </form>
+    </Card>
   );
 } 

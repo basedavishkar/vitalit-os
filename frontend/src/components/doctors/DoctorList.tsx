@@ -1,41 +1,26 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { getDoctors } from "@/api/doctors";
+import Table from "@/components/ui/Table";
 
-export default function DoctorList() {
-  const [doctors, setDoctors] = useState<any[]>([]);
-
-  useEffect(() => {
-    (async () => {
-      const data = await getDoctors();
-      setDoctors(data);
-    })();
-  }, []);
-
+export default function DoctorList({ doctors }: { doctors: any[] }) {
   return (
-    <div className="mt-6 bg-white rounded shadow p-4">
-      <h2 className="text-xl font-semibold mb-4">All Doctors</h2>
-      <table className="w-full text-left border">
-        <thead className="bg-gray-100">
-          <tr>
-            <th className="px-4 py-2 border">Name</th>
-            <th className="px-4 py-2 border">Specialization</th>
-            <th className="px-4 py-2 border">Phone</th>
-            <th className="px-4 py-2 border">Email</th>
+    <Table headers={["Name", "Specialty", "Phone", "Email"]}>
+      {doctors.length === 0 ? (
+        <tr>
+          <td colSpan={4} className="text-center py-8 text-emerald-400">
+            No doctors found.
+          </td>
+        </tr>
+      ) : (
+        doctors.map((d) => (
+          <tr key={d.id}>
+            <td>{d.name}</td>
+            <td>{d.specialty}</td>
+            <td>{d.phone}</td>
+            <td>{d.email}</td>
           </tr>
-        </thead>
-        <tbody>
-          {doctors.map((d) => (
-            <tr key={d.id}>
-              <td className="px-4 py-2 border">{d.name}</td>
-              <td className="px-4 py-2 border">{d.specialization}</td>
-              <td className="px-4 py-2 border">{d.phone}</td>
-              <td className="px-4 py-2 border">{d.email}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+        ))
+      )}
+    </Table>
   );
 }

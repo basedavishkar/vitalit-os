@@ -2,7 +2,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "VITALIt-OS",
+  title: "VITALIt",
   description: "Hospital management system for local clinics",
 };
 

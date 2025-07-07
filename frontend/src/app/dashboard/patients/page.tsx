@@ -1,12 +1,28 @@
+"use client";
+import Card from "@/components/ui/Card";
 import PatientForm from '@/components/patients/PatientForm';
 import PatientList from '@/components/patients/PatientList';
+import { useState, useEffect } from 'react';
+import { getPatients } from '@/api/patients';
 
 export default function PatientsPage() {
+  const [patients, setPatients] = useState<any[]>([]);
+
+  const loadPatients = async () => {
+    setPatients(await getPatients());
+  };
+
+  useEffect(() => {
+    loadPatients();
+  }, []);
+
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <Card>
       <h1 className="text-3xl font-bold mb-6">Patients Module</h1>
-      <PatientForm />
-      <PatientList />
-    </div>
+      <PatientForm onPatientAdded={loadPatients} />
+      <div className="mt-6">
+        <PatientList patients={patients} />
+      </div>
+    </Card>
   );
 }

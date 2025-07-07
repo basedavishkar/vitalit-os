@@ -1,56 +1,57 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { createBill } from "@/api/bills";
-import { getPatients } from "@/api/patients";
+import Card from "@/components/ui/Card";
 
-export default function BillForm({ onBillAdded }: { onBillAdded?: () => void }) {
-  const [formData, setFormData] = useState({
+export default function BillForm({ onBillAdded, patients }: { onBillAdded?: () => void; patients: any[] }) {
+  const [form, setForm] = useState({
     patient_id: "",
     amount: "",
-    description: "",
     date: "",
+    description: "",
   });
-  const [patients, setPatients] = useState<any[]>([]);
-
-  useEffect(() => {
-    (async () => {
-      setPatients(await getPatients());
-    })();
-  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      await createBill({
-        ...formData,
-        patient_id: Number(formData.patient_id),
-        amount: Number(formData.amount),
-      });
-      setFormData({ patient_id: "", amount: "", description: "", date: "" });
-      if (onBillAdded) onBillAdded();
-      alert("Bill generated");
-    } catch (err) {
-      alert("Failed to add bill");
-    }
+    await createBill(form);
+    setForm({ patient_id: "", amount: "", date: "", description: "" });
+    if (onBillAdded) onBillAdded();
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 p-4 bg-white rounded shadow max-w-md mx-auto">
-      <select name="patient_id" value={formData.patient_id} onChange={handleChange} className="block w-full px-4 py-2 border rounded" required>
-        <option value="">Select Patient</option>
-        {patients.map((p) => (
-          <option key={p.id} value={p.id}>{p.name}</option>
-        ))}
-      </select>
-      <input name="amount" type="number" placeholder="Amount" value={formData.amount} onChange={handleChange} className="block w-full px-4 py-2 border rounded" required />
-      <input name="description" type="text" placeholder="Description" value={formData.description} onChange={handleChange} className="block w-full px-4 py-2 border rounded" required />
-      <input name="date" type="date" value={formData.date} onChange={handleChange} className="block w-full px-4 py-2 border rounded" required />
-      <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded w-full">Add Bill</button>
-    </form>
+    <Card className="max-w-lg mx-auto mb-8">
+      <h2 className="text-2xl font-extrabold text-emerald-700 mb-6 text-center tracking-tight">Add Bill</h2>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+        <div className="flex flex-col gap-2">
+          <label className="font-bold text-emerald-700 text-lg">Patient</label>
+          <select name="patient_id" value={form.patient_id} onChange={handleChange} required>
+            <option value="">Select Patient</option>
+            {patients.map((p) => (
+              <option key={p.id} value={p.id}>{p.name}</option>
+            ))}
+          </select>
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="font-bold text-emerald-700 text-lg">Amount</label>
+          <input name="amount" type="number" value={form.amount} onChange={handleChange} required />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="font-bold text-emerald-700 text-lg">Date</label>
+          <input name="date" type="date" value={form.date} onChange={handleChange} required />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="font-bold text-emerald-700 text-lg">Description</label>
+          <input name="description" value={form.description} onChange={handleChange} required />
+        </div>
+        <button type="submit" className="mt-4 w-full flex items-center justify-center gap-2 text-lg">
+          <span>➕</span> Add Bill
+        </button>
+      </form>
+    </Card>
   );
 } 

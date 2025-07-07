@@ -1,12 +1,34 @@
+"use client";
+import Card from "@/components/ui/Card";
 import BillForm from "@/components/bills/BillForm";
 import BillList from "@/components/bills/BillList";
+import { useState, useEffect } from "react";
+import { getBills } from "@/api/bills";
+import { getPatients } from "@/api/patients";
 
 export default function BillingPage() {
+  const [bills, setBills] = useState<any[]>([]);
+  const [patients, setPatients] = useState<any[]>([]);
+
+  const loadBills = async () => {
+    setBills(await getBills());
+  };
+  const loadPatients = async () => {
+    setPatients(await getPatients());
+  };
+
+  useEffect(() => {
+    loadBills();
+    loadPatients();
+  }, []);
+
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <Card>
       <h1 className="text-3xl font-bold mb-6">Billing</h1>
-      <BillForm />
-      <BillList />
-    </div>
+      <BillForm onBillAdded={loadBills} patients={patients} />
+      <div className="mt-6">
+        <BillList bills={bills} patients={patients} />
+      </div>
+    </Card>
   );
 }
