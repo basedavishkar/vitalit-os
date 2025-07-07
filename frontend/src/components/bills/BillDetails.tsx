@@ -1,16 +1,15 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { getPatients } from "@/api/patients";
+import { Bill } from '@/types';
 
-export default function BillDetails({ bill, onClose }: { bill: any; onClose: () => void }) {
-  const [patient, setPatient] = useState<any>(null);
+export default function BillDetails({ bill, onClose }: { bill: Bill; onClose: () => void }) {
   const printRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     (async () => {
-      const patients = await getPatients();
-      setPatient(patients.find((p: any) => p.id === bill.patient_id));
+      await getPatients();
     })();
   }, [bill]);
 
@@ -40,44 +39,9 @@ export default function BillDetails({ bill, onClose }: { bill: any; onClose: () 
   if (!bill) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-      <div className="bg-white rounded shadow-lg p-8 max-w-lg w-full relative">
-        <button onClick={onClose} className="absolute top-2 right-2 text-gray-500">✕</button>
-        <div ref={printRef}>
-          <div className="bill-header">
-            <h2 className="text-2xl font-bold mb-2">VITALIt Hospital</h2>
-            <div>123 Main St, City, Country | +1 234 567 8900</div>
-            <div className="mt-2 text-lg font-semibold">Patient Bill</div>
-          </div>
-          <div className="mb-4">
-            <strong>Patient:</strong> {patient ? patient.name : bill.patient_id}<br />
-            <strong>Patient ID:</strong> {bill.patient_id}<br />
-            <strong>Date:</strong> {new Date(bill.date).toLocaleDateString()}<br />
-          </div>
-          <table className="bill-table">
-            <thead>
-              <tr>
-                <th>Description</th>
-                <th>Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>{bill.description}</td>
-                <td>₹{bill.amount.toFixed(2)}</td>
-              </tr>
-            </tbody>
-          </table>
-          <div className="text-right font-bold text-lg mb-2">
-            Total: ₹{bill.amount.toFixed(2)}
-          </div>
-          <div className="bill-footer">
-            <div>Status: {bill.paid ? "Paid" : "Unpaid"}</div>
-            <div>Thank you for choosing VITALIt Hospital.</div>
-          </div>
-        </div>
-        <button onClick={handlePrint} className="mt-6 bg-blue-500 text-white px-4 py-2 rounded w-full">Print Bill</button>
-      </div>
+    <div ref={printRef} className="bg-white p-8 rounded-xl shadow-xl max-w-2xl mx-auto">
+      <button onClick={onClose} className="mt-6 btn w-full">Close</button>
+      <button onClick={handlePrint} className="mt-2 btn w-full">Print</button>
     </div>
   );
 } 

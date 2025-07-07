@@ -1,7 +1,7 @@
 "use client";
 import Card from "@/components/ui/Card";
 import InventoryForm from './InventoryForm';
-import InventoryList from './InventoryList';
+import InventoryList from '@/components/inventory/InventoryList';
 import { useState, useEffect } from 'react';
 import { getInventoryItems } from '@/api/inventory';
 import { InventoryItem } from '@/types';

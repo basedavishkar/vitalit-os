@@ -7,20 +7,24 @@ import Card from "@/components/ui/Card";
 export default function PatientForm({ onPatientAdded }: { onPatientAdded?: () => void }) {
   const [form, setForm] = useState({
     name: "",
-    age: "",
+    age: 0,
     gender: "",
     phone: "",
     email: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm({
+      ...form,
+      [name]: name === 'age' ? Number(value) : value,
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await createPatient(form);
-    setForm({ name: "", age: "", gender: "", phone: "", email: "" });
+    setForm({ name: "", age: 0, gender: "", phone: "", email: "" });
     if (onPatientAdded) onPatientAdded();
   };
 

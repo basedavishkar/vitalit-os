@@ -3,25 +3,28 @@
 import { useState } from "react";
 import { createRecord } from "@/api/records";
 import Card from "@/components/ui/Card";
-import { Patient, Doctor } from '@/types';
 
 export default function RecordForm({ onRecordAdded }: { onRecordAdded?: () => void }) {
   const [form, setForm] = useState({
-    patient_id: "",
-    doctor_id: "",
+    patient_id: 0,
+    doctor_id: 0,
     diagnosis: "",
     treatment: "",
     date: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm({
+      ...form,
+      [name]: (name === 'patient_id' || name === 'doctor_id') ? Number(value) : value,
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await createRecord(form);
-    setForm({ patient_id: "", doctor_id: "", diagnosis: "", treatment: "", date: "" });
+    setForm({ patient_id: 0, doctor_id: 0, diagnosis: "", treatment: "", date: "" });
     if (onRecordAdded) onRecordAdded();
   };
 
@@ -31,11 +34,11 @@ export default function RecordForm({ onRecordAdded }: { onRecordAdded?: () => vo
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
         <div className="flex flex-col gap-2">
           <label className="font-bold text-emerald-700 text-lg">Patient ID</label>
-          <input name="patient_id" value={form.patient_id} onChange={handleChange} required />
+          <input name="patient_id" type="number" value={form.patient_id} onChange={handleChange} required />
         </div>
         <div className="flex flex-col gap-2">
           <label className="font-bold text-emerald-700 text-lg">Doctor ID</label>
-          <input name="doctor_id" value={form.doctor_id} onChange={handleChange} required />
+          <input name="doctor_id" type="number" value={form.doctor_id} onChange={handleChange} required />
         </div>
         <div className="flex flex-col gap-2">
           <label className="font-bold text-emerald-700 text-lg">Diagnosis</label>

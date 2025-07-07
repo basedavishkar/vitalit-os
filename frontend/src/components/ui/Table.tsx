@@ -25,9 +25,9 @@ export default function Table({
           </tr>
         </thead>
         <tbody className="divide-y divide-emerald-50">
-          {React.Children.map(children, (row, idx) => {
+          {React.Children.map(children, (row) => {
             if (React.isValidElement(row) && row.type === 'tr') {
-              const r = row as React.ReactElement<any, any>;
+              const r = row as React.ReactElement<React.ComponentPropsWithRef<'tr'>>;
               return React.cloneElement(r, {
                 className: `even:bg-white odd:bg-emerald-50 hover:bg-emerald-100 transition-colors ${r.props.className || ''}`,
               });

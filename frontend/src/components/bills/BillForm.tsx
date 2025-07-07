@@ -3,23 +3,28 @@
 import { useState } from "react";
 import { createBill } from "@/api/bills";
 import Card from "@/components/ui/Card";
+import { Patient } from '@/types';
 
-export default function BillForm({ onBillAdded, patients }: { onBillAdded?: () => void; patients: any[] }) {
+export default function BillForm({ onBillAdded, patients }: { onBillAdded?: () => void; patients: Patient[] }) {
   const [form, setForm] = useState({
-    patient_id: "",
-    amount: "",
+    patient_id: 0,
+    amount: 0,
     date: "",
     description: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value, type } = e.target;
+    setForm({
+      ...form,
+      [name]: type === 'number' ? Number(value) : value,
+    });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     await createBill(form);
-    setForm({ patient_id: "", amount: "", date: "", description: "" });
+    setForm({ patient_id: 0, amount: 0, date: "", description: "" });
     if (onBillAdded) onBillAdded();
   };
 
@@ -30,7 +35,7 @@ export default function BillForm({ onBillAdded, patients }: { onBillAdded?: () =
         <div className="flex flex-col gap-2">
           <label className="font-bold text-emerald-700 text-lg">Patient</label>
           <select name="patient_id" value={form.patient_id} onChange={handleChange} required>
-            <option value="">Select Patient</option>
+            <option value={0}>Select Patient</option>
             {patients.map((p) => (
               <option key={p.id} value={p.id}>{p.name}</option>
             ))}
