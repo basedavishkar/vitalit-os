@@ -9,20 +9,28 @@ export default function BillForm({ onBillAdded, patients }: { onBillAdded?: () =
     amount: 0,
     date: "",
     description: "",
+    paid: false,
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setForm({
-      ...form,
-      [name]: (name === 'patient_id' || name === 'amount') ? Number(value) : value,
-    });
+    const { name, value, type } = e.target;
+    if (type === 'checkbox' && e.target instanceof HTMLInputElement) {
+      setForm({
+        ...form,
+        [name]: e.target.checked,
+      });
+    } else {
+      setForm({
+        ...form,
+        [name]: (name === 'patient_id' || name === 'amount') ? Number(value) : value,
+      });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     await createBill(form);
-    setForm({ patient_id: 0, amount: 0, date: "", description: "" });
+    setForm({ patient_id: 0, amount: 0, date: "", description: "", paid: false });
     if (onBillAdded) onBillAdded();
   };
 
@@ -50,6 +58,10 @@ export default function BillForm({ onBillAdded, patients }: { onBillAdded?: () =
         <div className="flex flex-col gap-2">
           <label className="font-bold text-emerald-700 text-lg">Description</label>
           <input name="description" value={form.description} onChange={handleChange} required />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="font-bold text-emerald-700 text-lg">Paid</label>
+          <input name="paid" type="checkbox" checked={form.paid} onChange={handleChange} />
         </div>
         <button type="submit" className="mt-4 w-full flex items-center justify-center gap-2 text-lg">
           <span>➕</span> Add Bill

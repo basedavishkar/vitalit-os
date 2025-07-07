@@ -13,14 +13,4 @@ export const createBill = async (data: Omit<Bill, 'id'>) => {
 export const getBills = async () => {
   const res = await axios.get(NEXT_PUBLIC_API_URL);
   return res.data;
-};
-
-export const getBillsByPatient = async (patientId: number) => {
-  const res = await axios.get(`${NEXT_PUBLIC_API_URL}/${patientId}`);
-  return res.data;
-};
-
-export const deleteBill = async (id: number) => {
-  const res = await axios.delete(`${NEXT_PUBLIC_API_URL}/${id}`);
-  return res.data;
 }; 

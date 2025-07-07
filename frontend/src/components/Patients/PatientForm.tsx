@@ -9,8 +9,8 @@ export default function PatientForm({ onPatientAdded }: { onPatientAdded?: () =>
     name: "",
     age: 0,
     gender: "",
-    phone: "",
-    email: "",
+    address: "",
+    contact: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -24,7 +24,7 @@ export default function PatientForm({ onPatientAdded }: { onPatientAdded?: () =>
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await createPatient(form);
-    setForm({ name: "", age: 0, gender: "", phone: "", email: "" });
+    setForm({ name: "", age: 0, gender: "", address: "", contact: "" });
     if (onPatientAdded) onPatientAdded();
   };
 
@@ -45,12 +45,12 @@ export default function PatientForm({ onPatientAdded }: { onPatientAdded?: () =>
           <input name="gender" value={form.gender} onChange={handleChange} required />
         </div>
         <div className="flex flex-col gap-2">
-          <label className="font-bold text-emerald-700 text-lg">Phone</label>
-          <input name="phone" value={form.phone} onChange={handleChange} required />
+          <label className="font-bold text-emerald-700 text-lg">Address</label>
+          <input name="address" value={form.address} onChange={handleChange} required />
         </div>
         <div className="flex flex-col gap-2">
-          <label className="font-bold text-emerald-700 text-lg">Email</label>
-          <input name="email" value={form.email} onChange={handleChange} required />
+          <label className="font-bold text-emerald-700 text-lg">Contact</label>
+          <input name="contact" value={form.contact} onChange={handleChange} required />
         </div>
         <button type="submit" className="mt-4 w-full flex items-center justify-center gap-2 text-lg">
           <span>➕</span> Add Patient

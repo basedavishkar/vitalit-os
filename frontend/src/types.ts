@@ -3,14 +3,14 @@ export interface Patient {
   name: string;
   age: number;
   gender: string;
-  phone: string;
-  email: string;
+  address: string;
+  contact: string;
 }
 
 export interface Doctor {
   id: number;
   name: string;
-  specialty: string;
+  specialization: string;
   phone: string;
   email: string;
 }
@@ -19,26 +19,27 @@ export interface Appointment {
   id: number;
   patient_id: number;
   doctor_id: number;
-  date: string;
-  time: string;
+  datetime: string;
   reason: string;
 }
 
-export interface Record {
+export interface MedicalRecord {
   id: number;
   patient_id: number;
   doctor_id: number;
-  diagnosis: string;
-  treatment: string;
   date: string;
+  diagnosis: string;
+  prescription: string;
+  notes: string;
 }
 
 export interface Bill {
   id: number;
   patient_id: number;
-  amount: number;
   date: string;
+  amount: number;
   description: string;
+  paid: boolean;
 }
 
 export interface InventoryItem {

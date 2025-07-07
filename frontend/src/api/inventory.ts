@@ -11,7 +11,7 @@ export const createInventoryItem = async (data: Omit<InventoryItem, 'id'>) => {
   return res.data;
 };
 
-export const getInventoryItems = async (): Promise<InventoryItem[]> => {
+export const getInventoryItems = async () => {
   const res = await axios.get(NEXT_PUBLIC_API_URL);
   return res.data;
 };

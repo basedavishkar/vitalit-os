@@ -7,7 +7,7 @@ import Card from "@/components/ui/Card";
 export default function DoctorForm({ onDoctorAdded }: { onDoctorAdded?: () => void }) {
   const [form, setForm] = useState({
     name: "",
-    specialty: "",
+    specialization: "",
     phone: "",
     email: "",
   });
@@ -19,7 +19,7 @@ export default function DoctorForm({ onDoctorAdded }: { onDoctorAdded?: () => vo
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await createDoctor(form);
-    setForm({ name: "", specialty: "", phone: "", email: "" });
+    setForm({ name: "", specialization: "", phone: "", email: "" });
     if (onDoctorAdded) onDoctorAdded();
   };
 
@@ -32,8 +32,8 @@ export default function DoctorForm({ onDoctorAdded }: { onDoctorAdded?: () => vo
           <input name="name" value={form.name} onChange={handleChange} required />
         </div>
         <div className="flex flex-col gap-2">
-          <label className="font-bold text-emerald-700 text-lg">Specialty</label>
-          <input name="specialty" value={form.specialty} onChange={handleChange} required />
+          <label className="font-bold text-emerald-700 text-lg">Specialization</label>
+          <input name="specialization" value={form.specialization} onChange={handleChange} required />
         </div>
         <div className="flex flex-col gap-2">
           <label className="font-bold text-emerald-700 text-lg">Phone</label>

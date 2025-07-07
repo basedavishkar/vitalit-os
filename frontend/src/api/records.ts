@@ -1,11 +1,11 @@
 import axios from "axios";
-import { Record } from '@/types';
+import { MedicalRecord } from '@/types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL;
 if (!API_BASE) throw new Error('NEXT_PUBLIC_API_URL is not set');
 const NEXT_PUBLIC_API_URL = `${API_BASE}/records`;
 
-export const createRecord = async (data: Omit<Record, 'id'>) => {
+export const createRecord = async (data: Omit<MedicalRecord, 'id'>) => {
   const res = await axios.post(NEXT_PUBLIC_API_URL, data);
   return res.data;
 };

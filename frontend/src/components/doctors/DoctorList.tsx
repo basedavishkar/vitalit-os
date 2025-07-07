@@ -5,7 +5,7 @@ import { Doctor } from '@/types';
 
 export default function DoctorList({ doctors }: { doctors: Doctor[] }) {
   return (
-    <Table headers={["Name", "Specialty", "Phone", "Email"]}>
+    <Table headers={["Name", "Specialization", "Phone", "Email"]}>
       {doctors.length === 0 ? (
         <tr>
           <td colSpan={4} className="text-center py-8 text-emerald-400">
@@ -16,7 +16,7 @@ export default function DoctorList({ doctors }: { doctors: Doctor[] }) {
         doctors.map((d) => (
           <tr key={d.id}>
             <td>{d.name}</td>
-            <td>{d.specialty}</td>
+            <td>{d.specialization}</td>
             <td>{d.phone}</td>
             <td>{d.email}</td>
           </tr>

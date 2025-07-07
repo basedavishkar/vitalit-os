@@ -8,8 +8,7 @@ export default function AppointmentForm({ onAppointmentAdded }: { onAppointmentA
   const [form, setForm] = useState({
     patient_id: 0,
     doctor_id: 0,
-    date: "",
-    time: "",
+    datetime: "",
     reason: "",
   });
 
@@ -24,7 +23,7 @@ export default function AppointmentForm({ onAppointmentAdded }: { onAppointmentA
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await createAppointment(form);
-    setForm({ patient_id: 0, doctor_id: 0, date: "", time: "", reason: "" });
+    setForm({ patient_id: 0, doctor_id: 0, datetime: "", reason: "" });
     if (onAppointmentAdded) onAppointmentAdded();
   };
 
@@ -41,12 +40,8 @@ export default function AppointmentForm({ onAppointmentAdded }: { onAppointmentA
           <input name="doctor_id" type="number" value={form.doctor_id} onChange={handleChange} required />
         </div>
         <div className="flex flex-col gap-2">
-          <label className="font-bold text-emerald-700 text-lg">Date</label>
-          <input name="date" type="date" value={form.date} onChange={handleChange} required />
-        </div>
-        <div className="flex flex-col gap-2">
-          <label className="font-bold text-emerald-700 text-lg">Time</label>
-          <input name="time" type="time" value={form.time} onChange={handleChange} required />
+          <label className="font-bold text-emerald-700 text-lg">Date & Time</label>
+          <input name="datetime" type="datetime-local" value={form.datetime} onChange={handleChange} required />
         </div>
         <div className="flex flex-col gap-2">
           <label className="font-bold text-emerald-700 text-lg">Reason</label>

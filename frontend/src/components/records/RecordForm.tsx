@@ -8,9 +8,10 @@ export default function RecordForm({ onRecordAdded }: { onRecordAdded?: () => vo
   const [form, setForm] = useState({
     patient_id: 0,
     doctor_id: 0,
-    diagnosis: "",
-    treatment: "",
     date: "",
+    diagnosis: "",
+    prescription: "",
+    notes: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -24,7 +25,7 @@ export default function RecordForm({ onRecordAdded }: { onRecordAdded?: () => vo
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await createRecord(form);
-    setForm({ patient_id: 0, doctor_id: 0, diagnosis: "", treatment: "", date: "" });
+    setForm({ patient_id: 0, doctor_id: 0, date: "", diagnosis: "", prescription: "", notes: "" });
     if (onRecordAdded) onRecordAdded();
   };
 
@@ -41,19 +42,23 @@ export default function RecordForm({ onRecordAdded }: { onRecordAdded?: () => vo
           <input name="doctor_id" type="number" value={form.doctor_id} onChange={handleChange} required />
         </div>
         <div className="flex flex-col gap-2">
+          <label className="font-bold text-emerald-700 text-lg">Date</label>
+          <input name="date" type="date" value={form.date} onChange={handleChange} required />
+        </div>
+        <div className="flex flex-col gap-2">
           <label className="font-bold text-emerald-700 text-lg">Diagnosis</label>
           <input name="diagnosis" value={form.diagnosis} onChange={handleChange} required />
         </div>
         <div className="flex flex-col gap-2">
-          <label className="font-bold text-emerald-700 text-lg">Treatment</label>
-          <input name="treatment" value={form.treatment} onChange={handleChange} required />
+          <label className="font-bold text-emerald-700 text-lg">Prescription</label>
+          <input name="prescription" value={form.prescription} onChange={handleChange} required />
         </div>
         <div className="flex flex-col gap-2">
-          <label className="font-bold text-emerald-700 text-lg">Date</label>
-          <input name="date" type="date" value={form.date} onChange={handleChange} required />
+          <label className="font-bold text-emerald-700 text-lg">Notes</label>
+          <input name="notes" value={form.notes} onChange={handleChange} required />
         </div>
         <button type="submit" className="mt-4 w-full flex items-center justify-center gap-2 text-lg">
-          <span>➕</span> Add Record
+          <span>➕</span> Add Medical Record
         </button>
       </form>
     </Card>

@@ -4,10 +4,10 @@ import RecordForm from "@/components/records/RecordForm";
 import RecordList from "@/components/records/RecordList";
 import { useState, useEffect } from 'react';
 import { getRecords } from '@/api/records';
-import { Record } from '@/types';
+import { MedicalRecord } from '@/types';
 
 export default function RecordsPage() {
-  const [records, setRecords] = useState<Record[]>([]);
+  const [records, setRecords] = useState<MedicalRecord[]>([]);
 
   useEffect(() => {
     (async () => {
