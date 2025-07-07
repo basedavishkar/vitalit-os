@@ -1,9 +1,10 @@
 import axios from "axios";
+import { Patient } from '@/types';
 
 const API_URL = "http://localhost:8000/patients";
 
-export const createPatient = async (formData: any) => {
-  const res = await axios.post("http://localhost:8000/patients", formData); // ✅ JSON by default
+export const createPatient = async (formData: Omit<Patient, 'id'>) => {
+  const res = await axios.post(API_URL, formData);
   return res.data;
 };
 

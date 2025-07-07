@@ -1,8 +1,9 @@
 import axios from "axios";
+import { Record } from '@/types';
 
 const API_URL = "http://localhost:8000/records";
 
-export const createRecord = async (data: any) => {
+export const createRecord = async (data: Omit<Record, 'id'>) => {
   const res = await axios.post(API_URL, data);
   return res.data;
 };

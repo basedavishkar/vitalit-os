@@ -6,11 +6,12 @@ import { useState, useEffect } from 'react';
 import { getRecords } from '@/api/records';
 import { getPatients } from '@/api/patients';
 import { getDoctors } from '@/api/doctors';
+import { Record, Patient, Doctor } from '@/types';
 
 export default function RecordsPage() {
-  const [records, setRecords] = useState<any[]>([]);
-  const [patients, setPatients] = useState<any[]>([]);
-  const [doctors, setDoctors] = useState<any[]>([]);
+  const [records, setRecords] = useState<Record[]>([]);
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
 
   useEffect(() => {
     (async () => {

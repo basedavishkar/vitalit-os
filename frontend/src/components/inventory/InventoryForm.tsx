@@ -1,12 +1,13 @@
 import Card from "@/components/ui/Card";
 import { useState } from "react";
 import { createInventoryItem } from "@/api/inventory";
+import { InventoryItem } from '@/types';
 
 export default function InventoryForm({ onItemAdded }: { onItemAdded?: () => void }) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<Omit<InventoryItem, 'id'>>({
     name: "",
-    quantity: "",
-    price: "",
+    quantity: 0,
+    price: 0,
     expiry_date: "",
     vendor: "",
   });
@@ -22,7 +23,7 @@ export default function InventoryForm({ onItemAdded }: { onItemAdded?: () => voi
       quantity: Number(formData.quantity),
       price: Number(formData.price),
     });
-    setFormData({ name: "", quantity: "", price: "", expiry_date: "", vendor: "" });
+    setFormData({ name: "", quantity: 0, price: 0, expiry_date: "", vendor: "" });
     if (onItemAdded) onItemAdded();
     alert("Inventory item added");
   };

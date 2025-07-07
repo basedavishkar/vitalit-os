@@ -4,9 +4,10 @@ import InventoryForm from './InventoryForm';
 import InventoryList from './InventoryList';
 import { useState, useEffect } from 'react';
 import { getInventoryItems } from '@/api/inventory';
+import { InventoryItem } from '@/types';
 
 export default function InventoryPage() {
-  const [items, setItems] = useState<any[]>([]);
+  const [items, setItems] = useState<InventoryItem[]>([]);
 
   const loadItems = async () => {
     try {

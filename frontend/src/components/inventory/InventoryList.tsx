@@ -1,6 +1,7 @@
 import Table from "@/components/ui/Table";
+import { InventoryItem } from '@/types';
 
-export default function InventoryList({ items }: { items: any[] }) {
+export default function InventoryList({ items }: { items: InventoryItem[] }) {
   return (
     <Table
       headers={["Name", "Quantity", "Price", "Expiry Date", "Vendor"]}

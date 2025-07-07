@@ -4,9 +4,10 @@ import PatientForm from '@/components/Patients/PatientForm';
 import PatientList from '@/components/Patients/PatientList';
 import { useState, useEffect } from 'react';
 import { getPatients } from '@/api/patients';
+import { Patient } from '@/types';
 
 export default function PatientsPage() {
-  const [patients, setPatients] = useState<any[]>([]);
+  const [patients, setPatients] = useState<Patient[]>([]);
 
   const loadPatients = async () => {
     setPatients(await getPatients());

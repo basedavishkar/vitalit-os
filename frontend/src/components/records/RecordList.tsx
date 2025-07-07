@@ -1,8 +1,9 @@
 "use client";
 
 import Table from "@/components/ui/Table";
+import { Record } from '@/types';
 
-export default function RecordList({ records }: { records: any[] }) {
+export default function RecordList({ records }: { records: Record[] }) {
   return (
     <Table headers={["Patient ID", "Doctor ID", "Diagnosis", "Treatment", "Date"]}>
       {records.length === 0 ? (

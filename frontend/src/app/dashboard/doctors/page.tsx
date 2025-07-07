@@ -4,9 +4,10 @@ import DoctorForm from "@/components/doctors/DoctorForm";
 import DoctorList from "@/components/doctors/DoctorList";
 import { useState, useEffect } from "react";
 import { getDoctors } from "@/api/doctors";
+import { Doctor } from '@/types';
 
 export default function DoctorsPage() {
-  const [doctors, setDoctors] = useState<any[]>([]);
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
 
   const loadDoctors = async () => {
     setDoctors(await getDoctors());

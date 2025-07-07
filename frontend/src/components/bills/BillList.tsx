@@ -1,9 +1,10 @@
 "use client";
 
 import Table from "@/components/ui/Table";
+import { Bill, Patient } from '@/types';
 
-export default function BillList({ bills, patients }: { bills: any[]; patients: any[] }) {
-  const getPatientName = (id: any) => patients.find((p) => p.id === id)?.name || id;
+export default function BillList({ bills, patients }: { bills: Bill[]; patients: Patient[] }) {
+  const getPatientName = (id: number) => patients.find((p) => p.id === id)?.name || id;
   return (
     <Table headers={["Patient", "Amount", "Date", "Description"]}>
       {bills.length === 0 ? (

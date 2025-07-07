@@ -5,10 +5,11 @@ import BillList from "@/components/bills/BillList";
 import { useState, useEffect } from "react";
 import { getBills } from "@/api/bills";
 import { getPatients } from "@/api/patients";
+import { Bill, Patient } from '@/types';
 
 export default function BillingPage() {
-  const [bills, setBills] = useState<any[]>([]);
-  const [patients, setPatients] = useState<any[]>([]);
+  const [bills, setBills] = useState<Bill[]>([]);
+  const [patients, setPatients] = useState<Patient[]>([]);
 
   const loadBills = async () => {
     setBills(await getBills());

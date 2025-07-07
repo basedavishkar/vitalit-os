@@ -4,9 +4,10 @@ import AppointmentForm from "@/components/appointments/AppointmentForm";
 import AppointmentList from "@/components/appointments/AppointmentList";
 import { useState, useEffect } from "react";
 import { getAppointments } from "@/api/appointments";
+import { Appointment } from '@/types';
 
 export default function AppointmentsPage() {
-  const [appointments, setAppointments] = useState<any[]>([]);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
 
   const loadAppointments = async () => {
     setAppointments(await getAppointments());

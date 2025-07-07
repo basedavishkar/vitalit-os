@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { createRecord } from "@/api/records";
 import Card from "@/components/ui/Card";
+import { Patient, Doctor } from '@/types';
 
 export default function RecordForm({ onRecordAdded }: { onRecordAdded?: () => void }) {
   const [form, setForm] = useState({
