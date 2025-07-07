@@ -1,7 +1,9 @@
 import axios from "axios";
 import { Doctor } from '@/types';
 
-const API_URL = "http://localhost:8000/doctors";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL;
+if (!API_BASE) throw new Error('NEXT_PUBLIC_API_URL is not set');
+const API_URL = `${API_BASE}/doctors`;
 
 /** POST /doctors */
 export const createDoctor = async (formData: Omit<Doctor, 'id'>) => {
