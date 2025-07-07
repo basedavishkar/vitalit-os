@@ -1,7 +1,7 @@
 "use client";
 import Card from "@/components/ui/Card";
-import PatientForm from '@/components/patients/PatientForm';
-import PatientList from '@/components/patients/PatientList';
+import PatientForm from '@/components/Patients/PatientForm';
+import PatientList from '@/components/Patients/PatientList';
 import { useState, useEffect } from 'react';
 import { getPatients } from '@/api/patients';
 
