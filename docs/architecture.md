@@ -1,28 +1,38 @@
-# 🏥 VITALIt-OS — System Architecture (2025 MVP)
+# 🏥 VITALIt — System Architecture (2025+)
 
-This document outlines the final modular full-stack architecture for **VITALIt-OS**, a clinic-focused Hospital Management System. Designed for scale, modularity, and clarity.
+VITALIt is a modern, modular Hospital Management System (HMS) designed to streamline clinical operations across roles including doctors, nurses, receptionists, and admins. Built with a scalable frontend-backend split, this architecture ensures long-term maintainability and extension-readiness.
 
 ---
 
-## 📐 Architecture Overview
+## 📦 Core Tech Stack
+
+- **Frontend:** Next.js 14 + Tailwind CSS v4
+- **Backend:** FastAPI (Python 3.11+)
+- **Database:** SQLite (dev) → PostgreSQL (prod)
+- **APIs:** REST-first, OpenAPI auto-generated docs
+- **State Management:** React Server Components + Local State
+- **Authentication:** Role-based via JWT (extendable to OAuth/SAML)
+- **Deployment:** Docker (CI-ready)
+
+---
+
+## 🧭 Architecture Overview
 
 ```mermaid
 flowchart LR
 
-  %% ---------- Frontend ----------
   subgraph FE [Frontend – Next.js + Tailwind]
-    FE_Home["Public Pages (Home, About, Contact)"]
-    FE_Login["Role-based Logins"]
-    FE_Dash["Dashboard (Doctor, Nurse, Receptionist, Admin)"]
-    FE_PAT["Patients UI"]
-    FE_DOC["Doctors UI"]
-    FE_APP["Appointments UI"]
-    FE_BILL["Billing UI"]
-    FE_INV["Inventory UI"]
-    FE_REP["Reports UI"]
+    FE_Public["Public Pages"]
+    FE_Login["Auth Screens"]
+    FE_Dash["Role-based Dashboards"]
+    FE_PAT["Patients Module"]
+    FE_DOC["Doctors Module"]
+    FE_APP["Appointments"]
+    FE_BILL["Billing"]
+    FE_INV["Inventory"]
+    FE_REP["Reports"]
   end
 
-  %% ---------- Backend API ----------
   subgraph API [Backend – FastAPI]
     API_AUTH["/auth"]
     API_PAT["/patients"]
@@ -34,129 +44,99 @@ flowchart LR
     API_ADMIN["/admin"]
   end
 
-  %% ---------- Database ----------
-  subgraph DB [SQLite – hospital.db]
-    DB_PAT
-    DB_DOC
-    DB_APP
-    DB_BILL
-    DB_INV
-    DB_USERS
+  subgraph DB [Database – SQLite/PostgreSQL]
+    DB_Users
+    DB_Patients
+    DB_Doctors
+    DB_Appointments
+    DB_Bills
+    DB_Inventory
+    DB_AuditLogs
   end
 
-  %% ---------- Connections ----------
-  FE_PAT --> API_PAT --> DB_PAT
-  FE_DOC --> API_DOC --> DB_DOC
-  FE_APP --> API_APP --> DB_APP
-  FE_BILL --> API_BILL --> DB_BILL
-  FE_INV --> API_INV --> DB_INV
-  FE_REP --> API_REP --> DB_APP & DB_BILL
-  FE_Login --> API_AUTH --> DB_USERS
-  FE_Dash --> API_ADMIN --> DB_USERS
+  %% Connections
+  FE_PAT --> API_PAT --> DB_Patients
+  FE_DOC --> API_DOC --> DB_Doctors
+  FE_APP --> API_APP --> DB_Appointments
+  FE_BILL --> API_BILL --> DB_Bills
+  FE_INV --> API_INV --> DB_Inventory
+  FE_REP --> API_REP --> DB_Appointments & DB_Bills
+  FE_Login --> API_AUTH --> DB_Users
+  FE_Dash --> API_ADMIN --> DB_Users
 ```
 
 ---
 
-## 📂 Modules Breakdown
+## 🧩 Modules Overview
 
-Each module contains:
-- **FastAPI router** in `backend/routers/`
-- **Pydantic schema** in `backend/schemas.py`
-- **Typed frontend form + list** in `frontend/src/components/`
+Each module includes:
+- FastAPI router in `backend/routers/`
+- Typed schema in `backend/schemas.py`
+- Reusable form + table components in `frontend/src/components/`
 
-| Module         | Frontend Components                     | Backend Routes                          | DB Table(s)     |
-|----------------|------------------------------------------|------------------------------------------|-----------------|
-| **Patients**   | `PatientsForm.tsx`, `PatientsList.tsx`   | `routers/patients.py` → `/patients`     | `patients`      |
-| **Doctors**    | `DoctorsForm.tsx`, `DoctorsList.tsx`     | `routers/doctors.py` → `/doctors`       | `doctors`       |
-| **Appointments** | `AppointmentsForm.tsx`, `AppointmentsCalendar.tsx` | `routers/appointments.py` → `/appointments` | `appointments` |
-| **Billing**    | `BillingForm.tsx`, `Invoice.tsx`         | `routers/billing.py` → `/billing`       | `bills`         |
-| **Inventory**  | `InventoryForm.tsx`, `InventoryList.tsx` | `routers/inventory.py` → `/inventory`   | `inventory`     |
-| **Auth**       | `LoginForm.tsx` per role                 | `routers/auth.py` → `/auth`             | `users`         |
-| **Admin**      | `AdminDashboard.tsx`                     | `routers/admin.py` → `/admin`           | `users`         |
-| **Reports**    | `ReportsList.tsx`                        | `routers/reports.py` → `/reports`       | aggregate views |
-
----
-
-## 🧑‍⚕️ User Roles & Permissions
-
-| Role         | Permissions |
-|--------------|-------------|
-| Admin        | All access: user management, reports, billing, settings |
-| Doctor       | View appointments, write prescriptions, records |
-| Nurse        | Update vitals, assist doctor, task checklist |
-| Receptionist | Register patients, schedule, billing |
-| Patient (Optional) | View personal records and bills (MVP skips portal) |
+| Module         | Frontend UI Components             | Backend Routes     | Database Tables       |
+|----------------|------------------------------------|---------------------|------------------------|
+| Patients       | `PatientsForm.tsx`, `PatientsList` | `/patients`         | `patients`            |
+| Doctors        | `DoctorsForm.tsx`, `DoctorsList`   | `/doctors`          | `doctors`             |
+| Appointments   | `AppointmentsForm`, `CalendarView` | `/appointments`     | `appointments`        |
+| Billing        | `BillingForm`, `InvoiceView`       | `/billing`          | `bills`               |
+| Inventory      | `InventoryTable`, `StockForm`      | `/inventory`        | `inventory`           |
+| Reports        | `ReportsPage`                      | `/reports`          | aggregate + computed  |
+| Auth           | `LoginForm`, `RoleRedirect`        | `/auth`             | `users`               |
+| Admin Settings | `AdminDashboard`, `UserManager`    | `/admin`            | `users`, `audit_logs` |
 
 ---
 
-## 🔑 Auth Flow
+## 🔐 Roles & Access Matrix
 
-- Separate login routes for each role
-- Sessions handled via cookies or token (to be finalized)
-- Role-based layout rendering
-
----
-
-## 🧾 Reports Included
-
-- Appointments per day/week/month
-- Revenue reports
-- Most common illnesses
-- Doctor-wise visits
+| Role         | Permissions Summary |
+|--------------|---------------------|
+| Admin        | All access, settings, users, audit |
+| Doctor       | Appointments, records, prescriptions |
+| Nurse        | Vitals, assist doctors, limited patient info |
+| Receptionist | Scheduling, billing, patient intake |
+| Patient*     | View prescriptions, appointments (optional) |
 
 ---
 
-## 🚀 MVP Scope (Tonight)
+## ⚙️ Backend Conventions
 
-✅ Patients  
-✅ Appointments  
-✅ Billing  
-✅ Auth  
-✅ Dashboards (Role-based)  
-✅ Public Pages (Home, About, Contact, Login)  
-
----
-
-## 📁 Folder Structure
-
-```
-vitalit-os/
-├── backend/
-│   ├── main.py
-│   ├── routers/
-│   │   ├── patients.py
-│   │   ├── doctors.py
-│   │   ├── appointments.py
-│   │   ├── billing.py
-│   │   ├── inventory.py
-│   │   ├── auth.py
-│   │   └── reports.py
-│   ├── schemas.py
-│   └── database.py
-├── frontend/
-│   ├── pages/
-│   │   ├── index.tsx
-│   │   ├── login.tsx
-│   │   ├── dashboard/
-│   ├── components/
-│   │   ├── PatientsForm.tsx
-│   │   ├── PatientsList.tsx
-│   │   ├── DoctorsForm.tsx
-│   │   ├── AppointmentsForm.tsx
-│   │   ├── BillingForm.tsx
-│   │   └── Invoice.tsx
-│   └── utils/
-├── hospital.db
-└── README.md
-```
+- All endpoints use `/api/v1/{module}` pattern
+- Pydantic schemas for type-safe request/response
+- Centralized database session with context-managed commits
+- Error handling via custom `HTTPException` mappers
+- Logs structured (ready for ELK/Datadog)
 
 ---
 
-## 💬 Final Notes
+## 🖥️ Frontend Conventions
 
-- Fully modular and swappable backend
-- MVP will be SQLite, can migrate to Postgres later
-- API-first — ready for mobile clients if needed
-- Role-based isolation for security
+- Modular components grouped by feature
+- Uses App Router with RSC optimizations
+- API calls wrapped via `/utils/api.ts`
+- Forms use `zod` + `react-hook-form` validation
+- Dynamic route guards based on role
 
-**Built with clarity. Built for real clinics.**
+---
+
+## 🧪 Testing & CI/CD
+
+- Backend: `pytest` with async test DB
+- Frontend: `playwright` (planned)
+- GitHub Actions: lint → test → build
+- Deploy: Docker + Render/Vercel (optional Helm)
+
+---
+
+## 🧠 Future Enhancements
+
+- [ ] Role-permission matrix in DB
+- [ ] Lab reports + uploads
+- [ ] Multi-language + dark mode
+- [ ] Patient portal
+- [ ] Staff scheduling
+- [ ] Mobile PWA
+
+---
+
+Built for clarity. Modular by design. Scalable by default.
