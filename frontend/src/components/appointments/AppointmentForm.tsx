@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { createAppointment } from "@/api/appointments";
 import Card from "@/components/ui/Card";
+import { Patient, Doctor } from '@/types';
 
-export default function AppointmentForm({ onAppointmentAdded }: { onAppointmentAdded?: () => void }) {
+export default function AppointmentForm({ onAppointmentAdded, patients = [], doctors = [] }: { onAppointmentAdded?: () => void; patients?: Patient[]; doctors?: Doctor[] }) {
   const [form, setForm] = useState({
     patient_id: 0,
     doctor_id: 0,
@@ -31,26 +32,32 @@ export default function AppointmentForm({ onAppointmentAdded }: { onAppointmentA
     <Card className="max-w-lg mb-8">
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
         <div className="flex flex-col gap-2">
-          <label className="font-bold text-emerald-700 text-lg">Patient ID</label>
-          <input
+          <label className="font-bold text-emerald-700 text-lg">Patient</label>
+          <select
             name="patient_id"
-            type="number"
             value={form.patient_id}
             onChange={handleChange}
             required
-            placeholder="e.g. 1"
-          />
+          >
+            <option value={0}>Select Patient</option>
+            {patients.map((p) => (
+              <option key={p.id} value={p.id}>{p.name}</option>
+            ))}
+          </select>
         </div>
         <div className="flex flex-col gap-2">
-          <label className="font-bold text-emerald-700 text-lg">Doctor ID</label>
-          <input
+          <label className="font-bold text-emerald-700 text-lg">Doctor</label>
+          <select
             name="doctor_id"
-            type="number"
             value={form.doctor_id}
             onChange={handleChange}
             required
-            placeholder="e.g. 2"
-          />
+          >
+            <option value={0}>Select Doctor</option>
+            {doctors.map((d) => (
+              <option key={d.id} value={d.id}>{d.name}</option>
+            ))}
+          </select>
         </div>
         <div className="flex flex-col gap-2">
           <label className="font-bold text-emerald-700 text-lg">Date & Time</label>
