@@ -24,24 +24,47 @@ export default function DoctorForm({ onDoctorAdded }: { onDoctorAdded?: () => vo
   };
 
   return (
-    <Card className="max-w-lg mx-auto mb-8">
-      <h2 className="text-2xl font-extrabold text-emerald-700 mb-6 text-center tracking-tight">Add Doctor</h2>
+    <Card className="max-w-lg mb-8">
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
         <div className="flex flex-col gap-2">
           <label className="font-bold text-emerald-700 text-lg">Name</label>
-          <input name="name" value={form.name} onChange={handleChange} required />
+          <input
+            name="name"
+            value={form.name}
+            onChange={handleChange}
+            required
+            placeholder="e.g. Dr. Smith"
+          />
         </div>
         <div className="flex flex-col gap-2">
           <label className="font-bold text-emerald-700 text-lg">Specialization</label>
-          <input name="specialization" value={form.specialization} onChange={handleChange} required />
+          <input
+            name="specialization"
+            value={form.specialization}
+            onChange={handleChange}
+            required
+            placeholder="e.g. Cardiology"
+          />
         </div>
         <div className="flex flex-col gap-2">
           <label className="font-bold text-emerald-700 text-lg">Phone</label>
-          <input name="phone" value={form.phone} onChange={handleChange} required />
+          <input
+            name="phone"
+            value={form.phone}
+            onChange={handleChange}
+            required
+            placeholder="e.g. 555-6789"
+          />
         </div>
         <div className="flex flex-col gap-2">
           <label className="font-bold text-emerald-700 text-lg">Email</label>
-          <input name="email" value={form.email} onChange={handleChange} required />
+          <input
+            name="email"
+            value={form.email}
+            onChange={handleChange}
+            required
+            placeholder="e.g. dr.smith@email.com"
+          />
         </div>
         <button type="submit" className="mt-4 w-full flex items-center justify-center gap-2 text-lg">
           <span>➕</span> Add Doctor

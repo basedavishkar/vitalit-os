@@ -29,8 +29,8 @@ export default function InventoryForm({ onItemAdded }: { onItemAdded?: () => voi
   };
 
   return (
-    <Card className="max-w-lg mx-auto mb-8">
-      <h2 className="text-2xl font-extrabold text-emerald-700 mb-6 text-center tracking-tight">
+    <Card className="max-w-lg mb-8">
+      <h2 className="text-2xl font-extrabold text-emerald-700 mb-6 text-left tracking-tight">
         Add Inventory Item
       </h2>
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">

@@ -29,28 +29,58 @@ export default function PatientForm({ onPatientAdded }: { onPatientAdded?: () =>
   };
 
   return (
-    <Card className="max-w-lg mx-auto mb-8">
-      <h2 className="text-2xl font-extrabold text-emerald-700 mb-6 text-center tracking-tight">Add Patient</h2>
+    <Card className="max-w-lg mb-8">
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
         <div className="flex flex-col gap-2">
           <label className="font-bold text-emerald-700 text-lg">Name</label>
-          <input name="name" value={form.name} onChange={handleChange} required />
+          <input
+            name="name"
+            value={form.name}
+            onChange={handleChange}
+            required
+            placeholder="e.g. John Doe"
+          />
         </div>
         <div className="flex flex-col gap-2">
           <label className="font-bold text-emerald-700 text-lg">Age</label>
-          <input name="age" type="number" value={form.age} onChange={handleChange} required />
+          <input
+            name="age"
+            type="number"
+            value={form.age}
+            onChange={handleChange}
+            required
+            placeholder="e.g. 30"
+          />
         </div>
         <div className="flex flex-col gap-2">
           <label className="font-bold text-emerald-700 text-lg">Gender</label>
-          <input name="gender" value={form.gender} onChange={handleChange} required />
+          <input
+            name="gender"
+            value={form.gender}
+            onChange={handleChange}
+            required
+            placeholder="e.g. Male"
+          />
         </div>
         <div className="flex flex-col gap-2">
           <label className="font-bold text-emerald-700 text-lg">Address</label>
-          <input name="address" value={form.address} onChange={handleChange} required />
+          <input
+            name="address"
+            value={form.address}
+            onChange={handleChange}
+            required
+            placeholder="e.g. 123 Main St"
+          />
         </div>
         <div className="flex flex-col gap-2">
           <label className="font-bold text-emerald-700 text-lg">Contact</label>
-          <input name="contact" value={form.contact} onChange={handleChange} required />
+          <input
+            name="contact"
+            value={form.contact}
+            onChange={handleChange}
+            required
+            placeholder="e.g. 555-1234"
+          />
         </div>
         <button type="submit" className="mt-4 w-full flex items-center justify-center gap-2 text-lg">
           <span>➕</span> Add Patient
