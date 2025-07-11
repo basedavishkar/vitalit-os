@@ -14,7 +14,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",
-        "https://vitalit-os-l6br.vercel.app",
+        "https://vitalit.vercel.app",
         "https://vitalit-os-l6br-git-main-av1shkars-projects.vercel.app",
         "https://vitalit-os-l6br-m9d5wbdpt-av1shkars-projects.vercel.app",
     ],
