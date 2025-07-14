@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from backend.routers import (
-    patients, doctors, appointments, records, billing, inventory
+    patients, doctors, appointments, records, billing, inventory, auth
 )
 from backend import models, database
 
@@ -29,3 +29,4 @@ app.include_router(appointments.router)
 app.include_router(records.router)
 app.include_router(billing.router)
 app.include_router(inventory.router)
+app.include_router(auth.router)
