@@ -95,8 +95,6 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
         </form>
         
         <div className="mt-4 text-xs text-gray-500">
-          <p>Test credentials:</p>
-          <p>admin/admin123, doctor/doctor123, staff/staff123</p>
         </div>
       </div>
     </div>

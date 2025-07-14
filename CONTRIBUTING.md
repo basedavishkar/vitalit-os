@@ -4,6 +4,21 @@ VITALIt-OS is a fast, open-source hospital management system built with FastAPI 
 
 ---
 
+## 🔑 Login
+
+**Test Credentials:**
+- **Admin**: `admin` / `admin123` (Full system access)
+- **Doctor**: `doctor` / `doctor123` (Medical records, appointments)  
+- **Staff**: `staff` / `staff123` (Patient management, basic operations)
+
+**Quick Start:**
+1. Run backend: `uvicorn backend.main:app --reload`
+2. Run frontend: `cd frontend && npm run dev`
+3. Click "Login" in dashboard header
+4. Use any credentials above
+
+---
+
 ## 🚀 Quick Setup
 
 Clone the repo:
@@ -45,8 +60,9 @@ requirements.txt
 ## ✅ Working Modules
 
 - Patients
-- Doctors
+- Doctors  
 - Appointments
+- **Authentication** (Role-based login system)
 
 ---
 
