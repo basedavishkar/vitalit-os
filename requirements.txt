@@ -18,6 +18,8 @@ starlette==0.46.2
 typing-inspection==0.4.1
 typing_extensions==4.14.0
 uvicorn==0.35.0
-uvloop==0.21.0
+uvloop==0.21.0; sys_platform != "win32"
 watchfiles==1.1.0
 websockets==15.0.1
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4

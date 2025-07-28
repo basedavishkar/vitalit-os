@@ -1,9 +1,7 @@
 from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel
-from pydantic.config import ConfigDict  # ✅ CORRECT
-
-
+from pydantic.config import ConfigDict
 
 class PatientBase(BaseModel):
     name: str
@@ -19,9 +17,7 @@ class PatientCreate(BaseModel):
 
 class Patient(PatientBase):
     id: int
-
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 class DoctorCreate(BaseModel):
     name: str
@@ -41,8 +37,7 @@ class AppointmentCreate(BaseModel):
 
 class Appointment(AppointmentCreate):
     id: int
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # ---- MedicalRecord ----
 class MedicalRecordCreate(BaseModel):
@@ -55,8 +50,7 @@ class MedicalRecordCreate(BaseModel):
 
 class MedicalRecord(MedicalRecordCreate):
     id: int
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # ---- Bill ----
 class BillCreate(BaseModel):
@@ -68,8 +62,7 @@ class BillCreate(BaseModel):
 
 class Bill(BillCreate):
     id: int
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # ---- InventoryItem ----
 class InventoryCreate(BaseModel):
@@ -81,5 +74,24 @@ class InventoryCreate(BaseModel):
 
 class Inventory(InventoryCreate):
     id: int
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
+
+# ---- Authentication ----
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    username: Optional[str] = None
+
+class UserBase(BaseModel):
+    username: str
+    is_active: bool = True
+    role: str = "staff"
+
+class UserCreate(UserBase):
+    password: str
+
+class User(UserBase):
+    id: int
+    model_config = ConfigDict(from_attributes=True)

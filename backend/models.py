@@ -55,3 +55,10 @@ class InventoryItem(Base):
     price = Column(Float)
     expiry_date = Column(DateTime)
     vendor = Column(String)
+
+class User(Base):
+    __tablename__ = "users"
+    id = Column(Integer, primary_key=True, index=True)
+    role = Column(String, unique=True, index=True)
+    hashed_password = Column(String)
+    is_active = Column(Boolean, default=True)
