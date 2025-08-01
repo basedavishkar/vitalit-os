@@ -1,9 +1,17 @@
 import json
-from datetime import datetime
+from datetime import datetime, date
 from typing import Any, Dict, Optional
 from sqlalchemy.orm import Session
 from fastapi import Request
 from . import models, database
+
+
+class DateTimeEncoder(json.JSONEncoder):
+    """Custom JSON encoder to handle datetime and date objects."""
+    def default(self, obj):
+        if isinstance(obj, (datetime, date)):
+            return obj.isoformat()
+        return super().default(obj)
 
 
 class AuditLogger:
@@ -31,8 +39,8 @@ class AuditLogger:
             user_agent = request.headers.get("user-agent")
         
         # Convert values to JSON strings
-        old_values_json = json.dumps(old_values) if old_values else None
-        new_values_json = json.dumps(new_values) if new_values else None
+        old_values_json = json.dumps(old_values, cls=DateTimeEncoder) if old_values else None
+        new_values_json = json.dumps(new_values, cls=DateTimeEncoder) if new_values else None
         
         # Create audit log entry
         audit_log = models.AuditLog(

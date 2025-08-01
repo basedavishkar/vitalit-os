@@ -105,7 +105,7 @@ async def create_appointment(
         reason=appointment_data.reason,
         status=models.AppointmentStatusEnum.SCHEDULED,
         notes=appointment_data.notes,
-        created_by=current_user.id
+        created_by=current_user.id if current_user else None
     )
     
     db.add(db_appointment)
@@ -113,8 +113,9 @@ async def create_appointment(
     db.refresh(db_appointment)
     
     # Log appointment creation
+    user_id = current_user.id if current_user else None
     audit.AuditLogger.log_create(
-        db, current_user.id, "appointments", db_appointment.id,
+        db, user_id, "appointments", db_appointment.id,
         {
             "appointment_id": appointment_id,
             "patient_id": appointment_data.patient_id,
@@ -253,7 +254,7 @@ async def update_appointment(
             )
     
     # Update appointment fields
-    update_data = appointment_data.dict(exclude_unset=True)
+    update_data = appointment_data.model_dump(exclude_unset=True)
     for field, value in update_data.items():
         setattr(appointment, field, value)
     

@@ -8,7 +8,7 @@ from backend.auth import generate_doctor_id
 
 router = APIRouter(prefix="/doctors", tags=["Doctors"])
 
-@router.post("/", response_model=schemas.Doctor)
+@router.post("/", response_model=schemas.Doctor, status_code=201)
 async def create_doctor(
     doctor_data: schemas.DoctorCreate,
     current_user: models.User = Depends(auth.require_admin),
@@ -51,8 +51,9 @@ async def create_doctor(
     db.refresh(db_doctor)
     
     # Log doctor creation
+    user_id = current_user.id if current_user else None
     audit.AuditLogger.log_create(
-        db, current_user.id, "doctors", db_doctor.id,
+        db, user_id, "doctors", db_doctor.id,
         {
             "doctor_id": doctor_id,
             "first_name": doctor_data.first_name,
@@ -194,7 +195,7 @@ async def update_doctor(
     }
     
     # Update doctor fields
-    update_data = doctor_data.dict(exclude_unset=True)
+    update_data = doctor_data.model_dump(exclude_unset=True)
     for field, value in update_data.items():
         setattr(doctor, field, value)
     
@@ -202,8 +203,9 @@ async def update_doctor(
     db.refresh(doctor)
     
     # Log doctor update
+    user_id = current_user.id if current_user else None
     audit.AuditLogger.log_update(
-        db, current_user.id, "doctors", doctor.id,
+        db, user_id, "doctors", doctor.id,
         old_values, update_data, request
     )
     
@@ -259,8 +261,9 @@ async def delete_doctor(
     db.commit()
     
     # Log doctor deletion
+    user_id = current_user.id if current_user else None
     audit.AuditLogger.log_delete(
-        db, current_user.id, "doctors", doctor_id,
+        db, user_id, "doctors", doctor_id,
         old_values, request
     )
     

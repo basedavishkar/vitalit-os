@@ -164,7 +164,7 @@ async def update_patient(
     }
     
     # Update patient fields
-    update_data = patient_data.dict(exclude_unset=True)
+    update_data = patient_data.model_dump(exclude_unset=True)
     for field, value in update_data.items():
         setattr(patient, field, value)
     
@@ -172,8 +172,9 @@ async def update_patient(
     db.refresh(patient)
     
     # Log patient update
+    user_id = current_user.id if current_user else None
     audit.AuditLogger.log_update(
-        db, current_user.id, "patients", patient.id,
+        db, user_id, "patients", patient.id,
         old_values, update_data, request
     )
     
@@ -230,8 +231,9 @@ async def delete_patient(
     db.commit()
     
     # Log patient deletion
+    user_id = current_user.id if current_user else None
     audit.AuditLogger.log_delete(
-        db, current_user.id, "patients", patient_id,
+        db, user_id, "patients", patient_id,
         old_values, request
     )
     
