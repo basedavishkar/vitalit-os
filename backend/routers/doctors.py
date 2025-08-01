@@ -43,7 +43,7 @@ async def create_doctor(
     # Create doctor
     db_doctor = models.Doctor(
         doctor_id=doctor_id,
-        **doctor_data.dict()
+        **doctor_data.model_dump()
     )
     
     db.add(db_doctor)
