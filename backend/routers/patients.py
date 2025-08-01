@@ -8,7 +8,7 @@ from backend.auth import generate_patient_id
 
 router = APIRouter(prefix="/patients", tags=["Patients"])
 
-@router.post("/", response_model=schemas.Patient)
+@router.post("/", response_model=schemas.Patient, status_code=201)
 async def create_patient(
     patient_data: schemas.PatientCreate,
     current_user: models.User = Depends(auth.require_staff),
@@ -21,9 +21,14 @@ async def create_patient(
     patient_id = generate_patient_id()
     
     # Create patient
+    patient_dict = patient_data.model_dump()
+    # Convert enum values to enum instances for SQLAlchemy
+    if 'gender' in patient_dict:
+        patient_dict['gender'] = models.GenderEnum(patient_dict['gender'])
+    
     db_patient = models.Patient(
         patient_id=patient_id,
-        **patient_data.dict()
+        **patient_dict
     )
     
     db.add(db_patient)
@@ -31,10 +36,11 @@ async def create_patient(
     db.refresh(db_patient)
     
     # Log patient creation
-    audit.AuditLogger.log_create(
-        db, current_user.id, "patients", db_patient.id,
-        patient_data.dict(), request
-    )
+    if current_user:
+        audit.AuditLogger.log_create(
+            db, current_user.id, "patients", db_patient.id,
+            patient_data.model_dump(), request
+        )
     
     return db_patient
 
