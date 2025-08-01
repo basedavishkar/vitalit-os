@@ -46,17 +46,66 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
+# Registration endpoint
+@router.post("/register", response_model=schemas.User, status_code=201)
+async def register_user(
+    user_data: schemas.UserCreate,
+    db: Session = Depends(database.get_db),
+    request: Request = None
+):
+    """Register a new user."""
+    
+    # Check if username already exists
+    existing_user = db.query(models.User).filter(models.User.username == user_data.username).first()
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Username already registered"
+        )
+    
+    # Check if email already exists
+    existing_email = db.query(models.User).filter(models.User.email == user_data.email).first()
+    if existing_email:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email already registered"
+        )
+    
+    # Create new user
+    hashed_password = get_password_hash(user_data.password)
+    db_user = models.User(
+        username=user_data.username,
+        email=user_data.email,
+        hashed_password=hashed_password,
+        role=user_data.role,
+        is_active=True
+    )
+    
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    
+    # Log user registration
+    audit.AuditLogger.log_action(
+        db, db_user.id, "USER_REGISTERED", "users",
+        record_id=db_user.id,
+        new_values={"username": user_data.username, "email": user_data.email},
+        request=request
+    )
+    
+    return db_user
+
 # Authentication endpoint
 @router.post("/login", response_model=schemas.Token)
 async def login(
-    login_data: schemas.LoginRequest,
+    form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(database.get_db),
     request: Request = None
 ):
     """Authenticate user and return access token."""
     
     # Authenticate user
-    user = auth.authenticate_user(db, login_data.username, login_data.password)
+    user = auth.authenticate_user(db, form_data.username, form_data.password)
     
     if not user:
         # Log failed login attempt
@@ -92,7 +141,7 @@ async def login(
         "access_token": access_token,
         "token_type": "bearer",
         "expires_in": auth.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-        "user": schemas.User.from_orm(user)
+        "user": schemas.User.model_validate(user)
     }
 
 @router.post("/logout")
