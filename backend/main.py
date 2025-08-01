@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -11,15 +12,31 @@ from backend.middleware import LoggingMiddleware, SecurityMiddleware, RateLimitM
 from backend.exceptions import VitalitException, create_http_exception
 from backend.logger import logger
 
-# Create the database tables (if they don't exist)
-Base.metadata.create_all(bind=engine)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Application lifespan manager."""
+    # Startup
+    logger.info("Vitalit OS starting up...")
+    logger.info(f"Version: {settings.version}")
+    logger.info(f"Database: {settings.database_url}")
+    
+    # Create database tables
+    Base.metadata.create_all(bind=engine)
+    
+    yield
+    
+    # Shutdown
+    logger.info("Vitalit OS shutting down...")
+
 
 app = FastAPI(
     title=settings.title,
     version=settings.version,
     description=settings.description,
     docs_url="/docs",
-    redoc_url="/redoc"
+    redoc_url="/redoc",
+    lifespan=lifespan
 )
 
 # Add middleware
@@ -70,16 +87,4 @@ app.include_router(billing.router, prefix=settings.api_prefix)
 app.include_router(inventory.router, prefix=settings.api_prefix)
 app.include_router(system.router, prefix=settings.api_prefix)
 
-# Startup event
-@app.on_event("startup")
-async def startup_event():
-    """Initialize application on startup."""
-    logger.info("Vitalit OS starting up...")
-    logger.info(f"Version: {settings.version}")
-    logger.info(f"Database: {settings.database_url}")
 
-# Shutdown event
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Cleanup on application shutdown."""
-    logger.info("Vitalit OS shutting down...")

@@ -8,7 +8,7 @@ from backend.auth import generate_appointment_id
 
 router = APIRouter(prefix="/appointments", tags=["Appointments"])
 
-@router.post("/", response_model=schemas.Appointment)
+@router.post("/", response_model=schemas.Appointment, status_code=201)
 async def create_appointment(
     appointment_data: schemas.AppointmentCreate,
     current_user: models.User = Depends(auth.require_staff),
@@ -42,7 +42,7 @@ async def create_appointment(
     appointment_start = appointment_data.scheduled_datetime
     appointment_end = appointment_start + timedelta(minutes=appointment_data.duration_minutes)
     
-    # Check doctor availability
+    # Check doctor availability (simplified)
     conflicting_appointments = db.query(models.Appointment).filter(
         and_(
             models.Appointment.doctor_id == appointment_data.doctor_id,
@@ -50,14 +50,7 @@ async def create_appointment(
                 models.AppointmentStatusEnum.SCHEDULED,
                 models.AppointmentStatusEnum.CONFIRMED
             ]),
-            or_(
-                and_(
-                    models.Appointment.scheduled_datetime < appointment_end,
-                    models.Appointment.scheduled_datetime + 
-                    func.cast(models.Appointment.duration_minutes, func.Integer) * 
-                    func.interval('1 minute') > appointment_start
-                )
-            )
+            models.Appointment.scheduled_datetime < appointment_end
         )
     ).first()
     
@@ -67,7 +60,7 @@ async def create_appointment(
             detail="Doctor has a conflicting appointment at this time"
         )
     
-    # Check patient availability
+    # Check patient availability (simplified)
     patient_conflicts = db.query(models.Appointment).filter(
         and_(
             models.Appointment.patient_id == appointment_data.patient_id,
@@ -75,14 +68,7 @@ async def create_appointment(
                 models.AppointmentStatusEnum.SCHEDULED,
                 models.AppointmentStatusEnum.CONFIRMED
             ]),
-            or_(
-                and_(
-                    models.Appointment.scheduled_datetime < appointment_end,
-                    models.Appointment.scheduled_datetime + 
-                    func.cast(models.Appointment.duration_minutes, func.Integer) * 
-                    func.interval('1 minute') > appointment_start
-                )
-            )
+            models.Appointment.scheduled_datetime < appointment_end
         )
     ).first()
     

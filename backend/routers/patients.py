@@ -180,7 +180,7 @@ async def update_patient(
     
     return patient
 
-@router.delete("/{patient_id}")
+@router.delete("/{patient_id}", status_code=204)
 async def delete_patient(
     patient_id: int,
     current_user: models.User = Depends(auth.require_admin),

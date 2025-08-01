@@ -164,7 +164,7 @@ class Appointment(AppointmentBase):
     id: int
     appointment_id: str
     status: AppointmentStatusEnum
-    created_by: int
+    created_by: Optional[int] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
     model_config = ConfigDict(from_attributes=True)
