@@ -1,7 +1,6 @@
 from datetime import datetime, date
 from typing import Optional, List
-from pydantic import BaseModel, EmailStr, validator, Field
-from pydantic.config import ConfigDict
+from pydantic import BaseModel, EmailStr, validator, field_validator, Field, ConfigDict
 from enum import Enum
 
 # Enums
@@ -28,7 +27,7 @@ class AppointmentStatusEnum(str, Enum):
 class UserBase(BaseModel):
     username: str = Field(..., min_length=3, max_length=50)
     email: EmailStr
-    role: str = Field(..., regex="^(admin|doctor|nurse|receptionist|staff)$")
+    role: str = Field(..., pattern="^(admin|doctor|nurse|receptionist|staff)$")
 
 class UserCreate(UserBase):
     password: str = Field(..., min_length=8)
@@ -36,7 +35,7 @@ class UserCreate(UserBase):
 class UserUpdate(BaseModel):
     username: Optional[str] = Field(None, min_length=3, max_length=50)
     email: Optional[EmailStr] = None
-    role: Optional[str] = Field(None, regex="^(admin|doctor|nurse|receptionist|staff)$")
+    role: Optional[str] = Field(None, pattern="^(admin|doctor|nurse|receptionist|staff)$")
     is_active: Optional[bool] = None
 
 class User(UserBase):
@@ -64,7 +63,8 @@ class PatientBase(BaseModel):
     allergies: Optional[str] = None
     medical_history: Optional[str] = None
 
-    @validator('phone', 'emergency_contact_phone')
+    @field_validator('phone', 'emergency_contact_phone')
+    @classmethod
     def validate_phone(cls, v):
         if v and not v.replace('+', '').replace('-', '').replace(' ', '').isdigit():
             raise ValueError('Phone number must contain only digits, spaces, hyphens, or plus sign')
@@ -109,7 +109,8 @@ class DoctorBase(BaseModel):
     address: Optional[str] = None
     consultation_fee: float = Field(0.0, ge=0)
 
-    @validator('phone')
+    @field_validator('phone')
+    @classmethod
     def validate_phone(cls, v):
         if not v.replace('+', '').replace('-', '').replace(' ', '').isdigit():
             raise ValueError('Phone number must contain only digits, spaces, hyphens, or plus sign')
@@ -296,16 +297,18 @@ class BillBase(BaseModel):
     total_amount: float = Field(..., ge=0)
     notes: Optional[str] = None
 
-    @validator('due_date')
-    def validate_due_date(cls, v, values):
-        if 'bill_date' in values and v <= values['bill_date']:
+    @field_validator('due_date')
+    @classmethod
+    def validate_due_date(cls, v, info):
+        if 'bill_date' in info.data and v <= info.data['bill_date']:
             raise ValueError('Due date must be after bill date')
         return v
 
-    @validator('total_amount')
-    def validate_total_amount(cls, v, values):
-        if 'subtotal' in values and 'tax_amount' in values and 'discount_amount' in values:
-            expected = values['subtotal'] + values['tax_amount'] - values['discount_amount']
+    @field_validator('total_amount')
+    @classmethod
+    def validate_total_amount(cls, v, info):
+        if 'subtotal' in info.data and 'tax_amount' in info.data and 'discount_amount' in info.data:
+            expected = info.data['subtotal'] + info.data['tax_amount'] - info.data['discount_amount']
             if abs(v - expected) > 0.01:  # Allow small floating point differences
                 raise ValueError('Total amount must equal subtotal + tax - discount')
         return v
@@ -338,7 +341,7 @@ class Bill(BillBase):
 class PaymentBase(BaseModel):
     bill_id: int
     amount: float = Field(..., ge=0.01)
-    payment_method: str = Field(..., regex="^(cash|card|insurance|bank_transfer|check)$")
+    payment_method: str = Field(..., pattern="^(cash|card|insurance|bank_transfer|check)$")
     payment_date: datetime
     reference_number: Optional[str] = Field(None, max_length=100)
     notes: Optional[str] = None
@@ -356,7 +359,7 @@ class Payment(PaymentBase):
 class InventoryItemBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
     description: Optional[str] = None
-    category: str = Field(..., regex="^(medicine|equipment|supplies)$")
+    category: str = Field(..., pattern="^(medicine|equipment|supplies)$")
     unit: str = Field(..., min_length=1, max_length=20)
     current_quantity: int = Field(0, ge=0)
     minimum_quantity: int = Field(0, ge=0)
@@ -366,9 +369,10 @@ class InventoryItemBase(BaseModel):
     expiry_date: Optional[date] = None
     location: Optional[str] = Field(None, max_length=100)
 
-    @validator('maximum_quantity')
-    def validate_max_quantity(cls, v, values):
-        if v is not None and 'minimum_quantity' in values and v <= values['minimum_quantity']:
+    @field_validator('maximum_quantity')
+    @classmethod
+    def validate_max_quantity(cls, v, info):
+        if v is not None and 'minimum_quantity' in info.data and v <= info.data['minimum_quantity']:
             raise ValueError('Maximum quantity must be greater than minimum quantity')
         return v
 
@@ -378,7 +382,7 @@ class InventoryItemCreate(InventoryItemBase):
 class InventoryItemUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length=1, max_length=100)
     description: Optional[str] = None
-    category: Optional[str] = Field(None, regex="^(medicine|equipment|supplies)$")
+    category: Optional[str] = Field(None, pattern="^(medicine|equipment|supplies)$")
     unit: Optional[str] = Field(None, min_length=1, max_length=20)
     current_quantity: Optional[int] = Field(None, ge=0)
     minimum_quantity: Optional[int] = Field(None, ge=0)
@@ -400,7 +404,7 @@ class InventoryItem(InventoryItemBase):
 # Inventory Transaction Schemas
 class InventoryTransactionBase(BaseModel):
     item_id: int
-    transaction_type: str = Field(..., regex="^(in|out|adjustment)$")
+    transaction_type: str = Field(..., pattern="^(in|out|adjustment)$")
     quantity: int = Field(..., ge=1)
     unit_price: Optional[float] = Field(None, ge=0)
     total_amount: Optional[float] = Field(None, ge=0)
