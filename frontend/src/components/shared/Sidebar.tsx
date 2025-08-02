@@ -33,7 +33,7 @@ export default function Sidebar() {
       animate={{ width: isCollapsed ? 80 : 256 }}
     >
       <motion.div 
-        className="fixed left-0 top-0 h-full backdrop-blur-xl bg-white/70 border-r border-white/20 shadow-2xl z-50"
+        className="fixed left-0 top-0 h-full glass border-r border-white/20 shadow-2xl z-50"
         initial={{ x: -256 }}
         animate={{ x: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
@@ -71,7 +71,7 @@ export default function Sidebar() {
                       transition={{ duration: 0.3 }}
                     >
                       <motion.h1 
-                        className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent"
+                        className="text-xl font-bold gradient-text"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.2, duration: 0.4 }}
@@ -107,11 +107,7 @@ export default function Sidebar() {
                   >
                     <Link href={item.href} className="block">
                       <motion.div
-                        className={`group flex items-center px-3 py-3 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer ${
-                          isActive
-                            ? 'bg-gradient-to-r from-blue-500/20 to-purple-600/20 text-blue-700 border border-blue-200/50 shadow-sm'
-                            : 'text-gray-700 hover:bg-white/50 hover:text-gray-900'
-                        }`}
+                        className={`sidebar-item ${isActive ? 'sidebar-item-active' : ''}`}
                         whileHover={{ 
                           scale: 1.02,
                           x: 5
@@ -221,7 +217,7 @@ export default function Sidebar() {
             <AnimatePresence mode="wait">
               {!isCollapsed && user && (
                 <motion.div
-                  className="mt-4 p-3 bg-gradient-to-r from-gray-50/50 to-blue-50/50 rounded-xl border border-gray-200/30"
+                  className="mt-4 p-3 glass rounded-xl border border-gray-200/30"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 20 }}

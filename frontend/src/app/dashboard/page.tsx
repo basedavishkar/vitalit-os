@@ -62,7 +62,7 @@ export default function DashboardPage() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.3 + index * 0.1 }}
-            className="glass rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+            className="card"
           >
             <div className="flex items-center justify-between">
               <div>
@@ -82,7 +82,7 @@ export default function DashboardPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.4 }}
-        className="glass rounded-2xl p-6 shadow-lg"
+        className="card"
       >
         <h2 className="text-2xl font-bold text-gray-900 mb-6">Recent Appointments</h2>
         <div className="space-y-4">
@@ -125,7 +125,7 @@ export default function DashboardPage() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.7 + index * 0.1 }}
-            className="glass rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer"
+            className="card cursor-pointer"
           >
             <div className="text-center">
               <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center text-white text-2xl mx-auto mb-4 shadow-lg">
