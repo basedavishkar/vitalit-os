@@ -1,6 +1,5 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import { AuthProvider } from "@/lib/auth";
 
 export const metadata: Metadata = {
   title: "VITALIt",
@@ -14,11 +13,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
-        <AuthProvider>
-          {children}
-        </AuthProvider>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

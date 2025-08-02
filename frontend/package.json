@@ -9,10 +9,11 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@radix-ui/react-label": "^2.1.7",
     "@radix-ui/react-slot": "^1.0.2",
     "axios": "^1.10.0",
-    "class-variance-authority": "^0.7.0",
-    "clsx": "^2.0.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "date-fns": "^2.30.0",
     "lucide-react": "^0.294.0",
     "next": "14.0.4",
@@ -21,7 +22,7 @@
     "react-hook-form": "^7.48.2",
     "react-hot-toast": "^2.4.1",
     "recharts": "^2.8.0",
-    "tailwind-merge": "^2.0.0"
+    "tailwind-merge": "^2.6.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

@@ -1,15 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Users, UserCheck, Calendar, DollarSign, TrendingUp, Activity, LogOut } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import * as patientApi from '@/api/patients';
-import * as doctorApi from '@/api/doctors';
-import { useAuth } from '@/lib/auth';
-import ProtectedRoute from '@/components/ProtectedRoute';
-import { toast } from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
 
 interface DashboardStats {
   totalPatients: number;
@@ -21,7 +13,6 @@ interface DashboardStats {
 }
 
 export default function DashboardPage() {
-  const { user, logout } = useAuth();
   const [stats, setStats] = useState<DashboardStats>({
     totalPatients: 0,
     totalDoctors: 0,
@@ -31,47 +22,43 @@ export default function DashboardPage() {
     pendingAppointments: 0,
   });
   const [loading, setLoading] = useState(true);
-
-  // Load dashboard data
-  const loadDashboardData = async () => {
-    try {
-      setLoading(true);
-      
-      // Load patients and doctors
-      const [patients, doctors] = await Promise.all([
-        patientApi.getPatients(),
-        doctorApi.getDoctors(),
-      ]);
-
-      // Calculate stats
-      const totalPatients = patients.length;
-      const totalDoctors = doctors.length;
-      const activePatients = patients.length; // Simplified for now
-      const todayAppointments = 0; // Will be implemented with appointments API
-      const monthlyRevenue = 0; // Will be implemented with billing API
-      const pendingAppointments = 0; // Will be implemented with appointments API
-
-      setStats({
-        totalPatients,
-        totalDoctors,
-        todayAppointments,
-        monthlyRevenue,
-        activePatients,
-        pendingAppointments,
-      });
-    } catch (error) {
-      toast.error('Failed to load dashboard data');
-      console.error('Error loading dashboard:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const router = useRouter();
 
   useEffect(() => {
-    loadDashboardData();
-  }, []);
+    // Check if user is authenticated
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      router.push('/login');
+      return;
+    }
 
-  // Format currency
+    // Load dashboard data
+    const loadDashboardData = async () => {
+      try {
+        setLoading(true);
+        
+        // Load dashboard stats
+        const statsResponse = await fetch('http://localhost:8000/dashboard/stats');
+        if (statsResponse.ok) {
+          const statsData = await statsResponse.json();
+          setStats(statsData);
+        }
+      } catch (error) {
+        console.error('Error loading dashboard data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadDashboardData();
+  }, [router]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('auth_user');
+    router.push('/login');
+  };
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -79,195 +66,123 @@ export default function DashboardPage() {
     }).format(amount);
   };
 
-  // Quick actions
-  const quickActions = [
-    {
-      title: 'Add Patient',
-      description: 'Register a new patient',
-      icon: Users,
-      href: '/dashboard/patients',
-      color: 'bg-blue-500',
-    },
-    {
-      title: 'Add Doctor',
-      description: 'Add a new doctor',
-      icon: UserCheck,
-      href: '/dashboard/doctors',
-      color: 'bg-green-500',
-    },
-    {
-      title: 'Book Appointment',
-      description: 'Schedule an appointment',
-      icon: Calendar,
-      href: '/dashboard/appointments',
-      color: 'bg-purple-500',
-    },
-    {
-      title: 'View Reports',
-      description: 'Financial and medical reports',
-      icon: TrendingUp,
-      href: '/dashboard/reports',
-      color: 'bg-orange-500',
-    },
-  ];
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
   return (
-    <ProtectedRoute>
-      <div className="space-y-6">
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold">Dashboard</h1>
-            <p className="text-muted-foreground">
-              Welcome back, {user?.full_name || user?.username}!
-            </p>
+            <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+            <p className="text-gray-600">Welcome to Vitalit Hospital Management System</p>
           </div>
           <div className="flex items-center gap-4">
-            <Badge variant="secondary" className="text-sm">
+            <span className="text-sm text-gray-500">
               {new Date().toLocaleDateString('en-US', { 
                 weekday: 'long', 
                 year: 'numeric', 
                 month: 'long', 
                 day: 'numeric' 
               })}
-            </Badge>
-            <Button variant="outline" onClick={logout} className="flex items-center gap-2">
-              <LogOut className="h-4 w-4" />
+            </span>
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+            >
               Logout
-            </Button>
+            </button>
           </div>
         </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Patients</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {loading ? '...' : stats.totalPatients.toLocaleString()}
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="bg-white p-6 rounded-lg shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Total Patients</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.totalPatients}</p>
+              </div>
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <div className="w-6 h-6 bg-blue-600 rounded"></div>
+              </div>
             </div>
-            <p className="text-xs text-muted-foreground">
-              +{stats.activePatients} active patients
-            </p>
-          </CardContent>
-        </Card>
+          </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Doctors</CardTitle>
-            <UserCheck className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {loading ? '...' : stats.totalDoctors.toLocaleString()}
+          <div className="bg-white p-6 rounded-lg shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Total Doctors</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.totalDoctors}</p>
+              </div>
+              <div className="p-2 bg-green-100 rounded-lg">
+                <div className="w-6 h-6 bg-green-600 rounded"></div>
+              </div>
             </div>
-            <p className="text-xs text-muted-foreground">
-              Available for appointments
-            </p>
-          </CardContent>
-        </Card>
+          </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Today's Appointments</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {loading ? '...' : stats.todayAppointments.toLocaleString()}
+          <div className="bg-white p-6 rounded-lg shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Today's Appointments</p>
+                <p className="text-2xl font-bold text-gray-900">{stats.todayAppointments}</p>
+              </div>
+              <div className="p-2 bg-purple-100 rounded-lg">
+                <div className="w-6 h-6 bg-purple-600 rounded"></div>
+              </div>
             </div>
-            <p className="text-xs text-muted-foreground">
-              {stats.pendingAppointments} pending
-            </p>
-          </CardContent>
-        </Card>
+          </div>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Monthly Revenue</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {loading ? '...' : formatCurrency(stats.monthlyRevenue)}
+          <div className="bg-white p-6 rounded-lg shadow">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Monthly Revenue</p>
+                <p className="text-2xl font-bold text-gray-900">{formatCurrency(stats.monthlyRevenue)}</p>
+              </div>
+              <div className="p-2 bg-yellow-100 rounded-lg">
+                <div className="w-6 h-6 bg-yellow-600 rounded"></div>
+              </div>
             </div>
-            <p className="text-xs text-muted-foreground">
-              +12% from last month
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </div>
 
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-        </CardHeader>
-        <CardContent>
+        {/* Quick Actions */}
+        <div className="bg-white p-6 rounded-lg shadow">
+          <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {quickActions.map((action) => (
-              <Button
-                key={action.title}
-                variant="outline"
-                className="h-auto p-4 flex flex-col items-start space-y-2"
-                onClick={() => window.location.href = action.href}
-              >
-                <div className={`p-2 rounded-lg ${action.color}`}>
-                  <action.icon className="h-4 w-4 text-white" />
-                </div>
-                <div className="text-left">
-                  <div className="font-semibold">{action.title}</div>
-                  <div className="text-xs text-muted-foreground">
-                    {action.description}
-                  </div>
-                </div>
-              </Button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Recent Activity */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Activity</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-              <Activity className="h-4 w-4 text-green-500" />
-              <div className="flex-1">
-                <p className="text-sm font-medium">New patient registered</p>
-                <p className="text-xs text-muted-foreground">John Doe was added to the system</p>
-              </div>
-              <span className="text-xs text-muted-foreground">2 min ago</span>
-            </div>
+            <button className="p-4 border border-gray-300 rounded-lg text-left hover:bg-gray-50">
+              <div className="w-8 h-8 bg-blue-500 rounded mb-2"></div>
+              <div className="font-semibold">Add Patient</div>
+              <div className="text-sm text-gray-600">Register a new patient</div>
+            </button>
             
-            <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-              <Calendar className="h-4 w-4 text-blue-500" />
-              <div className="flex-1">
-                <p className="text-sm font-medium">Appointment scheduled</p>
-                <p className="text-xs text-muted-foreground">Dr. Smith - 2:30 PM today</p>
-              </div>
-              <span className="text-xs text-muted-foreground">15 min ago</span>
-            </div>
+            <button className="p-4 border border-gray-300 rounded-lg text-left hover:bg-gray-50">
+              <div className="w-8 h-8 bg-green-500 rounded mb-2"></div>
+              <div className="font-semibold">Add Doctor</div>
+              <div className="text-sm text-gray-600">Add a new doctor</div>
+            </button>
             
-            <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-              <DollarSign className="h-4 w-4 text-green-500" />
-              <div className="flex-1">
-                <p className="text-sm font-medium">Payment received</p>
-                <p className="text-xs text-muted-foreground">$150 consultation fee</p>
-              </div>
-              <span className="text-xs text-muted-foreground">1 hour ago</span>
-            </div>
+            <button className="p-4 border border-gray-300 rounded-lg text-left hover:bg-gray-50">
+              <div className="w-8 h-8 bg-purple-500 rounded mb-2"></div>
+              <div className="font-semibold">Book Appointment</div>
+              <div className="text-sm text-gray-600">Schedule an appointment</div>
+            </button>
+            
+            <button className="p-4 border border-gray-300 rounded-lg text-left hover:bg-gray-50">
+              <div className="w-8 h-8 bg-orange-500 rounded mb-2"></div>
+              <div className="font-semibold">View Reports</div>
+              <div className="text-sm text-gray-600">Financial and medical reports</div>
+            </button>
           </div>
-        </CardContent>
-      </Card>
+        </div>
       </div>
-    </ProtectedRoute>
+    </div>
   );
 }
   
