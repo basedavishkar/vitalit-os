@@ -31,12 +31,48 @@ class User(Base):
     hashed_password = Column(String(255), nullable=False)
     role = Column(String(20), nullable=False, default="staff")  # admin, doctor, nurse, receptionist, staff
     is_active = Column(Boolean, default=True)
+    
+    # MFA and security
+    mfa_enabled = Column(Boolean, default=False)
+    mfa_secret = Column(String(32))  # TOTP secret
+    failed_login_attempts = Column(Integer, default=0)
+    locked_until = Column(DateTime(timezone=True))
+    password_changed_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    # Session management
+    last_login = Column(DateTime(timezone=True))
+    last_activity = Column(DateTime(timezone=True))
+    
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships
     appointments_created = relationship("Appointment", back_populates="created_by_user")
     medical_records_created = relationship("MedicalRecord", back_populates="created_by_user")
+    sessions = relationship("UserSession", back_populates="user")
+
+
+class UserSession(Base):
+    __tablename__ = "user_sessions"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    session_token = Column(String(255), unique=True, index=True, nullable=False)
+    refresh_token = Column(String(255), unique=True, index=True)
+    expires_at = Column(DateTime(timezone=True), nullable=False)
+    ip_address = Column(String(45))
+    user_agent = Column(Text)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    # Relationships
+    user = relationship("User", back_populates="sessions")
+    
+    # Indexes
+    __table_args__ = (
+        Index('idx_session_token', 'session_token'),
+        Index('idx_refresh_token', 'refresh_token'),
+        Index('idx_session_expires', 'expires_at'),
+    )
 
 class Patient(Base):
     __tablename__ = "patients"
