@@ -248,8 +248,8 @@ async def get_patient_metrics(
 
 @router.get("/reports/performance")
 async def get_performance_report(
-    start_date: date = Query(...),
-    end_date: date = Query(...),
+    start_date: date = Query(),
+    end_date: date = Query(),
     current_user: models.User = Depends(require_staff),
     db: Session = Depends(database.get_db)
 ):
@@ -308,9 +308,9 @@ async def get_performance_report(
 
 @router.get("/reports/doctor-performance")
 async def get_doctor_performance_report(
+    start_date: date = Query(),
+    end_date: date = Query(),
     doctor_id: Optional[int] = Query(None),
-    start_date: date = Query(...),
-    end_date: date = Query(...),
     current_user: models.User = Depends(require_staff),
     db: Session = Depends(database.get_db)
 ):

@@ -267,7 +267,7 @@ async def get_condition_analytics(
 @router.get("/records/{record_id}/export")
 async def export_medical_record(
     record_id: int,
-    format: str = Query("json", regex="^(json|pdf|html)$"),
+    format: str = Query("json"),
     current_user: models.User = Depends(require_doctor),
     db: Session = Depends(database.get_db)
 ):

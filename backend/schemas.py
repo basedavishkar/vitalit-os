@@ -1,6 +1,6 @@
 from datetime import datetime, date, time
 from typing import Optional, List, Dict, Any
-from pydantic import BaseModel, EmailStr, validator, field_validator, Field, ConfigDict
+from pydantic import BaseModel, EmailStr, validator, Field
 from enum import Enum
 
 # Enums
@@ -43,7 +43,8 @@ class User(UserBase):
     is_active: bool
     created_at: datetime
     updated_at: Optional[datetime] = None
-    model_config = ConfigDict(from_attributes=True)
+    class Config:
+        from_attributes = True
 
 # Patient Schemas
 class PatientBase(BaseModel):
@@ -63,7 +64,7 @@ class PatientBase(BaseModel):
     allergies: Optional[str] = None
     medical_history: Optional[str] = None
 
-    @field_validator('phone', 'emergency_contact_phone')
+    @validator('phone', 'emergency_contact_phone')
     @classmethod
     def validate_phone(cls, v):
         if v and not v.replace('+', '').replace('-', '').replace(' ', '').isdigit():
@@ -95,7 +96,8 @@ class Patient(PatientBase):
     patient_id: str
     created_at: datetime
     updated_at: Optional[datetime] = None
-    model_config = ConfigDict(from_attributes=True)
+    class Config:
+        from_attributes = True
 
 # Doctor Schemas
 class DoctorBase(BaseModel):
@@ -109,7 +111,7 @@ class DoctorBase(BaseModel):
     address: Optional[str] = None
     consultation_fee: float = Field(0.0, ge=0)
 
-    @field_validator('phone')
+    @validator('phone')
     @classmethod
     def validate_phone(cls, v):
         if not v.replace('+', '').replace('-', '').replace(' ', '').isdigit():
@@ -137,7 +139,8 @@ class Doctor(DoctorBase):
     is_active: bool
     created_at: datetime
     updated_at: Optional[datetime] = None
-    model_config = ConfigDict(from_attributes=True)
+    class Config:
+        from_attributes = True
 
 # Appointment Schemas
 class AppointmentBase(BaseModel):
@@ -167,7 +170,8 @@ class Appointment(AppointmentBase):
     created_by: Optional[int] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
-    model_config = ConfigDict(from_attributes=True)
+    class Config:
+        from_attributes = True
 
 # Medical Record Schemas
 class PatientVitalsBase(BaseModel):
@@ -188,7 +192,8 @@ class PatientVitals(PatientVitalsBase):
     id: int
     medical_record_id: int
     recorded_at: datetime
-    model_config = ConfigDict(from_attributes=True)
+    class Config:
+        from_attributes = True
 
 class MedicalRecordBase(BaseModel):
     patient_id: int
@@ -222,7 +227,8 @@ class MedicalRecord(MedicalRecordBase):
     created_at: datetime
     updated_at: Optional[datetime] = None
     vitals: Optional[PatientVitals] = None
-    model_config = ConfigDict(from_attributes=True)
+    class Config:
+        from_attributes = True
 
 # Prescription Schemas
 class PrescriptionItemBase(BaseModel):
@@ -239,7 +245,8 @@ class PrescriptionItemCreate(PrescriptionItemBase):
 class PrescriptionItem(PrescriptionItemBase):
     id: int
     prescription_id: int
-    model_config = ConfigDict(from_attributes=True)
+    class Config:
+        from_attributes = True
 
 class PrescriptionBase(BaseModel):
     patient_id: int
@@ -268,7 +275,8 @@ class Prescription(PrescriptionBase):
     created_at: datetime
     updated_at: Optional[datetime] = None
     prescription_items: List[PrescriptionItem] = []
-    model_config = ConfigDict(from_attributes=True)
+    class Config:
+        from_attributes = True
 
 # Billing Schemas
 class BillItemBase(BaseModel):
@@ -284,7 +292,8 @@ class BillItemCreate(BillItemBase):
 class BillItem(BillItemBase):
     id: int
     bill_id: int
-    model_config = ConfigDict(from_attributes=True)
+    class Config:
+        from_attributes = True
 
 class BillBase(BaseModel):
     patient_id: int
@@ -297,18 +306,18 @@ class BillBase(BaseModel):
     total_amount: float = Field(..., ge=0)
     notes: Optional[str] = None
 
-    @field_validator('due_date')
+    @validator('due_date')
     @classmethod
-    def validate_due_date(cls, v, info):
-        if 'bill_date' in info.data and v <= info.data['bill_date']:
+    def validate_due_date(cls, v, values=None, config=None, field=None):
+        if 'bill_date' in values or {} and v <= values or {}['bill_date']:
             raise ValueError('Due date must be after bill date')
         return v
 
-    @field_validator('total_amount')
+    @validator('total_amount')
     @classmethod
-    def validate_total_amount(cls, v, info):
-        if 'subtotal' in info.data and 'tax_amount' in info.data and 'discount_amount' in info.data:
-            expected = info.data['subtotal'] + info.data['tax_amount'] - info.data['discount_amount']
+    def validate_total_amount(cls, v, values=None, config=None, field=None):
+        if 'subtotal' in values or {} and 'tax_amount' in values or {} and 'discount_amount' in values or {}:
+            expected = values or {}['subtotal'] + values or {}['tax_amount'] - values or {}['discount_amount']
             if abs(v - expected) > 0.01:  # Allow small floating point differences
                 raise ValueError('Total amount must equal subtotal + tax - discount')
         return v
@@ -335,7 +344,8 @@ class Bill(BillBase):
     created_at: datetime
     updated_at: Optional[datetime] = None
     bill_items: List[BillItem] = []
-    model_config = ConfigDict(from_attributes=True)
+    class Config:
+        from_attributes = True
 
 # Payment Schemas
 class PaymentBase(BaseModel):
@@ -353,7 +363,8 @@ class Payment(PaymentBase):
     id: int
     payment_id: str
     created_at: datetime
-    model_config = ConfigDict(from_attributes=True)
+    class Config:
+        from_attributes = True
 
 # Inventory Schemas
 class InventoryItemBase(BaseModel):
@@ -369,10 +380,10 @@ class InventoryItemBase(BaseModel):
     expiry_date: Optional[date] = None
     location: Optional[str] = Field(None, max_length=100)
 
-    @field_validator('maximum_quantity')
+    @validator('maximum_quantity')
     @classmethod
-    def validate_max_quantity(cls, v, info):
-        if v is not None and 'minimum_quantity' in info.data and v <= info.data['minimum_quantity']:
+    def validate_max_quantity(cls, v, values=None, config=None, field=None):
+        if v is not None and 'minimum_quantity' in values or {} and v <= values or {}['minimum_quantity']:
             raise ValueError('Maximum quantity must be greater than minimum quantity')
         return v
 
@@ -399,7 +410,8 @@ class InventoryItem(InventoryItemBase):
     is_active: bool
     created_at: datetime
     updated_at: Optional[datetime] = None
-    model_config = ConfigDict(from_attributes=True)
+    class Config:
+        from_attributes = True
 
 # Inventory Transaction Schemas
 class InventoryTransactionBase(BaseModel):
@@ -419,7 +431,8 @@ class InventoryTransaction(InventoryTransactionBase):
     transaction_id: str
     created_by: int
     created_at: datetime
-    model_config = ConfigDict(from_attributes=True)
+    class Config:
+        from_attributes = True
 
 # Authentication Schemas
 class Token(BaseModel):
@@ -479,7 +492,8 @@ class UserSession(BaseModel):
     created_at: datetime
     expires_at: datetime
     is_active: bool
-    model_config = ConfigDict(from_attributes=True)
+    class Config:
+        from_attributes = True
 
 class UserSecurityInfo(BaseModel):
     mfa_enabled: bool
@@ -506,7 +520,8 @@ class PatientDocument(PatientDocumentBase):
     file_size: Optional[int] = None
     uploaded_by: int
     uploaded_at: datetime
-    model_config = ConfigDict(from_attributes=True)
+    class Config:
+        from_attributes = True
 
 # Emergency Contact Schemas
 class EmergencyContactUpdate(BaseModel):
@@ -579,7 +594,8 @@ class InternalMessage(BaseModel):
     is_read: bool
     read_at: Optional[datetime] = None
     created_at: datetime
-    model_config = ConfigDict(from_attributes=True)
+    class Config:
+        from_attributes = True
 
 class NotificationRequest(BaseModel):
     recipient_ids: List[int]

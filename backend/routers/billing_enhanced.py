@@ -327,8 +327,8 @@ async def process_payment(
 
 @router.get("/reports/revenue")
 async def get_revenue_report(
-    start_date: datetime.date = Query(...),
-    end_date: datetime.date = Query(...),
+    start_date: datetime.date = Query(),
+    end_date: datetime.date = Query(),
     current_user: models.User = Depends(require_staff),
     db: Session = Depends(database.get_db)
 ):

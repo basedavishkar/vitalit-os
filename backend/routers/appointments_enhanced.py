@@ -215,7 +215,7 @@ async def smart_schedule_appointment(
 @router.get("/available-slots/{doctor_id}")
 async def get_available_slots(
     doctor_id: int,
-    date: datetime.date = Query(...),
+    date: datetime.date = Query(),
     duration_minutes: int = Query(30, ge=15, le=480),
     current_user: models.User = Depends(require_staff),
     db: Session = Depends(database.get_db)
@@ -241,7 +241,7 @@ async def get_available_slots(
 @router.get("/conflicts/{doctor_id}")
 async def check_scheduling_conflicts(
     doctor_id: int,
-    start_time: datetime = Query(...),
+    start_time: datetime = Query(),
     duration_minutes: int = Query(30, ge=15, le=480),
     exclude_appointment_id: Optional[int] = Query(None),
     current_user: models.User = Depends(require_staff),
@@ -297,8 +297,8 @@ async def check_scheduling_conflicts(
 @router.get("/calendar/{doctor_id}")
 async def get_doctor_calendar(
     doctor_id: int,
-    start_date: datetime.date = Query(...),
-    end_date: datetime.date = Query(...),
+    start_date: datetime.date = Query(),
+    end_date: datetime.date = Query(),
     current_user: models.User = Depends(require_staff),
     db: Session = Depends(database.get_db)
 ):
