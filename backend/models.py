@@ -162,6 +162,31 @@ class Appointment(Base):
         Index('idx_appointment_status', 'status'),
     )
 
+
+class PatientDocument(Base):
+    __tablename__ = "patient_documents"
+    id = Column(Integer, primary_key=True, index=True)
+    patient_id = Column(Integer, ForeignKey("patients.id"), nullable=False)
+    filename = Column(String(255), nullable=False)
+    original_filename = Column(String(255), nullable=False)
+    file_path = Column(String(500), nullable=False)
+    document_type = Column(String(50), nullable=False)  # xray, lab_report, prescription, etc.
+    description = Column(Text)
+    file_size = Column(Integer)  # in bytes
+    uploaded_by = Column(Integer, ForeignKey("users.id"), nullable=False)
+    uploaded_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    # Relationships
+    patient = relationship("Patient")
+    uploaded_by_user = relationship("User")
+    
+    # Indexes
+    __table_args__ = (
+        Index('idx_document_patient', 'patient_id'),
+        Index('idx_document_type', 'document_type'),
+        Index('idx_document_uploaded', 'uploaded_at'),
+    )
+
 class MedicalRecord(Base):
     __tablename__ = "medical_records"
     id = Column(Integer, primary_key=True, index=True)
@@ -310,8 +335,33 @@ class Payment(Base):
     
     # Indexes
     __table_args__ = (
+        Index('idx_payment_bill', 'bill_id'),
         Index('idx_payment_date', 'payment_date'),
-        Index('idx_payment_method', 'payment_method'),
+    )
+
+
+class InsuranceClaim(Base):
+    __tablename__ = "insurance_claims"
+    id = Column(Integer, primary_key=True, index=True)
+    bill_id = Column(Integer, ForeignKey("bills.id"), nullable=False)
+    insurance_provider = Column(String(100), nullable=False)
+    insurance_number = Column(String(50), nullable=False)
+    claim_amount = Column(Float, nullable=False)
+    covered_amount = Column(Float, nullable=False)
+    patient_responsibility = Column(Float, nullable=False)
+    status = Column(String(20), nullable=False, default="pending")  # pending, approved, denied
+    claim_number = Column(String(50))
+    submitted_at = Column(DateTime(timezone=True), server_default=func.now())
+    processed_at = Column(DateTime(timezone=True))
+    
+    # Relationships
+    bill = relationship("Bill")
+    
+    # Indexes
+    __table_args__ = (
+        Index('idx_claim_bill', 'bill_id'),
+        Index('idx_claim_status', 'status'),
+        Index('idx_claim_provider', 'insurance_provider'),
     )
 
 class InventoryItem(Base):

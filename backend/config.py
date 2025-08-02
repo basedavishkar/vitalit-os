@@ -47,6 +47,10 @@ class Settings(BaseSettings):
     # Test mode
     test_mode: bool = False
     
+    # Payment processing
+    stripe_secret_key: str = "sk_test_your_stripe_secret_key"
+    stripe_publishable_key: str = "pk_test_your_stripe_publishable_key"
+    
     class Config:
         env_file = ".env"
 

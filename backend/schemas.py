@@ -1,5 +1,5 @@
-from datetime import datetime, date
-from typing import Optional, List
+from datetime import datetime, date, time
+from typing import Optional, List, Dict, Any
 from pydantic import BaseModel, EmailStr, validator, field_validator, Field, ConfigDict
 from enum import Enum
 
@@ -488,6 +488,79 @@ class UserSecurityInfo(BaseModel):
     locked_until: Optional[datetime] = None
     password_changed_at: datetime
     active_sessions_count: int
+
+# Patient Document Schemas
+class PatientDocumentBase(BaseModel):
+    document_type: str = Field(..., min_length=1, max_length=50)
+    description: Optional[str] = None
+
+class PatientDocumentCreate(PatientDocumentBase):
+    pass
+
+class PatientDocument(PatientDocumentBase):
+    id: int
+    patient_id: int
+    filename: str
+    original_filename: str
+    file_path: str
+    file_size: Optional[int] = None
+    uploaded_by: int
+    uploaded_at: datetime
+    model_config = ConfigDict(from_attributes=True)
+
+# Emergency Contact Schemas
+class EmergencyContactUpdate(BaseModel):
+    name: Optional[str] = Field(None, max_length=100)
+    phone: Optional[str] = Field(None, max_length=20)
+    relationship: Optional[str] = Field(None, max_length=50)
+
+# Smart Appointment Schemas
+class SmartAppointmentRequest(BaseModel):
+    patient_id: int
+    doctor_id: int
+    preferred_date: date
+    preferred_time: Optional[time] = None
+    duration_minutes: int = Field(30, ge=15, le=480)
+    reason: str = Field(..., min_length=1)
+    notes: Optional[str] = None
+    appointment_id: Optional[str] = None
+
+# Structured EHR Schemas
+class StructuredMedicalRecordCreate(BaseModel):
+    patient_id: int
+    doctor_id: int
+    appointment_id: Optional[int] = None
+    visit_date: Optional[datetime] = None
+    specialty: str = Field(..., min_length=1, max_length=50)
+    structured_data: Dict[str, Any] = Field(..., description="Template-based structured data")
+    vitals: Optional[Dict[str, Any]] = None
+    follow_up_date: Optional[date] = None
+    record_id: Optional[str] = None
+
+# Enhanced Billing Schemas
+class AutomatedBillRequest(BaseModel):
+    appointment_id: int
+    bill_items: List[Dict[str, Any]] = Field(..., description="List of bill items")
+
+class BillCalculationRequest(BaseModel):
+    appointment_id: int
+    additional_services: Optional[List[Dict[str, Any]]] = None
+
+class InsuranceClaimRequest(BaseModel):
+    bill_id: int
+    insurance_provider: str = Field(..., min_length=1, max_length=100)
+    insurance_number: str = Field(..., min_length=1, max_length=50)
+
+class PaymentIntentRequest(BaseModel):
+    bill_id: int
+    amount: float = Field(..., gt=0)
+    currency: str = Field("usd", min_length=3, max_length=3)
+
+class PaymentProcessRequest(BaseModel):
+    bill_id: int
+    payment_method: str = Field(..., regex="^(cash|card|insurance|bank_transfer|check)$")
+    amount: float = Field(..., gt=0)
+    payment_intent_id: Optional[str] = None
 
 # Response Schemas
 class PaginatedResponse(BaseModel):

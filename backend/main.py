@@ -5,7 +5,7 @@ from fastapi.responses import JSONResponse
 from backend.routers import (
     patients, doctors, appointments, records, billing, inventory, auth, system
 )
-from backend.routers import auth_enhanced
+from backend.routers import auth_enhanced, patients_enhanced, appointments_enhanced, ehr_enhanced, billing_enhanced
 from backend.models import Base
 from backend.database import engine
 from backend.config import settings
@@ -82,10 +82,14 @@ async def health_check():
 app.include_router(auth.router, prefix=settings.api_prefix)
 app.include_router(auth_enhanced.router, prefix=settings.api_prefix)
 app.include_router(patients.router, prefix=settings.api_prefix)
+app.include_router(patients_enhanced.router, prefix=settings.api_prefix)
 app.include_router(doctors.router, prefix=settings.api_prefix)
 app.include_router(appointments.router, prefix=settings.api_prefix)
+app.include_router(appointments_enhanced.router, prefix=settings.api_prefix)
 app.include_router(records.router, prefix=settings.api_prefix)
+app.include_router(ehr_enhanced.router, prefix=settings.api_prefix)
 app.include_router(billing.router, prefix=settings.api_prefix)
+app.include_router(billing_enhanced.router, prefix=settings.api_prefix)
 app.include_router(inventory.router, prefix=settings.api_prefix)
 app.include_router(system.router, prefix=settings.api_prefix)
 
