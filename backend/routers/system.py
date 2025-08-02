@@ -4,11 +4,11 @@ from typing import List, Dict, Any
 import os
 from pathlib import Path
 
-from ..backup import backup_manager
-from ..logger import logger
-from ..config import settings
-from ..auth import get_current_user
-from ..models import User
+from backup import backup_manager
+from logger import logger
+from config import settings
+from auth import get_current_user
+from models import User
 
 router = APIRouter(prefix="/system", tags=["System Management"])
 

@@ -5,8 +5,8 @@ import zipfile
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import List
-from .config import settings
-from .logger import logger
+from config import settings
+from logger import logger
 
 
 class BackupManager:

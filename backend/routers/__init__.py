@@ -6,3 +6,4 @@ from . import billing
 from . import inventory
 from . import auth
 from . import system
+from . import analytics_dashboard

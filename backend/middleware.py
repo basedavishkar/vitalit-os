@@ -2,8 +2,8 @@ import time
 from typing import Callable
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
-from .logger import logger, log_api_request, log_security_event
-from .config import settings
+from logger import logger, log_api_request, log_security_event
+from config import settings
 
 
 class LoggingMiddleware(BaseHTTPMiddleware):

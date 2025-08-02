@@ -2,7 +2,7 @@ import logging
 import logging.handlers
 import os
 from typing import Optional
-from .config import settings
+from config import settings
 
 
 def setup_logger(name: str = "vitalit",

@@ -54,6 +54,10 @@ class Settings(BaseSettings):
     # Test mode
     test_mode: bool = False
     
+    # Development settings
+    debug: bool = True
+    environment: str = "development"
+    
     # Payment processing
     stripe_secret_key: str = "sk_test_your_stripe_secret_key"
     stripe_publishable_key: str = "pk_test_your_stripe_publishable_key"

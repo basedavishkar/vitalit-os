@@ -3,7 +3,7 @@ from datetime import datetime, date
 from typing import Any, Dict, Optional
 from sqlalchemy.orm import Session
 from fastapi import Request
-from . import models, database
+import models, database
 
 
 class DateTimeEncoder(json.JSONEncoder):
