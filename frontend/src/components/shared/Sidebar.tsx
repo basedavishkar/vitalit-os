@@ -105,9 +105,9 @@ export default function Sidebar() {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.2 + index * 0.05, duration: 0.5 }}
                   >
-                    <Link href={item.href}>
-                      <motion.a
-                        className={`group flex items-center px-3 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
+                    <Link href={item.href} className="block">
+                      <motion.div
+                        className={`group flex items-center px-3 py-3 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer ${
                           isActive
                             ? 'bg-gradient-to-r from-blue-500/20 to-purple-600/20 text-blue-700 border border-blue-200/50 shadow-sm'
                             : 'text-gray-700 hover:bg-white/50 hover:text-gray-900'
@@ -147,7 +147,7 @@ export default function Sidebar() {
                             transition={{ duration: 0.3, type: "spring" }}
                           />
                         )}
-                      </motion.a>
+                      </motion.div>
                     </Link>
                   </motion.div>
                 );
