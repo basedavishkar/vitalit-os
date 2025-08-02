@@ -31,10 +31,15 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8" style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
       {/* Welcome Section */}
-      <div className="text-center">
-        <h1 className="text-4xl font-bold gradient-text mb-2">
+      <div className="text-center" style={{ marginBottom: '2rem' }}>
+        <h1 className="text-4xl font-bold gradient-text mb-2" style={{ 
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text'
+        }}>
           Welcome back, Admin! 👋
         </h1>
         <p className="text-gray-600 text-lg">
@@ -43,11 +48,25 @@ export default function DashboardPage() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
+        gap: '1.5rem',
+        marginBottom: '2rem'
+      }}>
         {stats.map((stat, index) => (
           <div
             key={stat.title}
             className="card"
+            style={{
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
+              background: 'rgba(255, 255, 255, 0.7)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              borderRadius: '1rem',
+              padding: '1.5rem',
+              boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)'
+            }}
           >
             <div className="flex items-center justify-between">
               <div>
@@ -63,15 +82,34 @@ export default function DashboardPage() {
       </div>
 
       {/* Recent Appointments */}
-      <div className="card">
+      <div className="card" style={{
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
+        background: 'rgba(255, 255, 255, 0.7)',
+        border: '1px solid rgba(255, 255, 255, 0.2)',
+        borderRadius: '1rem',
+        padding: '1.5rem',
+        boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
+        marginBottom: '2rem'
+      }}>
         <h2 className="text-2xl font-bold text-gray-900 mb-6">Recent Appointments</h2>
         <div className="space-y-4">
           {appointments.map((appointment, index) => (
             <div
               key={appointment.id}
               className="flex items-center justify-between p-4 bg-white/50 rounded-xl border border-white/20 hover:bg-white/70 transition-all duration-200"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '1rem',
+                background: 'rgba(255, 255, 255, 0.5)',
+                borderRadius: '0.75rem',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                marginBottom: '1rem'
+              }}
             >
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-4" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                 <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
                   {appointment.patientName.charAt(0)}
                 </div>
@@ -90,16 +128,37 @@ export default function DashboardPage() {
       </div>
 
       {/* Quick Actions */}
-      <div className="card">
+      <div className="card" style={{
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
+        background: 'rgba(255, 255, 255, 0.7)',
+        border: '1px solid rgba(255, 255, 255, 0.2)',
+        borderRadius: '1rem',
+        padding: '1.5rem',
+        boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)'
+      }}>
         <h2 className="text-2xl font-bold text-gray-900 mb-6">Quick Actions</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4" style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+          gap: '1rem'
+        }}>
           {quickActions.map((action, index) => (
             <a
               key={action.title}
               href={action.href}
               className="group p-4 bg-white/50 rounded-xl border border-white/20 hover:bg-white/70 transition-all duration-200 cursor-pointer"
+              style={{
+                display: 'block',
+                padding: '1rem',
+                background: 'rgba(255, 255, 255, 0.5)',
+                borderRadius: '0.75rem',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                textDecoration: 'none',
+                color: 'inherit'
+              }}
             >
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-3" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                 <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white text-lg group-hover:scale-110 transition-transform duration-200">
                   {action.icon}
                 </div>
