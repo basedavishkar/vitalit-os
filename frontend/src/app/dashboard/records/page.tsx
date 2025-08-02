@@ -1,5 +1,5 @@
 "use client";
-import Card from "@/components/ui/Card";
+import { Card } from "@/components/ui/Card";
 import RecordForm from "@/components/records/RecordForm";
 import RecordList from "@/components/records/RecordList";
 import { useState, useEffect } from 'react';

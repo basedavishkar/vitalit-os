@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createBill } from "@/api/bills";
-import Card from "@/components/ui/Card";
+import { Card } from "@/components/ui/Card";
 import { Patient } from '@/types';
 
 export default function BillForm({ onBillAdded, patients }: { onBillAdded?: () => void; patients: Patient[] }) {

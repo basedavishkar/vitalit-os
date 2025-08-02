@@ -1,4 +1,4 @@
-import Card from "@/components/ui/Card";
+import { Card } from "@/components/ui/Card";
 import { useState } from "react";
 import { createInventoryItem } from "@/api/inventory";
 import { InventoryItem } from '@/types';

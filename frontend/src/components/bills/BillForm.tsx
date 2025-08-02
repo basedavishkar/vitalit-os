@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { createBill } from "@/api/bills";
 import { Patient } from '@/types';
-import Card from "@/components/ui/Card";
+import { Card } from "@/components/ui/Card";
 
 export default function BillForm({ onBillAdded, patients }: { onBillAdded?: () => void; patients: Patient[] }) {
   const [form, setForm] = useState({

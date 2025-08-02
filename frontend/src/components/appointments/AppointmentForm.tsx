@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { createAppointment } from "@/api/appointments";
-import Card from "@/components/ui/Card";
+import { Card } from "@/components/ui/Card";
 import { Patient, Doctor } from '@/types';
 
 export default function AppointmentForm({ onAppointmentAdded, patients = [], doctors = [] }: { onAppointmentAdded?: () => void; patients?: Patient[]; doctors?: Doctor[] }) {

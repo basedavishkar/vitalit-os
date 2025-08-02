@@ -1,5 +1,5 @@
 "use client";
-import Card from "@/components/ui/Card";
+import { Card } from "@/components/ui/Card";
 import BillForm from "@/components/bills/BillForm";
 import BillList from "@/components/bills/BillList";
 import { useState, useEffect } from "react";
