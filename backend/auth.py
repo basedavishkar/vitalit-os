@@ -110,10 +110,13 @@ def get_current_user(
     return user
 
 
-def get_current_active_user(current_user: Optional[models.User] = Depends(get_current_user)) -> Optional[models.User]:
+def get_current_active_user(current_user: Optional[models.User] = Depends(get_current_user)) -> models.User:
     """Get the current active user."""
     if current_user is None:
-        return None
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication required"
+        )
     
     if not current_user.is_active:
         raise HTTPException(
@@ -129,16 +132,10 @@ def require_role(required_roles: Union[str, list[str]]):
     if isinstance(required_roles, str):
         required_roles = [required_roles]
     
-    def role_checker(current_user: Optional[models.User] = Depends(get_current_active_user)) -> Optional[models.User]:
+    def role_checker(current_user: models.User = Depends(get_current_active_user)) -> models.User:
         # In test mode, allow access without authentication
         if settings.test_mode:
             return None
-        
-        if current_user is None:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Authentication required"
-            )
         
         if current_user.role not in required_roles:
             raise HTTPException(

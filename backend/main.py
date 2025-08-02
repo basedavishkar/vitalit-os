@@ -77,7 +77,7 @@ async def health_check():
     """Health check endpoint."""
     return {"status": "healthy", "version": settings.version}
 
-# Include routers
+# Include routers with API prefix
 app.include_router(auth.router, prefix=settings.api_prefix)
 app.include_router(patients.router, prefix=settings.api_prefix)
 app.include_router(doctors.router, prefix=settings.api_prefix)

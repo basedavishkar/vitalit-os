@@ -84,7 +84,7 @@ class TestHealthCheck:
 
 class TestAuthentication:
     def test_register_user(self, client, test_user):
-        response = client.post("/api/v1/auth/register", json=test_user)
+        response = client.post("/auth/register", json=test_user)
         assert response.status_code == 201
         data = response.json()
         assert data["username"] == test_user["username"]
@@ -116,7 +116,7 @@ class TestAuthentication:
 
 class TestPatients:
     def test_create_patient(self, client, test_patient):
-        response = client.post("/api/v1/patients/", json=test_patient)
+        response = client.post("/patients/", json=test_patient)
         assert response.status_code == 201
         data = response.json()
         assert data["first_name"] == test_patient["first_name"]
@@ -127,7 +127,7 @@ class TestPatients:
         # Create a patient first
         client.post("/api/v1/patients/", json=test_patient)
         
-        response = client.get("/api/v1/patients/")
+        response = client.get("/patients/")
         assert response.status_code == 200
         data = response.json()
         assert len(data) > 0

@@ -25,7 +25,7 @@ class Settings(BaseSettings):
     log_file: str = "vitalit.log"
     
     # API
-    api_prefix: str = "/api/v1"
+    api_prefix: str = ""
     title: str = "Vitalit OS API"
     version: str = "1.0.0"
     description: str = "Enterprise Hospital Management System API"
