@@ -17,7 +17,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 # Security contexts
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 # Router
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -143,6 +143,17 @@ async def login(
         "expires_in": auth.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
         "user": schemas.User.model_validate(user)
     }
+
+
+# Token endpoint for OAuth2 compatibility
+@router.post("/token", response_model=schemas.Token)
+async def get_token(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: Session = Depends(database.get_db),
+    request: Request = None
+):
+    """Get access token (OAuth2 compatibility endpoint)."""
+    return await login(form_data, db, request)
 
 @router.post("/logout")
 async def logout(
