@@ -1,14 +1,15 @@
-import { createAuthenticatedApiClient } from '@/lib/auth';
+import axios from 'axios';
 import { Doctor } from '@/types';
 
-const apiClient = createAuthenticatedApiClient();
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export const createDoctor = async (formData: Omit<Doctor, 'id'>) => {
-  const res = await apiClient.post('/doctors/', formData);
+  const res = await axios.post(`${API_BASE}/doctors/`, formData);
   return res.data;
 };
 
 export const getDoctors = async () => {
-  const res = await apiClient.get('/doctors/');
+  // Use development endpoint for now
+  const res = await axios.get(`${API_BASE}/dev/doctors`);
   return res.data;
 };

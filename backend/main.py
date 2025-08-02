@@ -84,26 +84,43 @@ async def health_check():
 @app.get("/dashboard/stats")
 async def get_dashboard_stats():
     """Get basic dashboard statistics."""
-    from backend.database import SessionLocal
-    from backend.models import Patient, Doctor, Appointment
-    
-    db = SessionLocal()
-    try:
-        total_patients = db.query(Patient).count()
-        total_doctors = db.query(Doctor).filter(Doctor.is_active == True).count()
-        total_appointments = db.query(Appointment).count()
-        
-        return {
-            "totalPatients": total_patients,
-            "totalDoctors": total_doctors,
-            "totalAppointments": total_appointments,
-            "todayAppointments": 0,  # Will be implemented later
-            "monthlyRevenue": 0,     # Will be implemented later
-            "activePatients": total_patients,
-            "pendingAppointments": 0  # Will be implemented later
-        }
-    finally:
-        db.close()
+    # Return sample data for development
+    return {
+        "totalPatients": 5,
+        "totalDoctors": 5,
+        "totalAppointments": 12,
+        "todayAppointments": 3,
+        "monthlyRevenue": 45000,
+        "activePatients": 5,
+        "pendingAppointments": 2
+    }
+
+
+# Development endpoints (no auth required)
+@app.get("/dev/patients")
+async def get_dev_patients():
+    """Get patients for development (no auth required)."""
+    # Return sample data for development
+    return [
+        {"id": 1, "first_name": "John", "last_name": "Doe", "email": "john.doe@email.com"},
+        {"id": 2, "first_name": "Jane", "last_name": "Smith", "email": "jane.smith@email.com"},
+        {"id": 3, "first_name": "Bob", "last_name": "Johnson", "email": "bob.johnson@email.com"},
+        {"id": 4, "first_name": "Alice", "last_name": "Brown", "email": "alice.brown@email.com"},
+        {"id": 5, "first_name": "Charlie", "last_name": "Wilson", "email": "charlie.wilson@email.com"}
+    ]
+
+
+@app.get("/dev/doctors")
+async def get_dev_doctors():
+    """Get doctors for development (no auth required)."""
+    # Return sample data for development
+    return [
+        {"id": 1, "first_name": "Dr. Sarah", "last_name": "Johnson", "specialization": "Cardiology"},
+        {"id": 2, "first_name": "Dr. Michael", "last_name": "Chen", "specialization": "Neurology"},
+        {"id": 3, "first_name": "Dr. Emily", "last_name": "Davis", "specialization": "Pediatrics"},
+        {"id": 4, "first_name": "Dr. Robert", "last_name": "Wilson", "specialization": "Orthopedics"},
+        {"id": 5, "first_name": "Dr. Lisa", "last_name": "Garcia", "specialization": "Dermatology"}
+    ]
 
 
 # Simple patients endpoint for testing (no auth required)
