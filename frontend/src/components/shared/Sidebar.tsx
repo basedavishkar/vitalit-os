@@ -1,9 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
+
+interface SidebarProps {
+  onWidthChange?: (width: number) => void;
+}
 
 const menuItems = [
   { name: 'Dashboard', icon: '🏠', href: '/dashboard' },
@@ -16,10 +20,16 @@ const menuItems = [
   { name: 'System', icon: '⚙️', href: '/dashboard/system' },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ onWidthChange }: SidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const pathname = usePathname();
   const { user, logout } = useAuth();
+
+  const currentWidth = isCollapsed ? 80 : 280;
+
+  useEffect(() => {
+    onWidthChange?.(currentWidth);
+  }, [currentWidth, onWidthChange]);
 
   const handleLogout = () => {
     logout();
@@ -29,8 +39,8 @@ export default function Sidebar() {
     <div 
       className="fixed left-0 top-0 h-full z-50 transition-all duration-500 ease-out"
       style={{ 
-        width: isCollapsed ? '80px' : '280px',
-        minWidth: isCollapsed ? '80px' : '280px'
+        width: currentWidth,
+        minWidth: currentWidth
       }}
     >
       <div 
@@ -46,9 +56,9 @@ export default function Sidebar() {
         <div className="flex flex-col h-full">
           {/* Premium Logo Section */}
           <div 
-            className="p-6 border-b border-white/10"
+            className="p-4 border-b border-white/10"
             style={{ 
-              padding: '1.5rem', 
+              padding: '1rem', 
               borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
               background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%)'
             }}
@@ -59,16 +69,16 @@ export default function Sidebar() {
                 style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}
               >
                 <div 
-                  className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-2xl"
+                  className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg"
                   style={{
-                    width: '3rem',
-                    height: '3rem',
+                    width: '2.5rem',
+                    height: '2.5rem',
                     background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
-                    borderRadius: '1rem',
+                    borderRadius: '0.75rem',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    boxShadow: '0 20px 25px -5px rgba(59, 130, 246, 0.4)',
+                    boxShadow: '0 10px 15px -3px rgba(59, 130, 246, 0.4)',
                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
                   }}
                   onMouseEnter={(e) => {
@@ -77,12 +87,12 @@ export default function Sidebar() {
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.transform = 'scale(1) rotate(0deg)';
-                    e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(59, 130, 246, 0.4)';
+                    e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(59, 130, 246, 0.4)';
                   }}
                 >
                   <span 
-                    className="text-white text-xl font-bold"
-                    style={{ fontSize: '1.25rem', fontWeight: '800' }}
+                    className="text-white font-bold"
+                    style={{ fontSize: '1rem', fontWeight: '800' }}
                   >
                     V
                   </span>
@@ -93,9 +103,9 @@ export default function Sidebar() {
                     style={{ display: 'flex', flexDirection: 'column' }}
                   >
                     <h1 
-                      className="text-xl font-bold gradient-primary"
+                      className="text-lg font-bold gradient-primary"
                       style={{
-                        fontSize: '1.25rem',
+                        fontSize: '1.125rem',
                         fontWeight: '800',
                         background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
                         WebkitBackgroundClip: 'text',
@@ -126,9 +136,9 @@ export default function Sidebar() {
 
           {/* Premium Navigation Menu */}
           <nav 
-            className="flex-1 px-4 py-6 space-y-2"
+            className="flex-1 px-3 py-4 space-y-1"
             style={{ 
-              padding: '1rem 1rem 1.5rem 1rem',
+              padding: '1rem 0.75rem',
               flex: 1
             }}
           >
@@ -139,7 +149,7 @@ export default function Sidebar() {
                   key={item.name} 
                   className="animate-slide-in"
                   style={{ 
-                    marginBottom: '0.5rem',
+                    marginBottom: '0.25rem',
                     animationDelay: `${index * 0.1}s`
                   }}
                 >
@@ -149,7 +159,7 @@ export default function Sidebar() {
                       style={{
                         display: 'flex',
                         alignItems: 'center',
-                        padding: '1rem',
+                        padding: '0.75rem',
                         borderRadius: '0.75rem',
                         fontSize: '0.875rem',
                         fontWeight: '500',
@@ -181,9 +191,9 @@ export default function Sidebar() {
                       }}
                     >
                       <span 
-                        className="text-lg mr-3"
+                        className="text-base mr-3"
                         style={{ 
-                          fontSize: '1.125rem', 
+                          fontSize: '1rem', 
                           marginRight: '0.75rem',
                           transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
                         }}
@@ -232,18 +242,18 @@ export default function Sidebar() {
           {/* Premium User Profile Section */}
           {!isCollapsed && user && (
             <div 
-              className="mx-4 mb-4 animate-fade-in"
-              style={{ margin: '0 1rem 1rem 1rem' }}
+              className="mx-3 mb-3 animate-fade-in"
+              style={{ margin: '0 0.75rem 0.75rem 0.75rem' }}
             >
               <div 
-                className="card-elevated p-4"
+                className="card-elevated p-3"
                 style={{
-                  padding: '1rem',
+                  padding: '0.75rem',
                   background: 'rgba(255, 255, 255, 0.15)',
                   backdropFilter: 'blur(30px)',
                   WebkitBackdropFilter: 'blur(30px)',
                   border: '1px solid rgba(255, 255, 255, 0.25)',
-                  borderRadius: '1.5rem',
+                  borderRadius: '1rem',
                   boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
                 }}
               >
@@ -252,10 +262,10 @@ export default function Sidebar() {
                   style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}
                 >
                   <div 
-                    className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm shadow-lg"
+                    className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm shadow-lg"
                     style={{
-                      width: '2.5rem',
-                      height: '2.5rem',
+                      width: '2rem',
+                      height: '2rem',
                       background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
                       borderRadius: '50%',
                       display: 'flex',
@@ -306,9 +316,9 @@ export default function Sidebar() {
 
           {/* Premium Collapse Button */}
           <div 
-            className="p-4 border-t border-white/10"
+            className="p-3 border-t border-white/10"
             style={{ 
-              padding: '1rem', 
+              padding: '0.75rem', 
               borderTop: '1px solid rgba(255, 255, 255, 0.1)',
               display: 'flex',
               justifyContent: 'center'
@@ -316,10 +326,10 @@ export default function Sidebar() {
           >
             <button
               onClick={() => setIsCollapsed(!isCollapsed)}
-              className="btn-ghost p-3 rounded-xl hover:bg-white/10 transition-all duration-300"
+              className="btn-ghost p-2 rounded-lg hover:bg-white/10 transition-all duration-300"
               style={{
-                padding: '0.75rem',
-                borderRadius: '0.75rem',
+                padding: '0.5rem',
+                borderRadius: '0.5rem',
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 border: 'none',
                 background: 'transparent',
@@ -339,7 +349,7 @@ export default function Sidebar() {
             >
               <span 
                 style={{ 
-                  fontSize: '1.125rem',
+                  fontSize: '1rem',
                   transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
                 }}
               >

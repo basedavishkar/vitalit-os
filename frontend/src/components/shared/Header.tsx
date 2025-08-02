@@ -20,23 +20,23 @@ export default function Header() {
       }}
     >
       <div 
-        className="flex items-center justify-between px-8 py-6"
+        className="flex items-center justify-between px-6 py-4"
         style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '1.5rem 2rem'
+          padding: '1rem 1.5rem'
         }}
       >
         {/* Left side - Breadcrumb */}
         <div 
-          className="flex items-center space-x-4"
-          style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}
+          className="flex items-center space-x-3"
+          style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}
         >
           <h1 
-            className="headline-2 gradient-primary"
+            className="text-xl font-bold gradient-primary"
             style={{
-              fontSize: '2.25rem',
+              fontSize: '1.25rem',
               fontWeight: '700',
               lineHeight: '1.2',
               letterSpacing: '-0.01em',
@@ -59,8 +59,8 @@ export default function Header() {
             }}
           />
           <span 
-            className="text-neutral-300 font-medium"
-            style={{ color: '#d4d4d4', fontWeight: '500' }}
+            className="text-sm text-neutral-300 font-medium"
+            style={{ color: '#d4d4d4', fontWeight: '500', fontSize: '0.875rem' }}
           >
             Healthcare Management
           </span>
@@ -68,16 +68,16 @@ export default function Header() {
 
         {/* Right side - User profile and actions */}
         <div 
-          className="flex items-center space-x-6"
-          style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}
+          className="flex items-center space-x-4"
+          style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}
         >
           {/* Notifications */}
           <button
-            className="relative p-3 rounded-xl text-neutral-300 hover:bg-white/10 hover:text-white transition-all duration-300"
+            className="relative p-2 rounded-lg text-neutral-300 hover:bg-white/10 hover:text-white transition-all duration-300"
             style={{
               position: 'relative',
-              padding: '0.75rem',
-              borderRadius: '0.75rem',
+              padding: '0.5rem',
+              borderRadius: '0.5rem',
               color: '#d4d4d4',
               transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
               border: 'none',
@@ -87,24 +87,26 @@ export default function Header() {
             onMouseEnter={(e) => {
               e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
               e.currentTarget.style.color = 'white';
+              e.currentTarget.style.transform = 'scale(1.1)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = 'transparent';
               e.currentTarget.style.color = '#d4d4d4';
+              e.currentTarget.style.transform = 'scale(1)';
             }}
           >
-            <span style={{ fontSize: '1.25rem' }}>🔔</span>
+            <span style={{ fontSize: '1.125rem' }}>🔔</span>
             <div
-              className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white animate-pulse"
+              className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full border border-white animate-pulse"
               style={{
                 position: 'absolute',
                 top: '-0.25rem',
                 right: '-0.25rem',
-                width: '0.75rem',
-                height: '0.75rem',
+                width: '0.5rem',
+                height: '0.5rem',
                 background: '#22c55e',
                 borderRadius: '50%',
-                border: '2px solid white',
+                border: '1px solid white',
                 animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
               }}
             />
@@ -118,13 +120,13 @@ export default function Header() {
             <input
               type="text"
               placeholder="Search patients, doctors, records..."
-              className="input-field w-80 pl-12"
+              className="input-field w-64 pl-10"
               style={{
-                width: '20rem',
-                padding: '0.75rem 1rem 0.75rem 3rem',
+                width: '16rem',
+                padding: '0.5rem 0.75rem 0.5rem 2.5rem',
                 background: 'rgba(255, 255, 255, 0.05)',
                 border: '1px solid rgba(255, 255, 255, 0.1)',
-                borderRadius: '0.75rem',
+                borderRadius: '0.5rem',
                 outline: 'none',
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 backdropFilter: 'blur(20px)',
@@ -144,10 +146,10 @@ export default function Header() {
               }}
             />
             <span
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 text-neutral-400"
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400"
               style={{
                 position: 'absolute',
-                left: '1rem',
+                left: '0.75rem',
                 top: '50%',
                 transform: 'translateY(-50%)',
                 color: '#a3a3a3'
@@ -159,17 +161,17 @@ export default function Header() {
 
           {/* Quick Actions */}
           <div 
-            className="flex items-center space-x-3"
-            style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}
+            className="flex items-center space-x-2"
+            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
           >
             <button
-              className="btn-primary px-4 py-2 text-sm"
+              className="btn-primary px-3 py-2 text-sm"
               style={{
                 background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
                 color: 'white',
                 border: 'none',
-                borderRadius: '0.75rem',
-                padding: '0.5rem 1rem',
+                borderRadius: '0.5rem',
+                padding: '0.5rem 0.75rem',
                 fontWeight: '600',
                 fontSize: '0.875rem',
                 cursor: 'pointer',
@@ -193,13 +195,13 @@ export default function Header() {
 
           {/* User Profile */}
           <div
-            className="flex items-center space-x-3 p-3 rounded-xl hover:bg-white/10 transition-all duration-300 cursor-pointer"
+            className="flex items-center space-x-2 p-2 rounded-lg hover:bg-white/10 transition-all duration-300 cursor-pointer"
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '0.75rem',
-              padding: '0.75rem',
-              borderRadius: '0.75rem',
+              gap: '0.5rem',
+              padding: '0.5rem',
+              borderRadius: '0.5rem',
               transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
               cursor: 'pointer'
             }}
@@ -211,10 +213,10 @@ export default function Header() {
             }}
           >
             <div
-              className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm"
+              className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm"
               style={{
-                width: '2.5rem',
-                height: '2.5rem',
+                width: '2rem',
+                height: '2rem',
                 background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
                 borderRadius: '50%',
                 display: 'flex',
