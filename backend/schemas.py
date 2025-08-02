@@ -1,6 +1,6 @@
 from datetime import datetime, date, time
 from typing import Optional, List, Dict, Any
-from pydantic import BaseModel, EmailStr, validator, Field
+from pydantic import BaseModel, EmailStr, Field, field_validator
 from enum import Enum
 
 # Enums
@@ -64,7 +64,7 @@ class PatientBase(BaseModel):
     allergies: Optional[str] = None
     medical_history: Optional[str] = None
 
-    @validator('phone', 'emergency_contact_phone')
+    @field_validator('phone', 'emergency_contact_phone')
     @classmethod
     def validate_phone(cls, v):
         if v and not v.replace('+', '').replace('-', '').replace(' ', '').isdigit():
@@ -111,7 +111,7 @@ class DoctorBase(BaseModel):
     address: Optional[str] = None
     consultation_fee: float = Field(0.0, ge=0)
 
-    @validator('phone')
+    @field_validator('phone')
     @classmethod
     def validate_phone(cls, v):
         if not v.replace('+', '').replace('-', '').replace(' ', '').isdigit():
@@ -306,18 +306,20 @@ class BillBase(BaseModel):
     total_amount: float = Field(..., ge=0)
     notes: Optional[str] = None
 
-    @validator('due_date')
+    @field_validator('due_date')
     @classmethod
-    def validate_due_date(cls, v, values=None, config=None, field=None):
-        if 'bill_date' in values or {} and v <= values or {}['bill_date']:
+    def validate_due_date(cls, v, info):
+        values = info.data
+        if 'bill_date' in values and v <= values['bill_date']:
             raise ValueError('Due date must be after bill date')
         return v
 
-    @validator('total_amount')
+    @field_validator('total_amount')
     @classmethod
-    def validate_total_amount(cls, v, values=None, config=None, field=None):
-        if 'subtotal' in values or {} and 'tax_amount' in values or {} and 'discount_amount' in values or {}:
-            expected = values or {}['subtotal'] + values or {}['tax_amount'] - values or {}['discount_amount']
+    def validate_total_amount(cls, v, info):
+        values = info.data
+        if 'subtotal' in values and 'tax_amount' in values and 'discount_amount' in values:
+            expected = values['subtotal'] + values['tax_amount'] - values['discount_amount']
             if abs(v - expected) > 0.01:  # Allow small floating point differences
                 raise ValueError('Total amount must equal subtotal + tax - discount')
         return v
@@ -380,10 +382,11 @@ class InventoryItemBase(BaseModel):
     expiry_date: Optional[date] = None
     location: Optional[str] = Field(None, max_length=100)
 
-    @validator('maximum_quantity')
+    @field_validator('maximum_quantity')
     @classmethod
-    def validate_max_quantity(cls, v, values=None, config=None, field=None):
-        if v is not None and 'minimum_quantity' in values or {} and v <= values or {}['minimum_quantity']:
+    def validate_max_quantity(cls, v, info):
+        values = info.data
+        if v is not None and 'minimum_quantity' in values and v <= values['minimum_quantity']:
             raise ValueError('Maximum quantity must be greater than minimum quantity')
         return v
 
@@ -573,7 +576,7 @@ class PaymentIntentRequest(BaseModel):
 
 class PaymentProcessRequest(BaseModel):
     bill_id: int
-    payment_method: str = Field(..., regex="^(cash|card|insurance|bank_transfer|check)$")
+    payment_method: str = Field(..., pattern="^(cash|card|insurance|bank_transfer|check)$")
     amount: float = Field(..., gt=0)
     payment_intent_id: Optional[str] = None
 
@@ -582,7 +585,7 @@ class InternalMessageCreate(BaseModel):
     recipient_id: int
     subject: str = Field(..., min_length=1, max_length=200)
     message: str = Field(..., min_length=1)
-    priority: str = Field("normal", regex="^(low|normal|high|urgent)$")
+    priority: str = Field("normal", pattern="^(low|normal|high|urgent)$")
 
 class InternalMessage(BaseModel):
     id: int
@@ -601,12 +604,12 @@ class NotificationRequest(BaseModel):
     recipient_ids: List[int]
     subject: str = Field(..., min_length=1, max_length=200)
     message: str = Field(..., min_length=1)
-    notification_type: str = Field(..., regex="^(email|sms|push|system)$")
+    notification_type: str = Field(..., pattern="^(email|sms|push|system)$")
     send_email: bool = True
     send_sms: bool = False
 
 class BroadcastMessageRequest(BaseModel):
-    target: str = Field(..., regex="^(staff|patients)$")
+    target: str = Field(..., pattern="^(staff|patients)$")
     subject: str = Field(..., min_length=1, max_length=200)
     message: str = Field(..., min_length=1)
 

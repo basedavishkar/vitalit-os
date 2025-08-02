@@ -145,7 +145,7 @@ class TestPatientManagement:
             "first_name": "Alice",
             "last_name": "Johnson",
             "date_of_birth": "1985-05-15",
-            "gender": "female",
+            "gender": "FEMALE",
             "phone": "5559876543",
             "email": "alice.johnson@example.com",
             "address": "456 Oak Ave",
@@ -350,7 +350,7 @@ class TestDataValidation:
             "first_name": "Test",
             "last_name": "User",
             "date_of_birth": "1990-01-01",
-            "gender": "male",
+            "gender": "MALE",
             "email": "invalid-email",
             "phone": "1234567890"
         }, headers=auth_headers)
@@ -363,7 +363,7 @@ class TestDataValidation:
             "first_name": "Test",
             "last_name": "User",
             "date_of_birth": "invalid-date",
-            "gender": "male",
+            "gender": "MALE",
             "email": "test@example.com",
             "phone": "1234567890"
         }, headers=auth_headers)

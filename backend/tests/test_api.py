@@ -21,8 +21,22 @@ def override_get_db():
 
 app.dependency_overrides[get_db] = override_get_db
 
+def get_auth_headers(client, test_user):
+    """Helper function to get authentication headers"""
+    client.post("/auth/register", json=test_user)
+    login_response = client.post("/auth/login", data={
+        "username": test_user["username"],
+        "password": test_user["password"]
+    })
+    token = login_response.json()["access_token"]
+    return {"Authorization": f"Bearer {token}"}
+
 @pytest.fixture(scope="function")
 def client():
+    # Set testing environment
+    import os
+    os.environ["TESTING"] = "true"
+    
     # Enable test mode
     from backend.config import settings
     settings.test_mode = True
@@ -38,6 +52,7 @@ def client():
     
     # Disable test mode
     settings.test_mode = False
+    os.environ.pop("TESTING", None)
 
 @pytest.fixture
 def test_user():
@@ -55,7 +70,7 @@ def test_patient():
         "first_name": "John",
         "last_name": "Doe",
         "date_of_birth": "1990-01-01",
-        "gender": "male",
+        "gender": "MALE",
         "address": "123 Main St",
         "phone": "1234567890",
         "email": "john.doe@example.com"
@@ -93,14 +108,14 @@ class TestAuthentication:
 
     def test_login_user(self, client, test_user):
         # First register the user
-        client.post("/api/v1/auth/register", json=test_user)
+        client.post("/auth/register", json=test_user)
         
         # Then login
         login_data = {
             "username": test_user["username"],
             "password": test_user["password"]
         }
-        response = client.post("/api/v1/auth/login", data=login_data)
+        response = client.post("/auth/login", data=login_data)
         assert response.status_code == 200
         data = response.json()
         assert "access_token" in data
@@ -111,81 +126,90 @@ class TestAuthentication:
             "username": "nonexistent",
             "password": "wrongpassword"
         }
-        response = client.post("/api/v1/auth/login", data=login_data)
+        response = client.post("/auth/login", data=login_data)
         assert response.status_code == 401
 
 class TestPatients:
-    def test_create_patient(self, client, test_patient):
-        response = client.post("/patients/", json=test_patient)
+    def test_create_patient(self, client, test_patient, test_user):
+        headers = get_auth_headers(client, test_user)
+        response = client.post("/patients/", json=test_patient, headers=headers)
         assert response.status_code == 201
         data = response.json()
         assert data["first_name"] == test_patient["first_name"]
         assert data["last_name"] == test_patient["last_name"]
         assert data["patient_id"] is not None  # Should be auto-generated
 
-    def test_get_patients(self, client, test_patient):
-        # Create a patient first
-        client.post("/api/v1/patients/", json=test_patient)
+    def test_get_patients(self, client, test_patient, test_user):
+        headers = get_auth_headers(client, test_user)
         
-        response = client.get("/patients/")
+        # Create a patient first
+        client.post("/patients/", json=test_patient, headers=headers)
+        
+        response = client.get("/patients/", headers=headers)
         assert response.status_code == 200
         data = response.json()
         assert len(data) > 0
         assert data[0]["first_name"] == test_patient["first_name"]
 
-    def test_get_patient_by_id(self, client, test_patient):
+    def test_get_patient_by_id(self, client, test_patient, test_user):
+        headers = get_auth_headers(client, test_user)
         # Create a patient first
-        create_response = client.post("/api/v1/patients/", json=test_patient)
+        create_response = client.post("/patients/", json=test_patient, headers=headers)
         patient_id = create_response.json()["id"]
         
-        response = client.get(f"/api/v1/patients/{patient_id}")
+        response = client.get(f"/patients/{patient_id}", headers=headers)
         assert response.status_code == 200
         data = response.json()
         assert data["first_name"] == test_patient["first_name"]
 
-    def test_update_patient(self, client, test_patient):
+    def test_update_patient(self, client, test_patient, test_user):
+        headers = get_auth_headers(client, test_user)
         # Create a patient first
-        create_response = client.post("/api/v1/patients/", json=test_patient)
+        create_response = client.post("/patients/", json=test_patient, headers=headers)
         patient_id = create_response.json()["id"]
         
         update_data = {"first_name": "Updated Name"}
-        response = client.put(f"/api/v1/patients/{patient_id}", json=update_data)
+        response = client.put(f"/patients/{patient_id}", json=update_data, headers=headers)
         assert response.status_code == 200
         data = response.json()
         assert data["first_name"] == "Updated Name"
 
-    def test_delete_patient(self, client, test_patient):
+    def test_delete_patient(self, client, test_patient, test_user):
+        headers = get_auth_headers(client, test_user)
         # Create a patient first
-        create_response = client.post("/api/v1/patients/", json=test_patient)
+        create_response = client.post("/patients/", json=test_patient, headers=headers)
         patient_id = create_response.json()["id"]
         
-        response = client.delete(f"/api/v1/patients/{patient_id}")
+        response = client.delete(f"/patients/{patient_id}")
         assert response.status_code == 204
 
 class TestDoctors:
-    def test_create_doctor(self, client, test_doctor):
-        response = client.post("/api/v1/doctors/", json=test_doctor)
+    def test_create_doctor(self, client, test_doctor, test_user):
+        headers = get_auth_headers(client, test_user)
+        response = client.post("/doctors/", json=test_doctor, headers=headers)
         assert response.status_code == 201
         data = response.json()
         assert data["first_name"] == test_doctor["first_name"]
         assert data["last_name"] == test_doctor["last_name"]
         assert data["doctor_id"] is not None
 
-    def test_get_doctors(self, client, test_doctor):
+    def test_get_doctors(self, client, test_doctor, test_user):
+        headers = get_auth_headers(client, test_user)
         # Create a doctor first
-        client.post("/api/v1/doctors/", json=test_doctor)
+        client.post("/doctors/", json=test_doctor, headers=headers)
         
-        response = client.get("/api/v1/doctors/")
+        response = client.get("/doctors/", headers=headers)
         assert response.status_code == 200
         data = response.json()
         assert len(data) > 0
         assert data[0]["first_name"] == test_doctor["first_name"]
 
 class TestAppointments:
-    def test_create_appointment(self, client, test_patient, test_doctor):
+    def test_create_appointment(self, client, test_patient, test_doctor, test_user):
+        headers = get_auth_headers(client, test_user)
         # Create patient and doctor first
-        patient_response = client.post("/api/v1/patients/", json=test_patient)
-        doctor_response = client.post("/api/v1/doctors/", json=test_doctor)
+        patient_response = client.post("/patients/", json=test_patient, headers=headers)
+        doctor_response = client.post("/doctors/", json=test_doctor, headers=headers)
         
         patient_id = patient_response.json()["id"]
         doctor_id = doctor_response.json()["id"]
@@ -198,36 +222,36 @@ class TestAppointments:
             "duration_minutes": 30
         }
         
-        response = client.post("/api/v1/appointments/", json=appointment_data)
+        response = client.post("/appointments/", json=appointment_data, headers=headers)
         assert response.status_code == 201
         data = response.json()
         assert data["reason"] == appointment_data["reason"]
 
 class TestSystem:
     def test_system_status(self, client):
-        response = client.get("/api/v1/system/status")
+        response = client.get("/system/status")
         # This should require admin authentication, so expect 403
         assert response.status_code == 403
 
     def test_backup_endpoints(self, client):
         # Test backup endpoints (should require admin authentication)
-        response = client.post("/api/v1/system/backup")
+        response = client.post("/system/backup")
         assert response.status_code == 403
         
-        response = client.get("/api/v1/system/backups")
+        response = client.get("/system/backups")
         assert response.status_code == 403
 
 class TestErrorHandling:
     def test_not_found_endpoint(self, client):
-        response = client.get("/api/v1/nonexistent")
+        response = client.get("/nonexistent")
         assert response.status_code == 404
 
     def test_invalid_patient_id(self, client):
-        response = client.get("/api/v1/patients/999999")
+        response = client.get("/patients/999999")
         assert response.status_code == 404
 
     def test_invalid_json(self, client):
-        response = client.post("/api/v1/patients/", data="invalid json")
+        response = client.post("/patients/", data="invalid json")
         assert response.status_code == 422
 
 if __name__ == "__main__":

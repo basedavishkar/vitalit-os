@@ -2,7 +2,7 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./test.db")
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./hospital.db")
 
 engine = create_engine(
     DATABASE_URL,
@@ -20,4 +20,6 @@ def get_db():
     finally:
         db.close()
 
-Base.metadata.create_all(bind=engine)
+# Only create tables if not in test mode
+if not os.getenv("TESTING"):
+    Base.metadata.create_all(bind=engine)

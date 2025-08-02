@@ -118,7 +118,7 @@ class TestPatientManagement:
             "first_name": "Bob",
             "last_name": "Smith",
             "date_of_birth": "1990-01-01",
-            "gender": "male",
+            "gender": "MALE",
             "phone": "1234567890",
             "email": "invalid-email",
             "address": "789 Pine St"
@@ -132,7 +132,7 @@ class TestPatientManagement:
             "first_name": "Carol",
             "last_name": "Brown",
             "date_of_birth": "invalid-date",
-            "gender": "female",
+            "gender": "FEMALE",
             "phone": "1234567890",
             "email": "carol@example.com",
             "address": "321 Elm St"
@@ -266,7 +266,7 @@ class TestPatientValidation:
             "first_name": "Test",
             "last_name": "User",
             "date_of_birth": "1990-01-01",
-            "gender": "male",
+            "gender": "MALE",
             "phone": "1234567890",
             "email": "test@example.com",
             "blood_group": "INVALID"
