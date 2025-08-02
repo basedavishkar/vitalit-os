@@ -70,7 +70,7 @@ def test_patient():
         "first_name": "John",
         "last_name": "Doe",
         "date_of_birth": "1990-01-01",
-        "gender": "MALE",
+        "gender": "male",
         "address": "123 Main St",
         "phone": "1234567890",
         "email": "john.doe@example.com"

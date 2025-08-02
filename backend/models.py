@@ -5,9 +5,9 @@ from .database import Base
 import enum
 
 class GenderEnum(enum.Enum):
-    MALE = "male"
-    FEMALE = "female"
-    OTHER = "other"
+    male = "male"
+    female = "female"
+    other = "other"
 
 class PaymentStatusEnum(enum.Enum):
     PENDING = "pending"

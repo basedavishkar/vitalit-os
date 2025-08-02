@@ -5,9 +5,9 @@ from enum import Enum
 
 # Enums
 class GenderEnum(str, Enum):
-    MALE = "male"
-    FEMALE = "female"
-    OTHER = "other"
+    male = "male"
+    female = "female"
+    other = "other"
 
 class PaymentStatusEnum(str, Enum):
     PENDING = "pending"
