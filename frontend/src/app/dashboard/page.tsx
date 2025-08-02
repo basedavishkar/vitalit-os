@@ -1,13 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Users, UserCheck, Calendar, DollarSign, TrendingUp, Activity } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Users, UserCheck, Calendar, DollarSign, TrendingUp, Activity, LogOut } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { apiClient } from '@/lib/api';
-import { patientApi } from '@/lib/api/patients';
-import { doctorApi } from '@/lib/api/doctors';
+import * as patientApi from '@/api/patients';
+import * as doctorApi from '@/api/doctors';
+import { useAuth } from '@/lib/auth';
+import ProtectedRoute from '@/components/ProtectedRoute';
 import { toast } from 'react-hot-toast';
 
 interface DashboardStats {
@@ -20,6 +21,7 @@ interface DashboardStats {
 }
 
 export default function DashboardPage() {
+  const { user, logout } = useAuth();
   const [stats, setStats] = useState<DashboardStats>({
     totalPatients: 0,
     totalDoctors: 0,
@@ -110,22 +112,31 @@ export default function DashboardPage() {
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-muted-foreground">Welcome to Vitalit Hospital Management System</p>
+    <ProtectedRoute>
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold">Dashboard</h1>
+            <p className="text-muted-foreground">
+              Welcome back, {user?.full_name || user?.username}!
+            </p>
+          </div>
+          <div className="flex items-center gap-4">
+            <Badge variant="secondary" className="text-sm">
+              {new Date().toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+              })}
+            </Badge>
+            <Button variant="outline" onClick={logout} className="flex items-center gap-2">
+              <LogOut className="h-4 w-4" />
+              Logout
+            </Button>
+          </div>
         </div>
-        <Badge variant="secondary" className="text-sm">
-          {new Date().toLocaleDateString('en-US', { 
-            weekday: 'long', 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
-          })}
-        </Badge>
-      </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -255,7 +266,8 @@ export default function DashboardPage() {
           </div>
         </CardContent>
       </Card>
-    </div>
+      </div>
+    </ProtectedRoute>
   );
 }
   

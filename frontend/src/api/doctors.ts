@@ -1,16 +1,14 @@
-import axios from "axios";
+import { createAuthenticatedApiClient } from '@/lib/auth';
 import { Doctor } from '@/types';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL;
-if (!API_BASE) throw new Error('NEXT_PUBLIC_API_URL is not set');
-const NEXT_PUBLIC_API_URL = `${API_BASE}/doctors`;
+const apiClient = createAuthenticatedApiClient();
 
 export const createDoctor = async (formData: Omit<Doctor, 'id'>) => {
-  const res = await axios.post(NEXT_PUBLIC_API_URL, formData);
+  const res = await apiClient.post('/doctors/', formData);
   return res.data;
 };
 
 export const getDoctors = async () => {
-  const res = await axios.get(NEXT_PUBLIC_API_URL);
+  const res = await apiClient.get('/doctors/');
   return res.data;
 };

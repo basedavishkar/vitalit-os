@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import and_, func, case, extract
 
 from backend import database, models, schemas, audit
-from backend.auth_enhanced import require_staff
+from backend.auth import require_staff
 
 router = APIRouter(prefix="/analytics", tags=["Analytics Dashboard"])
 
@@ -165,13 +165,13 @@ class DashboardMetrics:
     @staticmethod
     def get_patient_metrics(db: Session) -> Dict[str, Any]:
         """Get patient-related metrics"""
-        # Age distribution
+        # Age distribution (SQLite compatible)
         age_distribution = db.query(
             case(
-                (extract('year', func.age(models.Patient.date_of_birth)) < 18, 'Under 18'),
-                (extract('year', func.age(models.Patient.date_of_birth)) < 30, '18-29'),
-                (extract('year', func.age(models.Patient.date_of_birth)) < 50, '30-49'),
-                (extract('year', func.age(models.Patient.date_of_birth)) < 65, '50-64'),
+                (func.strftime('%Y', 'now') - func.strftime('%Y', models.Patient.date_of_birth) < 18, 'Under 18'),
+                (func.strftime('%Y', 'now') - func.strftime('%Y', models.Patient.date_of_birth) < 30, '18-29'),
+                (func.strftime('%Y', 'now') - func.strftime('%Y', models.Patient.date_of_birth) < 50, '30-49'),
+                (func.strftime('%Y', 'now') - func.strftime('%Y', models.Patient.date_of_birth) < 65, '50-64'),
                 else_='65+'
             ).label('age_group'),
             func.count(models.Patient.id).label('count')
