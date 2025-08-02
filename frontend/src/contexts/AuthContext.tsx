@@ -34,10 +34,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(false);
   }, []);
 
-  const login = async (role: string, password: string): Promise<boolean> => {
+  const login = async (username: string, password: string): Promise<boolean> => {
     try {
       const formData = new URLSearchParams();
-      formData.append('username', role);
+      formData.append('username', username);
       formData.append('password', password);
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/auth/token`, {
@@ -50,7 +50,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (response.ok) {
         const data = await response.json();
-        const newUser = { role, username: role };
+        const newUser = { role: data.user.role, username: data.user.username };
         
         setToken(data.access_token);
         setUser(newUser);
