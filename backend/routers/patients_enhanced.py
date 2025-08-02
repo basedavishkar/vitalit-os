@@ -7,7 +7,7 @@ from sqlalchemy import or_, and_, func
 import shutil
 import uuid
 
-from backend import database, models, schemas, audit
+import database, models, schemas, audit
 from backend.auth_enhanced import get_current_active_user, require_staff
 
 router = APIRouter(prefix="/patients", tags=["Enhanced Patient Management"])

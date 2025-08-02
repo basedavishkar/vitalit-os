@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Request, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, func
 
-from backend import database, models, schemas, audit
+import database, models, schemas, audit
 from backend.auth_enhanced import require_doctor
 
 router = APIRouter(prefix="/ehr", tags=["Enhanced Electronic Health Records"])

@@ -7,7 +7,7 @@ from sqlalchemy import and_, or_, func
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
-from backend import database, models, schemas, audit
+import database, models, schemas, audit
 from backend.auth_enhanced import get_current_active_user, require_staff
 from backend.config import settings
 

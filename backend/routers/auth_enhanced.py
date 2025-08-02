@@ -4,7 +4,7 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 
-from backend import database, models, schemas, audit
+import database, models, schemas, audit
 from backend.auth_enhanced import (
     authenticate_user, get_current_active_user, require_admin,
     PasswordValidator, MFAManager, SessionManager,

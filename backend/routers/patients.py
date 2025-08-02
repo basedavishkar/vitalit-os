@@ -3,8 +3,12 @@ from datetime import date
 from fastapi import APIRouter, Depends, HTTPException, status, Request, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, and_
-from backend import models, schemas, database, auth, audit
-from backend.auth import generate_patient_id
+import models
+import schemas
+import database
+import auth
+import audit
+from auth import generate_patient_id
 
 router = APIRouter(prefix="/patients", tags=["Patients"])
 

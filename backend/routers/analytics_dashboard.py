@@ -4,8 +4,8 @@ from fastapi import APIRouter, Depends, HTTPException, status, Request, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, func, case, extract
 
-from backend import database, models, schemas, audit
-from backend.auth import require_staff
+import database, models, schemas, audit
+from auth import require_staff
 
 router = APIRouter(prefix="/analytics", tags=["Analytics Dashboard"])
 

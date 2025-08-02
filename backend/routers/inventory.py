@@ -3,8 +3,8 @@ from datetime import datetime, date, timedelta
 from fastapi import APIRouter, Depends, HTTPException, status, Request, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, func
-from backend import models, schemas, database, auth, audit
-from backend.auth import generate_inventory_id, generate_transaction_id
+import models, schemas, database, auth, audit
+from auth import generate_inventory_id, generate_transaction_id
 
 router = APIRouter(prefix="/inventory", tags=["Inventory"])
 
