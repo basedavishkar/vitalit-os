@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Card from '../ui/Card';
+import { Card } from '../ui/Card';
 import { 
   Users, 
   Stethoscope, 

@@ -75,7 +75,6 @@ export default function Header() {
           <motion.div 
             className="flex items-center space-x-3 p-2 rounded-xl hover:bg-white/50 transition-all duration-200 cursor-pointer"
             whileHover={{ scale: 1.02 }}
-            transition={{ duration: 0.2 }}
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.7, duration: 0.4 }}
