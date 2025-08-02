@@ -1,196 +1,347 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface DashboardStats {
   totalPatients: number;
   totalDoctors: number;
   totalAppointments: number;
-  totalRevenue: number;
-  recentAppointments: Array<{
-    id: number;
-    patientName: string;
-    doctorName: string;
-    date: string;
-    status: string;
-  }>;
+  revenue: number;
 }
+
+interface Appointment {
+  id: number;
+  patientName: string;
+  doctorName: string;
+  date: string;
+  time: string;
+  status: 'scheduled' | 'completed' | 'cancelled';
+}
+
+const StatCard = ({ title, value, icon, color, delay }: {
+  title: string;
+  value: string | number;
+  icon: string;
+  color: string;
+  delay: number;
+}) => (
+  <motion.div
+    className={`p-6 rounded-2xl backdrop-blur-xl bg-white/70 border border-white/20 shadow-lg hover:shadow-xl transition-all duration-300 ${color}`}
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay, duration: 0.6, ease: "easeOut" }}
+    whileHover={{ 
+      scale: 1.05,
+      boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
+    }}
+    whileTap={{ scale: 0.98 }}
+  >
+    <div className="flex items-center justify-between">
+      <div>
+        <motion.p 
+          className="text-sm font-medium text-gray-600"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: delay + 0.1, duration: 0.4 }}
+        >
+          {title}
+        </motion.p>
+        <motion.p 
+          className="text-2xl font-bold text-gray-900 mt-1"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: delay + 0.2, duration: 0.5 }}
+        >
+          {value}
+        </motion.p>
+      </div>
+      <motion.div 
+        className="w-12 h-12 rounded-xl flex items-center justify-center text-white text-xl"
+        initial={{ scale: 0, rotate: -180 }}
+        animate={{ scale: 1, rotate: 0 }}
+        transition={{ delay: delay + 0.3, duration: 0.6, type: "spring" }}
+        whileHover={{ rotate: 360, scale: 1.1 }}
+      >
+        {icon}
+      </motion.div>
+    </div>
+  </motion.div>
+);
+
+const AppointmentCard = ({ appointment, index }: { appointment: Appointment; index: number }) => {
+  const statusColors = {
+    scheduled: 'bg-blue-100 text-blue-800',
+    completed: 'bg-green-100 text-green-800',
+    cancelled: 'bg-red-100 text-red-800'
+  };
+
+  return (
+    <motion.div
+      className="p-4 rounded-xl backdrop-blur-xl bg-white/70 border border-white/20 shadow-sm hover:shadow-md transition-all duration-300"
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: index * 0.1, duration: 0.5 }}
+      whileHover={{ 
+        scale: 1.02,
+        boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)"
+      }}
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex-1">
+          <motion.p 
+            className="font-semibold text-gray-900"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: index * 0.1 + 0.2, duration: 0.3 }}
+          >
+            {appointment.patientName}
+          </motion.p>
+          <motion.p 
+            className="text-sm text-gray-600"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: index * 0.1 + 0.3, duration: 0.3 }}
+          >
+            Dr. {appointment.doctorName}
+          </motion.p>
+          <motion.p 
+            className="text-xs text-gray-500"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: index * 0.1 + 0.4, duration: 0.3 }}
+          >
+            {appointment.date} at {appointment.time}
+          </motion.p>
+        </div>
+        <motion.span
+          className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[appointment.status]}`}
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ delay: index * 0.1 + 0.5, duration: 0.3, type: "spring" }}
+        >
+          {appointment.status}
+        </motion.span>
+      </div>
+    </motion.div>
+  );
+};
 
 export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats>({
     totalPatients: 0,
     totalDoctors: 0,
     totalAppointments: 0,
-    totalRevenue: 0,
-    recentAppointments: []
+    revenue: 0
   });
   const [loading, setLoading] = useState(true);
+  const [recentAppointments, setRecentAppointments] = useState<Appointment[]>([]);
 
   useEffect(() => {
     // Simulate loading data
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       setStats({
         totalPatients: 1247,
         totalDoctors: 23,
         totalAppointments: 89,
-        totalRevenue: 45678,
-        recentAppointments: [
-          { id: 1, patientName: "John Doe", doctorName: "Dr. Smith", date: "2024-01-15", status: "Confirmed" },
-          { id: 2, patientName: "Jane Smith", doctorName: "Dr. Johnson", date: "2024-01-15", status: "Pending" },
-          { id: 3, patientName: "Mike Wilson", doctorName: "Dr. Brown", date: "2024-01-16", status: "Confirmed" },
-        ]
+        revenue: 45678
       });
+      setRecentAppointments([
+        {
+          id: 1,
+          patientName: "Sarah Johnson",
+          doctorName: "Dr. Michael Chen",
+          date: "2024-01-15",
+          time: "10:00 AM",
+          status: "scheduled"
+        },
+        {
+          id: 2,
+          patientName: "Robert Davis",
+          doctorName: "Dr. Emily Wilson",
+          date: "2024-01-15",
+          time: "11:30 AM",
+          status: "completed"
+        },
+        {
+          id: 3,
+          patientName: "Lisa Thompson",
+          doctorName: "Dr. James Brown",
+          date: "2024-01-15",
+          time: "2:00 PM",
+          status: "scheduled"
+        },
+        {
+          id: 4,
+          patientName: "David Miller",
+          doctorName: "Dr. Amanda Garcia",
+          date: "2024-01-14",
+          time: "3:30 PM",
+          status: "cancelled"
+        }
+      ]);
       setLoading(false);
     }, 1000);
-  }, []);
 
-  const StatCard = ({ title, value, icon, color, trend }: {
-    title: string;
-    value: string | number;
-    icon: string;
-    color: string;
-    trend?: string;
-  }) => (
-    <div className="backdrop-blur-xl bg-white/70 border border-white/20 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
-          <p className="text-3xl font-bold text-gray-900">{value}</p>
-          {trend && (
-            <p className="text-sm text-green-600 mt-1">↑ {trend}</p>
-          )}
-        </div>
-        <div className={`w-12 h-12 ${color} rounded-xl flex items-center justify-center`}>
-          <span className="text-2xl">{icon}</span>
-        </div>
-      </div>
-    </div>
-  );
+    return () => clearTimeout(timer);
+  }, []);
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin"></div>
+        <motion.div
+          className="w-8 h-8 border-4 border-blue-500/30 border-t-blue-500 rounded-full"
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+        />
       </div>
     );
   }
 
   return (
     <div className="space-y-8">
-      {/* Welcome section */}
-      <div className="backdrop-blur-xl bg-gradient-to-r from-blue-500/10 to-purple-600/10 border border-white/20 rounded-2xl p-8">
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent mb-2">
-          Welcome back! 👋
-        </h1>
-        <p className="text-gray-600 text-lg">
-          Here's what's happening with your healthcare system today.
-        </p>
-      </div>
+      {/* Welcome Section */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
+        <motion.h1 
+          className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2, duration: 0.6 }}
+        >
+          Welcome back, Admin! 👋
+        </motion.h1>
+        <motion.p 
+          className="text-gray-600 mt-2"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3, duration: 0.6 }}
+        >
+          Here's what's happening at VITALIt today
+        </motion.p>
+      </motion.div>
 
-      {/* Stats grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Stats Grid */}
+      <motion.div 
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.4, duration: 0.6 }}
+      >
         <StatCard
           title="Total Patients"
           value={stats.totalPatients.toLocaleString()}
           icon="👥"
-          color="bg-blue-100"
-          trend="+12% this month"
+          color="hover:bg-blue-50/50"
+          delay={0.5}
         />
         <StatCard
           title="Active Doctors"
           value={stats.totalDoctors}
           icon="👨‍⚕️"
-          color="bg-green-100"
-          trend="+3 new"
+          color="hover:bg-green-50/50"
+          delay={0.6}
         />
         <StatCard
           title="Today's Appointments"
           value={stats.totalAppointments}
           icon="📅"
-          color="bg-purple-100"
+          color="hover:bg-purple-50/50"
+          delay={0.7}
         />
         <StatCard
           title="Monthly Revenue"
-          value={`$${stats.totalRevenue.toLocaleString()}`}
+          value={`$${stats.revenue.toLocaleString()}`}
           icon="💰"
-          color="bg-emerald-100"
-          trend="+8% vs last month"
+          color="hover:bg-yellow-50/50"
+          delay={0.8}
         />
-      </div>
+      </motion.div>
 
-      {/* Recent appointments */}
-      <div className="backdrop-blur-xl bg-white/70 border border-white/20 rounded-2xl shadow-lg">
-        <div className="p-6 border-b border-white/20">
-          <h2 className="text-xl font-bold text-gray-900">Recent Appointments</h2>
-          <p className="text-gray-600 text-sm mt-1">Latest scheduled appointments</p>
-        </div>
-        <div className="p-6">
-          <div className="space-y-4">
-            {stats.recentAppointments.map((appointment) => (
-              <div key={appointment.id} className="flex items-center justify-between p-4 bg-white/50 rounded-xl border border-white/30 hover:bg-white/70 transition-all duration-200">
-                <div className="flex items-center space-x-4">
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
-                    {appointment.patientName.charAt(0)}
-                  </div>
-                  <div>
-                    <p className="font-semibold text-gray-900">{appointment.patientName}</p>
-                    <p className="text-sm text-gray-600">with {appointment.doctorName}</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm font-medium text-gray-900">{appointment.date}</p>
-                  <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                    appointment.status === 'Confirmed' 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-yellow-100 text-yellow-800'
-                  }`}>
-                    {appointment.status}
-                  </span>
-                </div>
-              </div>
+      {/* Recent Appointments */}
+      <motion.div
+        className="backdrop-blur-xl bg-white/70 border border-white/20 rounded-2xl shadow-lg p-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.9, duration: 0.6 }}
+        whileHover={{ 
+          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
+        }}
+      >
+        <motion.h2 
+          className="text-xl font-semibold text-gray-900 mb-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.0, duration: 0.4 }}
+        >
+          Recent Appointments
+        </motion.h2>
+        <div className="space-y-3">
+          <AnimatePresence>
+            {recentAppointments.map((appointment, index) => (
+              <AppointmentCard 
+                key={appointment.id} 
+                appointment={appointment} 
+                index={index}
+              />
             ))}
-          </div>
+          </AnimatePresence>
         </div>
-      </div>
+      </motion.div>
 
-      {/* Quick actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="backdrop-blur-xl bg-white/70 border border-white/20 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] cursor-pointer">
-          <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
-              <span className="text-2xl text-white">➕</span>
-            </div>
-            <div>
-              <h3 className="font-semibold text-gray-900">Add Patient</h3>
-              <p className="text-sm text-gray-600">Register new patient</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="backdrop-blur-xl bg-white/70 border border-white/20 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] cursor-pointer">
-          <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
-              <span className="text-2xl text-white">📅</span>
-            </div>
-            <div>
-              <h3 className="font-semibold text-gray-900">Schedule Appointment</h3>
-              <p className="text-sm text-gray-600">Book new appointment</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="backdrop-blur-xl bg-white/70 border border-white/20 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] cursor-pointer">
-          <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
-              <span className="text-2xl text-white">📊</span>
-            </div>
-            <div>
-              <h3 className="font-semibold text-gray-900">View Reports</h3>
-              <p className="text-sm text-gray-600">Analytics & insights</p>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Quick Actions */}
+      <motion.div
+        className="grid grid-cols-1 md:grid-cols-3 gap-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.1, duration: 0.6 }}
+      >
+        {[
+          { title: "Add Patient", icon: "➕", color: "bg-blue-500", href: "/dashboard/patients" },
+          { title: "Schedule Appointment", icon: "📅", color: "bg-green-500", href: "/dashboard/appointments" },
+          { title: "View Reports", icon: "📊", color: "bg-purple-500", href: "/dashboard/analytics" }
+        ].map((action, index) => (
+          <motion.button
+            key={action.title}
+            className="p-6 rounded-2xl backdrop-blur-xl bg-white/70 border border-white/20 shadow-lg hover:shadow-xl transition-all duration-300 text-left"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 1.2 + index * 0.1, duration: 0.5 }}
+            whileHover={{ 
+              scale: 1.05,
+              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
+            }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <motion.div 
+              className={`w-12 h-12 rounded-xl flex items-center justify-center text-white text-xl mb-4 ${action.color}`}
+              whileHover={{ rotate: 360, scale: 1.1 }}
+              transition={{ duration: 0.6 }}
+            >
+              {action.icon}
+            </motion.div>
+            <motion.h3 
+              className="font-semibold text-gray-900"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.3 + index * 0.1, duration: 0.4 }}
+            >
+              {action.title}
+            </motion.h3>
+            <motion.p 
+              className="text-sm text-gray-600 mt-1"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.4 + index * 0.1, duration: 0.4 }}
+            >
+              Quick access to common tasks
+            </motion.p>
+          </motion.button>
+        ))}
+      </motion.div>
     </div>
   );
 }
