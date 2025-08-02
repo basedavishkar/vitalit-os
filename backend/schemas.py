@@ -562,6 +562,38 @@ class PaymentProcessRequest(BaseModel):
     amount: float = Field(..., gt=0)
     payment_intent_id: Optional[str] = None
 
+# Communication Schemas
+class InternalMessageCreate(BaseModel):
+    recipient_id: int
+    subject: str = Field(..., min_length=1, max_length=200)
+    message: str = Field(..., min_length=1)
+    priority: str = Field("normal", regex="^(low|normal|high|urgent)$")
+
+class InternalMessage(BaseModel):
+    id: int
+    sender_id: int
+    recipient_id: int
+    subject: str
+    message: str
+    priority: str
+    is_read: bool
+    read_at: Optional[datetime] = None
+    created_at: datetime
+    model_config = ConfigDict(from_attributes=True)
+
+class NotificationRequest(BaseModel):
+    recipient_ids: List[int]
+    subject: str = Field(..., min_length=1, max_length=200)
+    message: str = Field(..., min_length=1)
+    notification_type: str = Field(..., regex="^(email|sms|push|system)$")
+    send_email: bool = True
+    send_sms: bool = False
+
+class BroadcastMessageRequest(BaseModel):
+    target: str = Field(..., regex="^(staff|patients)$")
+    subject: str = Field(..., min_length=1, max_length=200)
+    message: str = Field(..., min_length=1)
+
 # Response Schemas
 class PaginatedResponse(BaseModel):
     items: List[dict]

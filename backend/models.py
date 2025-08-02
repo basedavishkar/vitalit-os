@@ -364,6 +364,56 @@ class InsuranceClaim(Base):
         Index('idx_claim_provider', 'insurance_provider'),
     )
 
+
+class InternalMessage(Base):
+    __tablename__ = "internal_messages"
+    id = Column(Integer, primary_key=True, index=True)
+    sender_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    recipient_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    subject = Column(String(200), nullable=False)
+    message = Column(Text, nullable=False)
+    priority = Column(String(20), default="normal")  # low, normal, high, urgent
+    is_read = Column(Boolean, default=False)
+    read_at = Column(DateTime(timezone=True))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    # Relationships
+    sender = relationship("User", foreign_keys=[sender_id])
+    recipient = relationship("User", foreign_keys=[recipient_id])
+    
+    # Indexes
+    __table_args__ = (
+        Index('idx_message_sender', 'sender_id'),
+        Index('idx_message_recipient', 'recipient_id'),
+        Index('idx_message_read', 'is_read'),
+        Index('idx_message_created', 'created_at'),
+    )
+
+
+class Notification(Base):
+    __tablename__ = "notifications"
+    id = Column(Integer, primary_key=True, index=True)
+    recipient_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    sender_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    subject = Column(String(200), nullable=False)
+    message = Column(Text, nullable=False)
+    notification_type = Column(String(50), nullable=False)  # email, sms, push, system
+    is_read = Column(Boolean, default=False)
+    read_at = Column(DateTime(timezone=True))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    # Relationships
+    recipient = relationship("User", foreign_keys=[recipient_id])
+    sender = relationship("User", foreign_keys=[sender_id])
+    
+    # Indexes
+    __table_args__ = (
+        Index('idx_notification_recipient', 'recipient_id'),
+        Index('idx_notification_type', 'notification_type'),
+        Index('idx_notification_read', 'is_read'),
+        Index('idx_notification_created', 'created_at'),
+    )
+
 class InventoryItem(Base):
     __tablename__ = "inventory"
     id = Column(Integer, primary_key=True, index=True)

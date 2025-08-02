@@ -5,7 +5,7 @@ from fastapi.responses import JSONResponse
 from backend.routers import (
     patients, doctors, appointments, records, billing, inventory, auth, system
 )
-from backend.routers import auth_enhanced, patients_enhanced, appointments_enhanced, ehr_enhanced, billing_enhanced
+from backend.routers import auth_enhanced, patients_enhanced, appointments_enhanced, ehr_enhanced, billing_enhanced, analytics_dashboard, communication_hub
 from backend.models import Base
 from backend.database import engine
 from backend.config import settings
@@ -91,6 +91,8 @@ app.include_router(ehr_enhanced.router, prefix=settings.api_prefix)
 app.include_router(billing.router, prefix=settings.api_prefix)
 app.include_router(billing_enhanced.router, prefix=settings.api_prefix)
 app.include_router(inventory.router, prefix=settings.api_prefix)
+app.include_router(analytics_dashboard.router, prefix=settings.api_prefix)
+app.include_router(communication_hub.router, prefix=settings.api_prefix)
 app.include_router(system.router, prefix=settings.api_prefix)
 
 
