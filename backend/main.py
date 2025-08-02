@@ -3,16 +3,16 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from backend.routers import (
+from routers import (
     patients, doctors, appointments, records, billing, inventory, auth, system, analytics_dashboard
 )
 # from backend.routers import auth_enhanced, patients_enhanced, appointments_enhanced, ehr_enhanced, billing_enhanced, communication_hub
-from backend.models import Base
-from backend.database import engine
-from backend.config import settings
-from backend.middleware import LoggingMiddleware, SecurityMiddleware, RateLimitMiddleware
-from backend.exceptions import VitalitException, create_http_exception
-from backend.logger import logger
+from models import Base
+from database import engine
+from config import settings
+from middleware import LoggingMiddleware, SecurityMiddleware, RateLimitMiddleware
+from exceptions import VitalitException, create_http_exception
+from logger import logger
 
 
 @asynccontextmanager
