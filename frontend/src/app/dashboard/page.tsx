@@ -1,7 +1,5 @@
 'use client';
 
-import { motion } from 'framer-motion';
-
 export default function DashboardPage() {
   const stats = [
     { title: 'Total Patients', value: '1,247', icon: '👥', color: 'from-blue-500 to-blue-600' },
@@ -35,33 +33,20 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8">
       {/* Welcome Section */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="text-center"
-      >
+      <div className="text-center">
         <h1 className="text-4xl font-bold gradient-text mb-2">
           Welcome back, Admin! 👋
         </h1>
         <p className="text-gray-600 text-lg">
           Here's what's happening at VITALIt today
         </p>
-      </motion.div>
+      </div>
 
       {/* Stats Grid */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
-      >
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, index) => (
-          <motion.div
+          <div
             key={stat.title}
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.3 + index * 0.1 }}
             className="card"
           >
             <div className="flex items-center justify-between">
@@ -73,25 +58,17 @@ export default function DashboardPage() {
                 {stat.icon}
               </div>
             </div>
-          </motion.div>
+          </div>
         ))}
-      </motion.div>
+      </div>
 
       {/* Recent Appointments */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.4 }}
-        className="card"
-      >
+      <div className="card">
         <h2 className="text-2xl font-bold text-gray-900 mb-6">Recent Appointments</h2>
         <div className="space-y-4">
           {appointments.map((appointment, index) => (
-            <motion.div
+            <div
               key={appointment.id}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
               className="flex items-center justify-between p-4 bg-white/50 rounded-xl border border-white/20 hover:bg-white/70 transition-all duration-200"
             >
               <div className="flex items-center space-x-4">
@@ -104,39 +81,39 @@ export default function DashboardPage() {
                   <p className="text-xs text-gray-500">{appointment.datetime}</p>
                 </div>
               </div>
-              <span className={`px-3 py-1 text-xs font-medium rounded-full ${getStatusColor(appointment.status)}`}>
+              <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(appointment.status)}`}>
                 {appointment.status}
               </span>
-            </motion.div>
+            </div>
           ))}
         </div>
-      </motion.div>
+      </div>
 
       {/* Quick Actions */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.6 }}
-        className="grid grid-cols-1 md:grid-cols-3 gap-6"
-      >
-        {quickActions.map((action, index) => (
-          <motion.div
-            key={action.title}
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.7 + index * 0.1 }}
-            className="card cursor-pointer"
-          >
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center text-white text-2xl mx-auto mb-4 shadow-lg">
-                {action.icon}
+      <div className="card">
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">Quick Actions</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {quickActions.map((action, index) => (
+            <a
+              key={action.title}
+              href={action.href}
+              className="group p-4 bg-white/50 rounded-xl border border-white/20 hover:bg-white/70 transition-all duration-200 cursor-pointer"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white text-lg group-hover:scale-110 transition-transform duration-200">
+                  {action.icon}
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors duration-200">
+                    {action.title}
+                  </h3>
+                  <p className="text-sm text-gray-600">{action.description}</p>
+                </div>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">{action.title}</h3>
-              <p className="text-sm text-gray-600">{action.description}</p>
-            </div>
-          </motion.div>
-        ))}
-      </motion.div>
+            </a>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
