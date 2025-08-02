@@ -27,25 +27,31 @@ export default function Sidebar() {
 
   return (
     <div 
-      className="relative transition-all duration-300 ease-in-out"
-      style={{ width: isCollapsed ? '80px' : '256px' }}
+      className="fixed left-0 top-0 h-full z-50 transition-all duration-500 ease-out"
+      style={{ 
+        width: isCollapsed ? '80px' : '280px',
+        minWidth: isCollapsed ? '80px' : '280px'
+      }}
     >
       <div 
-        className="fixed left-0 top-0 h-full glass border-r border-white/20 shadow-2xl z-50"
+        className="h-full w-full glass-elevated border-r border-white/10"
         style={{
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
-          background: 'rgba(255, 255, 255, 0.7)',
-          border: '1px solid rgba(255, 255, 255, 0.2)',
-          boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
-          width: isCollapsed ? '80px' : '256px'
+          backdropFilter: 'blur(30px)',
+          WebkitBackdropFilter: 'blur(30px)',
+          background: 'rgba(255, 255, 255, 0.05)',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
         }}
       >
         <div className="flex flex-col h-full">
-          {/* Logo Section */}
+          {/* Premium Logo Section */}
           <div 
-            className="p-6 border-b border-white/20"
-            style={{ padding: '1.5rem', borderBottom: '1px solid rgba(255, 255, 255, 0.2)' }}
+            className="p-6 border-b border-white/10"
+            style={{ 
+              padding: '1.5rem', 
+              borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%)'
+            }}
           >
             <div className="flex items-center justify-center">
               <div 
@@ -53,39 +59,62 @@ export default function Sidebar() {
                 style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}
               >
                 <div 
-                  className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg"
+                  className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-2xl"
                   style={{
-                    width: '2.5rem',
-                    height: '2.5rem',
+                    width: '3rem',
+                    height: '3rem',
                     background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
-                    borderRadius: '0.75rem',
+                    borderRadius: '1rem',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)'
+                    boxShadow: '0 20px 25px -5px rgba(59, 130, 246, 0.4)',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'scale(1.1) rotate(5deg)';
+                    e.currentTarget.style.boxShadow = '0 25px 50px -12px rgba(59, 130, 246, 0.6)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'scale(1) rotate(0deg)';
+                    e.currentTarget.style.boxShadow = '0 20px 25px -5px rgba(59, 130, 246, 0.4)';
                   }}
                 >
-                  <span className="text-white text-lg font-bold">V</span>
+                  <span 
+                    className="text-white text-xl font-bold"
+                    style={{ fontSize: '1.25rem', fontWeight: '800' }}
+                  >
+                    V
+                  </span>
                 </div>
                 {!isCollapsed && (
-                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  <div 
+                    className="flex flex-col animate-fade-in"
+                    style={{ display: 'flex', flexDirection: 'column' }}
+                  >
                     <h1 
-                      className="text-xl font-bold gradient-text"
+                      className="text-xl font-bold gradient-primary"
                       style={{
-                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        fontSize: '1.25rem',
+                        fontWeight: '800',
+                        background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
                         WebkitBackgroundClip: 'text',
                         WebkitTextFillColor: 'transparent',
                         backgroundClip: 'text',
-                        fontSize: '1.25rem',
-                        fontWeight: 'bold',
                         margin: 0
                       }}
                     >
                       VITALIt
                     </h1>
                     <p 
-                      className="text-xs text-gray-500"
-                      style={{ fontSize: '0.75rem', color: '#6b7280', margin: 0 }}
+                      className="text-xs text-neutral-400"
+                      style={{ 
+                        fontSize: '0.75rem', 
+                        color: '#a3a3a3', 
+                        margin: 0,
+                        fontWeight: '500',
+                        letterSpacing: '0.05em'
+                      }}
                     >
                       Healthcare
                     </p>
@@ -95,41 +124,59 @@ export default function Sidebar() {
             </div>
           </div>
 
-          {/* Navigation Menu */}
-          <nav className="flex-1 px-4 py-6 space-y-2" style={{ padding: '1rem 1rem 1.5rem 1rem' }}>
+          {/* Premium Navigation Menu */}
+          <nav 
+            className="flex-1 px-4 py-6 space-y-2"
+            style={{ 
+              padding: '1rem 1rem 1.5rem 1rem',
+              flex: 1
+            }}
+          >
             {menuItems.map((item, index) => {
               const isActive = pathname === item.href;
               return (
-                <div key={item.name} style={{ marginBottom: '0.5rem' }}>
+                <div 
+                  key={item.name} 
+                  className="animate-slide-in"
+                  style={{ 
+                    marginBottom: '0.5rem',
+                    animationDelay: `${index * 0.1}s`
+                  }}
+                >
                   <Link href={item.href} className="block">
                     <div
                       className={`sidebar-item ${isActive ? 'sidebar-item-active' : ''}`}
                       style={{
                         display: 'flex',
                         alignItems: 'center',
-                        padding: '0.75rem',
+                        padding: '1rem',
                         borderRadius: '0.75rem',
                         fontSize: '0.875rem',
                         fontWeight: '500',
-                        transition: 'all 0.2s',
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                         cursor: 'pointer',
-                        color: isActive ? '#1d4ed8' : '#374151',
+                        color: isActive ? 'white' : '#d4d4d4',
                         background: isActive 
-                          ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%)' 
+                          ? 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)' 
                           : 'transparent',
-                        border: isActive ? '1px solid rgba(59, 130, 246, 0.3)' : 'none',
-                        boxShadow: isActive ? '0 2px 8px rgba(59, 130, 246, 0.2)' : 'none'
+                        border: isActive ? '1px solid rgba(255, 255, 255, 0.3)' : '1px solid transparent',
+                        boxShadow: isActive ? '0 10px 15px -3px rgba(59, 130, 246, 0.3)' : 'none',
+                        transform: isActive ? 'translateX(8px)' : 'translateX(0)',
+                        position: 'relative',
+                        overflow: 'hidden'
                       }}
                       onMouseEnter={(e) => {
                         if (!isActive) {
-                          e.currentTarget.style.background = 'rgba(255, 255, 255, 0.5)';
-                          e.currentTarget.style.transform = 'translateX(5px)';
+                          e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+                          e.currentTarget.style.transform = 'translateX(8px)';
+                          e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
                         }
                       }}
                       onMouseLeave={(e) => {
                         if (!isActive) {
                           e.currentTarget.style.background = 'transparent';
                           e.currentTarget.style.transform = 'translateX(0)';
+                          e.currentTarget.style.boxShadow = 'none';
                         }
                       }}
                     >
@@ -138,7 +185,7 @@ export default function Sidebar() {
                         style={{ 
                           fontSize: '1.125rem', 
                           marginRight: '0.75rem',
-                          transition: 'transform 0.2s'
+                          transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
                         }}
                         onMouseEnter={(e) => {
                           e.currentTarget.style.transform = 'scale(1.2)';
@@ -150,9 +197,30 @@ export default function Sidebar() {
                         {item.icon}
                       </span>
                       {!isCollapsed && (
-                        <span className="truncate" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        <span 
+                          className="truncate font-medium"
+                          style={{ 
+                            whiteSpace: 'nowrap', 
+                            overflow: 'hidden', 
+                            textOverflow: 'ellipsis',
+                            fontWeight: '500'
+                          }}
+                        >
                           {item.name}
                         </span>
+                      )}
+                      {isActive && (
+                        <div 
+                          className="ml-auto w-2 h-2 bg-white rounded-full animate-pulse"
+                          style={{
+                            marginLeft: 'auto',
+                            width: '0.5rem',
+                            height: '0.5rem',
+                            background: 'white',
+                            borderRadius: '50%',
+                            animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                          }}
+                        />
                       )}
                     </div>
                   </Link>
@@ -161,101 +229,120 @@ export default function Sidebar() {
             })}
           </nav>
 
-          {/* User Profile Section */}
+          {/* Premium User Profile Section */}
           {!isCollapsed && user && (
             <div 
-              className="mt-4 p-3 glass rounded-xl border border-gray-200/30"
-              style={{
-                margin: '1rem',
-                padding: '0.75rem',
-                backdropFilter: 'blur(16px)',
-                WebkitBackdropFilter: 'blur(16px)',
-                background: 'rgba(255, 255, 255, 0.7)',
-                borderRadius: '0.75rem',
-                border: '1px solid rgba(229, 231, 235, 0.3)'
-              }}
+              className="mx-4 mb-4 animate-fade-in"
+              style={{ margin: '0 1rem 1rem 1rem' }}
             >
-              <div className="flex items-center space-x-3" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <div 
+                className="card-elevated p-4"
+                style={{
+                  padding: '1rem',
+                  background: 'rgba(255, 255, 255, 0.15)',
+                  backdropFilter: 'blur(30px)',
+                  WebkitBackdropFilter: 'blur(30px)',
+                  border: '1px solid rgba(255, 255, 255, 0.25)',
+                  borderRadius: '1.5rem',
+                  boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+                }}
+              >
                 <div 
-                  className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm"
-                  style={{
-                    width: '2rem',
-                    height: '2rem',
-                    background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'white',
-                    fontWeight: '600',
-                    fontSize: '0.875rem'
-                  }}
+                  className="flex items-center space-x-3"
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}
                 >
-                  {user.username?.charAt(0).toUpperCase() || 'U'}
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <p 
-                    className="text-sm font-semibold text-gray-900 truncate"
-                    style={{ 
-                      fontSize: '0.875rem', 
-                      fontWeight: '600', 
-                      color: '#111827',
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      margin: 0
+                  <div 
+                    className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm shadow-lg"
+                    style={{
+                      width: '2.5rem',
+                      height: '2.5rem',
+                      background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
+                      borderRadius: '50%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'white',
+                      fontWeight: '600',
+                      fontSize: '0.875rem',
+                      boxShadow: '0 10px 15px -3px rgba(59, 130, 246, 0.3)'
                     }}
                   >
-                    {user.username || 'User'}
-                  </p>
-                  <p 
-                    className="text-xs text-gray-500 capitalize truncate"
-                    style={{ 
-                      fontSize: '0.75rem', 
-                      color: '#6b7280',
-                      textTransform: 'capitalize',
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      margin: 0
-                    }}
-                  >
-                    {user.role || 'Admin'}
-                  </p>
+                    {user.username?.charAt(0).toUpperCase() || 'U'}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p 
+                      className="text-sm font-semibold text-white truncate"
+                      style={{
+                        fontSize: '0.875rem',
+                        fontWeight: '600',
+                        color: 'white',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        margin: 0
+                      }}
+                    >
+                      {user.username || 'User'}
+                    </p>
+                    <p 
+                      className="text-xs text-neutral-300 capitalize truncate"
+                      style={{
+                        fontSize: '0.75rem',
+                        color: '#d4d4d4',
+                        textTransform: 'capitalize',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        margin: 0
+                      }}
+                    >
+                      {user.role || 'Admin'}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Collapse Button */}
+          {/* Premium Collapse Button */}
           <div 
-            className="p-3 border-t border-white/20"
+            className="p-4 border-t border-white/10"
             style={{ 
-              padding: '0.75rem', 
-              borderTop: '1px solid rgba(255, 255, 255, 0.2)',
+              padding: '1rem', 
+              borderTop: '1px solid rgba(255, 255, 255, 0.1)',
               display: 'flex',
               justifyContent: 'center'
             }}
           >
             <button
               onClick={() => setIsCollapsed(!isCollapsed)}
-              className="p-2 rounded-lg hover:bg-white/50 transition-all duration-200"
+              className="btn-ghost p-3 rounded-xl hover:bg-white/10 transition-all duration-300"
               style={{
-                padding: '0.5rem',
-                borderRadius: '0.5rem',
-                transition: 'all 0.2s',
+                padding: '0.75rem',
+                borderRadius: '0.75rem',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 border: 'none',
                 background: 'transparent',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                color: '#d4d4d4'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.5)';
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+                e.currentTarget.style.color = 'white';
+                e.currentTarget.style.transform = 'scale(1.1)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = '#d4d4d4';
+                e.currentTarget.style.transform = 'scale(1)';
               }}
             >
-              <span style={{ fontSize: '1.125rem' }}>
+              <span 
+                style={{ 
+                  fontSize: '1.125rem',
+                  transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                }}
+              >
                 {isCollapsed ? '→' : '←'}
               </span>
             </button>
