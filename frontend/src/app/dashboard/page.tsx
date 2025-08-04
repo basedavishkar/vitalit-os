@@ -1,9 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { motion } from 'framer-motion'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { AnimatedCard } from '@/components/ui/animated-card'
+import { GlassCard } from '@/components/ui/glass-card'
 import { 
   Users, 
   UserCheck, 
@@ -13,7 +15,10 @@ import {
   TrendingDown,
   Activity,
   Clock,
-  Plus
+  ArrowRight,
+  Heart,
+  Stethoscope,
+  CreditCard
 } from 'lucide-react'
 import { dashboardAPI } from '@/lib/api'
 import { formatCurrency } from '@/lib/utils'
@@ -28,6 +33,42 @@ interface RecentActivity {
   time: string
   status: 'completed' | 'pending' | 'cancelled'
   amount?: number
+}
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.2
+    }
+  }
+}
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20, scale: 0.95 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: 0.4,
+      ease: [0.25, 0.46, 0.45, 0.94]
+    }
+  }
+}
+
+const statCardVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5,
+      ease: [0.25, 0.46, 0.45, 0.94]
+    }
+  }
 }
 
 export default function DashboardPage() {
@@ -97,10 +138,10 @@ export default function DashboardPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed': return 'bg-green-100 text-green-800'
-      case 'pending': return 'bg-yellow-100 text-yellow-800'
-      case 'cancelled': return 'bg-red-100 text-red-800'
-      default: return 'bg-gray-100 text-gray-800'
+      case 'completed': return 'bg-apple-green/10 text-apple-green border-apple-green/20'
+      case 'pending': return 'bg-apple-orange/10 text-apple-orange border-apple-orange/20'
+      case 'cancelled': return 'bg-apple-red/10 text-apple-red border-apple-red/20'
+      default: return 'bg-apple-gray/10 text-apple-gray border-apple-gray/20'
     }
   }
 
@@ -114,196 +155,268 @@ export default function DashboardPage() {
     }
   }
 
+  const getActivityIconColor = (type: string) => {
+    switch (type) {
+      case 'appointment': return 'text-apple-blue'
+      case 'patient': return 'text-apple-green'
+      case 'payment': return 'text-apple-purple'
+      case 'record': return 'text-apple-orange'
+      default: return 'text-apple-gray'
+    }
+  }
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="flex items-center justify-center min-h-[400px]"
+      >
         <div className="text-center">
-          <div className="loading-spinner w-12 h-12 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading dashboard...</p>
+          <motion.div 
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            className="w-12 h-12 border-2 border-apple-blue border-t-transparent rounded-full mx-auto mb-4"
+          />
+          <p className="text-apple-gray text-lg">Loading dashboard...</p>
         </div>
-      </div>
+      </motion.div>
     )
   }
 
   return (
-    <div className="space-y-6">
+    <motion.div 
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+      className="space-y-8 p-6"
+    >
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600">Welcome to your healthcare management dashboard</p>
-      </div>
+      <motion.div variants={itemVariants} className="text-center lg:text-left">
+        <motion.h1 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="text-4xl lg:text-5xl font-bold text-gray-900 mb-3"
+        >
+          Dashboard
+        </motion.h1>
+        <motion.p 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="text-xl text-gray-600"
+        >
+          Welcome to your healthcare management dashboard
+        </motion.p>
+      </motion.div>
 
       {/* Stats Grid */}
       {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Patients</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.totalPatients.toLocaleString()}</div>
-              <div className="flex items-center text-xs text-green-600">
-                <TrendingUp className="w-3 h-3 mr-1" />
+        <motion.div 
+          variants={containerVariants}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+        >
+          <motion.div variants={statCardVariants}>
+            <GlassCard variant="colored" color="blue" className="p-6 hover:shadow-blue transition-all duration-300">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Total Patients</h3>
+                <div className="w-10 h-10 bg-apple-blue/10 rounded-xl flex items-center justify-center">
+                  <Users className="w-5 h-5 text-apple-blue" />
+                </div>
+              </div>
+              <div className="text-3xl font-bold text-gray-900 mb-2">{stats.totalPatients.toLocaleString()}</div>
+              <div className="flex items-center text-sm text-apple-green">
+                <TrendingUp className="w-4 h-4 mr-1" />
                 +12% from last month
               </div>
-            </CardContent>
-          </Card>
+            </GlassCard>
+          </motion.div>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Doctors</CardTitle>
-              <UserCheck className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.totalDoctors.toLocaleString()}</div>
-              <div className="flex items-center text-xs text-green-600">
-                <TrendingUp className="w-3 h-3 mr-1" />
+          <motion.div variants={statCardVariants}>
+            <GlassCard variant="colored" color="purple" className="p-6 hover:shadow-purple transition-all duration-300">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Total Doctors</h3>
+                <div className="w-10 h-10 bg-apple-purple/10 rounded-xl flex items-center justify-center">
+                  <UserCheck className="w-5 h-5 text-apple-purple" />
+                </div>
+              </div>
+              <div className="text-3xl font-bold text-gray-900 mb-2">{stats.totalDoctors.toLocaleString()}</div>
+              <div className="flex items-center text-sm text-apple-green">
+                <TrendingUp className="w-4 h-4 mr-1" />
                 +5% from last month
               </div>
-            </CardContent>
-          </Card>
+            </GlassCard>
+          </motion.div>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Today&apos;s Appointments</CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.todayAppointments.toLocaleString()}</div>
-              <div className="flex items-center text-xs text-red-600">
-                <TrendingDown className="w-3 h-3 mr-1" />
+          <motion.div variants={statCardVariants}>
+            <GlassCard variant="colored" color="orange" className="p-6 hover:shadow-orange transition-all duration-300">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Today&apos;s Appointments</h3>
+                <div className="w-10 h-10 bg-apple-orange/10 rounded-xl flex items-center justify-center">
+                  <Calendar className="w-5 h-5 text-apple-orange" />
+                </div>
+              </div>
+              <div className="text-3xl font-bold text-gray-900 mb-2">{stats.todayAppointments.toLocaleString()}</div>
+              <div className="flex items-center text-sm text-apple-red">
+                <TrendingDown className="w-4 h-4 mr-1" />
                 -3% from yesterday
               </div>
-            </CardContent>
-          </Card>
+            </GlassCard>
+          </motion.div>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Monthly Revenue</CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatCurrency(stats.monthlyRevenue)}</div>
-              <div className="flex items-center text-xs text-green-600">
-                <TrendingUp className="w-3 h-3 mr-1" />
+          <motion.div variants={statCardVariants}>
+            <GlassCard variant="colored" color="green" className="p-6 hover:shadow-green transition-all duration-300">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Monthly Revenue</h3>
+                <div className="w-10 h-10 bg-apple-green/10 rounded-xl flex items-center justify-center">
+                  <DollarSign className="w-5 h-5 text-apple-green" />
+                </div>
+              </div>
+              <div className="text-3xl font-bold text-gray-900 mb-2">{formatCurrency(stats.monthlyRevenue)}</div>
+              <div className="flex items-center text-sm text-apple-green">
+                <TrendingUp className="w-4 h-4 mr-1" />
                 +18% from last month
               </div>
-            </CardContent>
-          </Card>
-        </div>
+            </GlassCard>
+          </motion.div>
+        </motion.div>
       )}
 
       {/* Additional Stats */}
       {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Patients</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.activePatients.toLocaleString()}</div>
-            </CardContent>
-          </Card>
+        <motion.div 
+          variants={containerVariants}
+          className="grid grid-cols-1 md:grid-cols-3 gap-6"
+        >
+          <motion.div variants={itemVariants}>
+            <AnimatedCard variant="glass" delay={0} className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Active Patients</h3>
+                <div className="w-10 h-10 bg-apple-teal/10 rounded-xl flex items-center justify-center">
+                  <Heart className="w-5 h-5 text-apple-teal" />
+                </div>
+              </div>
+              <div className="text-2xl font-bold text-gray-900">{stats.activePatients.toLocaleString()}</div>
+            </AnimatedCard>
+          </motion.div>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pending Appointments</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.pendingAppointments.toLocaleString()}</div>
-            </CardContent>
-          </Card>
+          <motion.div variants={itemVariants}>
+            <AnimatedCard variant="glass" delay={1} className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Pending Appointments</h3>
+                <div className="w-10 h-10 bg-apple-indigo/10 rounded-xl flex items-center justify-center">
+                  <Clock className="w-5 h-5 text-apple-indigo" />
+                </div>
+              </div>
+              <div className="text-2xl font-bold text-gray-900">{stats.pendingAppointments.toLocaleString()}</div>
+            </AnimatedCard>
+          </motion.div>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Appointments</CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.totalAppointments.toLocaleString()}</div>
-            </CardContent>
-          </Card>
-        </div>
+          <motion.div variants={itemVariants}>
+            <AnimatedCard variant="glass" delay={2} className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Total Appointments</h3>
+                <div className="w-10 h-10 bg-apple-pink/10 rounded-xl flex items-center justify-center">
+                  <Calendar className="w-5 h-5 text-apple-pink" />
+                </div>
+              </div>
+              <div className="text-2xl font-bold text-gray-900">{stats.totalAppointments.toLocaleString()}</div>
+            </AnimatedCard>
+          </motion.div>
+        </motion.div>
       )}
 
       {/* Recent Activity */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
+      <motion.div variants={itemVariants}>
+        <GlassCard variant="strong" className="p-6">
+          <div className="flex items-center justify-between mb-6">
             <div>
-              <CardTitle>Recent Activity</CardTitle>
-              <CardDescription>Latest updates from your healthcare system</CardDescription>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Recent Activity</h2>
+              <p className="text-gray-600">Latest updates from your healthcare system</p>
             </div>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className="rounded-xl border-apple-blue/20 text-apple-blue hover:bg-apple-blue hover:text-white transition-all duration-300">
               View All
+              <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </div>
-        </CardHeader>
-        <CardContent>
           <div className="space-y-4">
-            {recentActivity.map((activity) => {
+            {recentActivity.map((activity, index) => {
               const IconComponent = getActivityIcon(activity.type)
+              const iconColor = getActivityIconColor(activity.type)
               return (
-                <div key={activity.id} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                <motion.div 
+                  key={activity.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.4, delay: index * 0.1 }}
+                  whileHover={{ x: 4 }}
+                  className="flex items-center space-x-4 p-4 bg-white/60 backdrop-blur-sm rounded-xl hover:bg-white/80 transition-all duration-300 border border-white/20"
+                >
                   <div className="flex-shrink-0">
-                    <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm">
-                      <IconComponent className="w-5 h-5 text-gray-600" />
+                    <div className={`w-12 h-12 bg-white/80 rounded-xl flex items-center justify-center shadow-soft ${iconColor}`}>
+                      <IconComponent className="w-6 h-6" />
                     </div>
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="text-sm font-semibold text-gray-900">{activity.title}</h3>
                     <p className="text-sm text-gray-600">{activity.description}</p>
                     {activity.amount && (
-                      <p className="text-sm font-medium text-green-600">{formatCurrency(activity.amount)}</p>
+                      <p className="text-sm font-medium text-apple-green">{formatCurrency(activity.amount)}</p>
                     )}
                   </div>
                   <div className="flex-shrink-0 text-right">
-                    <Badge className={getStatusColor(activity.status)}>
+                    <Badge className={`${getStatusColor(activity.status)} rounded-full px-3 py-1 text-xs font-medium border`}>
                       {activity.status}
                     </Badge>
-                    <p className="text-xs text-gray-500 mt-1">{activity.time}</p>
+                    <p className="text-xs text-gray-500 mt-2">{activity.time}</p>
                   </div>
-                </div>
+                </motion.div>
               )
             })}
           </div>
-        </CardContent>
-      </Card>
+        </GlassCard>
+      </motion.div>
 
       {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-          <CardDescription>Common tasks and shortcuts</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Button variant="outline" className="h-24 flex-col space-y-2">
-              <Plus className="w-6 h-6" />
-              <span>Add Patient</span>
-            </Button>
-            
-            <Button variant="outline" className="h-24 flex-col space-y-2">
-              <UserCheck className="w-6 h-6" />
-              <span>Add Doctor</span>
-            </Button>
-            
-            <Button variant="outline" className="h-24 flex-col space-y-2">
-              <Calendar className="w-6 h-6" />
-              <span>Schedule Appointment</span>
-            </Button>
-            
-            <Button variant="outline" className="h-24 flex-col space-y-2">
-              <DollarSign className="w-6 h-6" />
-              <span>Create Bill</span>
-            </Button>
+      <motion.div variants={itemVariants}>
+        <AnimatedCard variant="elevated" className="p-6">
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Quick Actions</h2>
+            <p className="text-gray-600">Common tasks and shortcuts</p>
           </div>
-        </CardContent>
-      </Card>
-    </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button variant="outline" className="h-24 w-full flex-col space-y-3 rounded-xl border-apple-blue/20 text-apple-blue hover:bg-apple-blue hover:text-white transition-all duration-300">
+                <Users className="w-6 h-6" />
+                <span className="text-sm font-medium">Add Patient</span>
+              </Button>
+            </motion.div>
+            
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button variant="outline" className="h-24 w-full flex-col space-y-3 rounded-xl border-apple-purple/20 text-apple-purple hover:bg-apple-purple hover:text-white transition-all duration-300">
+                <Stethoscope className="w-6 h-6" />
+                <span className="text-sm font-medium">Add Doctor</span>
+              </Button>
+            </motion.div>
+            
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button variant="outline" className="h-24 w-full flex-col space-y-3 rounded-xl border-apple-orange/20 text-apple-orange hover:bg-apple-orange hover:text-white transition-all duration-300">
+                <Calendar className="w-6 h-6" />
+                <span className="text-sm font-medium">Schedule Appointment</span>
+              </Button>
+            </motion.div>
+            
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button variant="outline" className="h-24 w-full flex-col space-y-3 rounded-xl border-apple-green/20 text-apple-green hover:bg-apple-green hover:text-white transition-all duration-300">
+                <CreditCard className="w-6 h-6" />
+                <span className="text-sm font-medium">Create Bill</span>
+              </Button>
+            </motion.div>
+          </div>
+        </AnimatedCard>
+      </motion.div>
+    </motion.div>
   )
 }
   
