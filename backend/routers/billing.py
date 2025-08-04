@@ -3,8 +3,11 @@ from datetime import datetime, timedelta
 from fastapi import APIRouter, Depends, HTTPException, status, Request, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import func, and_, or_
-import models, schemas, database, auth, audit
-from auth import generate_bill_id, generate_payment_id
+from backend import models, schemas
+from backend.core import database
+from backend.core import security as auth
+from backend import audit
+from backend.core.security import generate_bill_id, generate_payment_id
 
 router = APIRouter(prefix="/billing", tags=["Billing"])
 

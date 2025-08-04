@@ -3,7 +3,7 @@ from datetime import datetime, date
 from typing import Any, Dict, Optional
 from sqlalchemy.orm import Session
 from fastapi import Request
-import models, database
+from .models import AuditLog
 
 
 class DateTimeEncoder(json.JSONEncoder):
@@ -18,109 +18,50 @@ class AuditLogger:
     """Audit logging system for tracking user actions."""
     
     @staticmethod
-    def log_action(
-        db: Session,
-        user_id: int,
-        action: str,
-        table_name: str,
-        record_id: Optional[int] = None,
-        old_values: Optional[Dict[str, Any]] = None,
-        new_values: Optional[Dict[str, Any]] = None,
-        request: Optional[Request] = None
-    ) -> models.AuditLog:
-        """Log an action to the audit trail."""
-        
-        # Get client information
-        ip_address = None
-        user_agent = None
-        
-        if request:
-            ip_address = request.client.host if request.client else None
-            user_agent = request.headers.get("user-agent")
-        
-        # Convert values to JSON strings
-        old_values_json = json.dumps(old_values, cls=DateTimeEncoder) if old_values else None
-        new_values_json = json.dumps(new_values, cls=DateTimeEncoder) if new_values else None
-        
-        # Create audit log entry
-        audit_log = models.AuditLog(
-            user_id=user_id,
-            action=action,
-            table_name=table_name,
-            record_id=record_id,
-            old_values=old_values_json,
-            new_values=new_values_json,
-            ip_address=ip_address,
-            user_agent=user_agent
-        )
-        
-        db.add(audit_log)
-        db.commit()
-        db.refresh(audit_log)
-        
-        return audit_log
-    
-    @staticmethod
-    def log_create(
-        db: Session,
-        user_id: int,
-        table_name: str,
-        record_id: int,
-        new_values: Dict[str, Any],
-        request: Optional[Request] = None
-    ) -> models.AuditLog:
-        """Log a record creation."""
-        return AuditLogger.log_action(
-            db=db,
+    def log_create(db: Session, user_id: int, table_name: str, record_id: int, new_values: dict, request: Request = None):
+        """Log a create operation."""
+        audit_log = AuditLog(
             user_id=user_id,
             action="create",
             table_name=table_name,
             record_id=record_id,
-            new_values=new_values,
-            request=request
+            new_values=str(new_values),
+            ip_address=request.client.host if request else None,
+            user_agent=request.headers.get("user-agent") if request else None
         )
+        db.add(audit_log)
+        db.commit()
     
     @staticmethod
-    def log_update(
-        db: Session,
-        user_id: int,
-        table_name: str,
-        record_id: int,
-        old_values: Dict[str, Any],
-        new_values: Dict[str, Any],
-        request: Optional[Request] = None
-    ) -> models.AuditLog:
-        """Log a record update."""
-        return AuditLogger.log_action(
-            db=db,
+    def log_update(db: Session, user_id: int, table_name: str, record_id: int, old_values: dict, new_values: dict, request: Request = None):
+        """Log an update operation."""
+        audit_log = AuditLog(
             user_id=user_id,
             action="update",
             table_name=table_name,
             record_id=record_id,
-            old_values=old_values,
-            new_values=new_values,
-            request=request
+            old_values=str(old_values),
+            new_values=str(new_values),
+            ip_address=request.client.host if request else None,
+            user_agent=request.headers.get("user-agent") if request else None
         )
+        db.add(audit_log)
+        db.commit()
     
     @staticmethod
-    def log_delete(
-        db: Session,
-        user_id: int,
-        table_name: str,
-        record_id: int,
-        old_values: Dict[str, Any],
-        request: Optional[Request] = None
-    ) -> models.AuditLog:
-        """Log a record deletion."""
-        return AuditLogger.log_action(
-            db=db,
+    def log_delete(db: Session, user_id: int, table_name: str, record_id: int, old_values: dict, request: Request = None):
+        """Log a delete operation."""
+        audit_log = AuditLog(
             user_id=user_id,
             action="delete",
             table_name=table_name,
             record_id=record_id,
-            old_values=old_values,
-            request=request
+            old_values=str(old_values),
+            ip_address=request.client.host if request else None,
+            user_agent=request.headers.get("user-agent") if request else None
         )
+        db.add(audit_log)
+        db.commit()
     
     @staticmethod
     def log_login(
@@ -128,7 +69,7 @@ class AuditLogger:
         user_id: int,
         success: bool,
         request: Optional[Request] = None
-    ) -> models.AuditLog:
+    ) -> AuditLog:
         """Log a login attempt."""
         action = "login_success" if success else "login_failed"
         return AuditLogger.log_action(
@@ -145,7 +86,7 @@ class AuditLogger:
         db: Session,
         user_id: int,
         request: Optional[Request] = None
-    ) -> models.AuditLog:
+    ) -> AuditLog:
         """Log a logout."""
         return AuditLogger.log_action(
             db=db,
@@ -166,27 +107,27 @@ def get_audit_logs(
     end_date: Optional[datetime] = None,
     limit: int = 100,
     offset: int = 0
-) -> list[models.AuditLog]:
+) -> list[AuditLog]:
     """Get audit logs with filtering options."""
     
-    query = db.query(models.AuditLog)
+    query = db.query(AuditLog)
     
     if user_id:
-        query = query.filter(models.AuditLog.user_id == user_id)
+        query = query.filter(AuditLog.user_id == user_id)
     
     if action:
-        query = query.filter(models.AuditLog.action == action)
+        query = query.filter(AuditLog.action == action)
     
     if table_name:
-        query = query.filter(models.AuditLog.table_name == table_name)
+        query = query.filter(AuditLog.table_name == table_name)
     
     if start_date:
-        query = query.filter(models.AuditLog.created_at >= start_date)
+        query = query.filter(AuditLog.created_at >= start_date)
     
     if end_date:
-        query = query.filter(models.AuditLog.created_at <= end_date)
+        query = query.filter(AuditLog.created_at <= end_date)
     
-    return query.order_by(models.AuditLog.created_at.desc()).offset(offset).limit(limit).all()
+    return query.order_by(AuditLog.created_at.desc()).offset(offset).limit(limit).all()
 
 
 def get_user_activity_summary(db: Session, user_id: int, days: int = 30) -> Dict[str, Any]:
@@ -197,9 +138,9 @@ def get_user_activity_summary(db: Session, user_id: int, days: int = 30) -> Dict
     start_date = datetime.now() - timedelta(days=days)
     
     # Get all user actions
-    actions = db.query(models.AuditLog).filter(
-        models.AuditLog.user_id == user_id,
-        models.AuditLog.created_at >= start_date
+    actions = db.query(AuditLog).filter(
+        AuditLog.user_id == user_id,
+        AuditLog.created_at >= start_date
     ).all()
     
     # Count actions by type

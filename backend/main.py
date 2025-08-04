@@ -2,25 +2,25 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from routers import (
-    patients, doctors, appointments, records, billing, inventory, auth, 
-    system, analytics_dashboard
+from backend.routers import (
+    patients, doctors, appointments, billing, auth
 )
-from models import Base
-from database import engine
-from config import settings
-from middleware import LoggingMiddleware, SecurityMiddleware, RateLimitMiddleware
-from exceptions import VitalitException, create_http_exception
-from logger import logger
+from backend.models import Base
+from backend.core.database import engine
+from backend.core.config import settings
+# If you have custom middleware, exceptions, logger, update their imports here
+# from backend.core.middleware import LoggingMiddleware, SecurityMiddleware, RateLimitMiddleware
+# from backend.core.exceptions import VitalitException, create_http_exception
+# from backend.core.logger import logger
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan manager."""
     # Startup
-    logger.info("🏥 Vitalit OS starting up...")
-    logger.info(f"Version: {settings.version}")
-    logger.info(f"Database: {settings.database_url}")
+    print("🏥 Vitalit OS starting up...")
+    print(f"Version: {settings.version}")
+    print(f"Database: {settings.database_url}")
     
     # Create database tables
     Base.metadata.create_all(bind=engine)
@@ -28,7 +28,7 @@ async def lifespan(app: FastAPI):
     yield
     
     # Shutdown
-    logger.info("🏥 Vitalit OS shutting down...")
+    print("🏥 Vitalit OS shutting down...")
 
 
 app = FastAPI(
@@ -41,9 +41,9 @@ app = FastAPI(
 )
 
 # Add middleware
-app.add_middleware(LoggingMiddleware)
-app.add_middleware(SecurityMiddleware)
-app.add_middleware(RateLimitMiddleware, requests_per_minute=60)
+# app.add_middleware(LoggingMiddleware)
+# app.add_middleware(SecurityMiddleware)
+# app.add_middleware(RateLimitMiddleware, requests_per_minute=60)
 
 app.add_middleware(
     CORSMiddleware,
@@ -54,16 +54,16 @@ app.add_middleware(
 )
 
 # Global exception handler
-@app.exception_handler(VitalitException)
-async def vitalit_exception_handler(request: Request, exc: VitalitException):
-    """Handle custom Vitalit exceptions."""
-    logger.error(f"VitalitException: {exc.message} - {exc.error_code}")
-    return create_http_exception(exc)
+# @app.exception_handler(VitalitException)
+# async def vitalit_exception_handler(request: Request, exc: VitalitException):
+#     """Handle custom Vitalit exceptions."""
+#     print(f"VitalitException: {exc.message} - {exc.error_code}")
+#     return create_http_exception(exc)
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     """Handle all other exceptions."""
-    logger.error(f"Unhandled exception: {str(exc)}")
+    print(f"Unhandled exception: {str(exc)}")
     return JSONResponse(
         status_code=500,
         content={
@@ -98,7 +98,7 @@ async def get_dashboard_stats():
 @app.post("/auth/login")
 async def simple_login(request: dict):
     """Simple login endpoint for development using role credentials."""
-    from routers.auth import ROLE_CREDENTIALS
+    from backend.routers.auth import ROLE_CREDENTIALS
     from datetime import datetime, timedelta
     import jwt
     import os
@@ -177,8 +177,8 @@ async def get_dev_doctors():
 async def get_patients_simple():
     """Get patients list (no auth required for development)."""
     try:
-        from database import SessionLocal
-        from models import Patient
+        from backend.core.database import SessionLocal
+        from backend.models import Patient
         
         db = SessionLocal()
         patients = db.query(Patient).all()
@@ -200,7 +200,7 @@ async def get_patients_simple():
         db.close()
         return result
     except Exception as e:
-        logger.error(f"Error in get_patients_simple: {e}")
+        print(f"Error in get_patients_simple: {e}")
         return {"error": str(e)}
 
 
@@ -209,8 +209,8 @@ async def get_patients_simple():
 async def get_doctors_simple():
     """Get doctors list (no auth required for development)."""
     try:
-        from database import SessionLocal
-        from models import Doctor
+        from backend.core.database import SessionLocal
+        from backend.models import Doctor
         
         db = SessionLocal()
         doctors = db.query(Doctor).filter(Doctor.is_active == True).all()
@@ -232,7 +232,7 @@ async def get_doctors_simple():
         db.close()
         return result
     except Exception as e:
-        logger.error(f"Error in get_doctors_simple: {e}")
+        print(f"Error in get_doctors_simple: {e}")
         return {"error": str(e)}
 
 # Include routers with API prefix
@@ -240,10 +240,6 @@ app.include_router(auth.router, prefix=settings.api_prefix)
 app.include_router(patients.router, prefix=settings.api_prefix)
 app.include_router(doctors.router, prefix=settings.api_prefix)
 app.include_router(appointments.router, prefix=settings.api_prefix)
-app.include_router(records.router, prefix=settings.api_prefix)
 app.include_router(billing.router, prefix=settings.api_prefix)
-app.include_router(inventory.router, prefix=settings.api_prefix)
-app.include_router(analytics_dashboard.router, prefix=settings.api_prefix)
-app.include_router(system.router, prefix=settings.api_prefix)
 
 

@@ -3,12 +3,12 @@ from datetime import date
 from fastapi import APIRouter, Depends, HTTPException, status, Request, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, and_
-import models
-import schemas
-import database
-import auth
-import audit
-from auth import generate_patient_id
+from backend import models
+from backend import schemas
+from backend.core import database
+from backend.core import security as auth
+from backend import audit
+from backend.core.security import generate_patient_id
 
 router = APIRouter(prefix="/patients", tags=["Patients"])
 
@@ -205,18 +205,14 @@ async def delete_patient(
         models.Appointment.patient_id == patient_id
     ).first() is not None
     
-    has_medical_records = db.query(models.MedicalRecord).filter(
-        models.MedicalRecord.patient_id == patient_id
-    ).first() is not None
-    
     has_bills = db.query(models.Bill).filter(
         models.Bill.patient_id == patient_id
     ).first() is not None
     
-    if has_appointments or has_medical_records or has_bills:
+    if has_appointments or has_bills:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Cannot delete patient with existing appointments, medical records, or bills"
+            detail="Cannot delete patient with existing appointments or bills"
         )
     
     # Store old values for audit
@@ -265,27 +261,7 @@ async def get_patient_appointments(
     
     return appointments
 
-@router.get("/{patient_id}/medical-records", response_model=List[schemas.MedicalRecord])
-async def get_patient_medical_records(
-    patient_id: int,
-    current_user: models.User = Depends(auth.require_doctor),
-    db: Session = Depends(database.get_db)
-):
-    """Get all medical records for a specific patient (doctors only)."""
-    
-    # Verify patient exists
-    patient = db.query(models.Patient).filter(models.Patient.id == patient_id).first()
-    if not patient:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Patient not found"
-        )
-    
-    medical_records = db.query(models.MedicalRecord).filter(
-        models.MedicalRecord.patient_id == patient_id
-    ).order_by(models.MedicalRecord.visit_date.desc()).all()
-    
-    return medical_records
+# Medical records endpoint removed - functionality moved to separate service
 
 @router.get("/{patient_id}/bills", response_model=List[schemas.Bill])
 async def get_patient_bills(
@@ -309,27 +285,7 @@ async def get_patient_bills(
     
     return bills
 
-@router.get("/{patient_id}/prescriptions", response_model=List[schemas.Prescription])
-async def get_patient_prescriptions(
-    patient_id: int,
-    current_user: models.User = Depends(auth.require_doctor),
-    db: Session = Depends(database.get_db)
-):
-    """Get all prescriptions for a specific patient (doctors only)."""
-    
-    # Verify patient exists
-    patient = db.query(models.Patient).filter(models.Patient.id == patient_id).first()
-    if not patient:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Patient not found"
-        )
-    
-    prescriptions = db.query(models.Prescription).filter(
-        models.Prescription.patient_id == patient_id
-    ).order_by(models.Prescription.prescribed_date.desc()).all()
-    
-    return prescriptions
+# Prescriptions endpoint removed - functionality moved to separate service
 
 @router.get("/{patient_id}/summary")
 async def get_patient_summary(
@@ -352,26 +308,14 @@ async def get_patient_summary(
         models.Appointment.patient_id == patient_id
     ).count()
     
-    medical_record_count = db.query(models.MedicalRecord).filter(
-        models.MedicalRecord.patient_id == patient_id
-    ).count()
-    
     bill_count = db.query(models.Bill).filter(
         models.Bill.patient_id == patient_id
-    ).count()
-    
-    prescription_count = db.query(models.Prescription).filter(
-        models.Prescription.patient_id == patient_id
     ).count()
     
     # Get latest records
     latest_appointment = db.query(models.Appointment).filter(
         models.Appointment.patient_id == patient_id
     ).order_by(models.Appointment.scheduled_datetime.desc()).first()
-    
-    latest_medical_record = db.query(models.MedicalRecord).filter(
-        models.MedicalRecord.patient_id == patient_id
-    ).order_by(models.MedicalRecord.visit_date.desc()).first()
     
     latest_bill = db.query(models.Bill).filter(
         models.Bill.patient_id == patient_id
@@ -380,12 +324,9 @@ async def get_patient_summary(
     return {
         "patient": patient,
         "summary": {
-            "total_appointments": appointment_count,
-            "total_medical_records": medical_record_count,
-            "total_bills": bill_count,
-            "total_prescriptions": prescription_count,
+                    "total_appointments": appointment_count,
+        "total_bills": bill_count,
             "latest_appointment": latest_appointment,
-            "latest_medical_record": latest_medical_record,
             "latest_bill": latest_bill
         }
     }

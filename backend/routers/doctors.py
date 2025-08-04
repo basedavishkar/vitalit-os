@@ -3,8 +3,11 @@ from datetime import datetime, date
 from fastapi import APIRouter, Depends, HTTPException, status, Request, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, func
-import models, schemas, database, auth, audit
-from auth import generate_doctor_id
+from backend import models, schemas
+from backend.core import database
+from backend.core import security as auth
+from backend import audit
+from backend.core.security import generate_doctor_id
 
 router = APIRouter(prefix="/doctors", tags=["Doctors"])
 
@@ -71,22 +74,13 @@ async def create_doctor(
 async def get_doctors(
     skip: int = 0,
     limit: int = 100,
-    specialization: Optional[str] = Query(None, description="Filter by specialization"),
-    is_active: Optional[bool] = Query(None, description="Filter by active status"),
-    search: Optional[str] = Query(None, description="Search by name or license number"),
+    search: Optional[str] = Query(None, description="Search by name, specialization, or license number"),
     current_user: models.User = Depends(auth.require_staff),
     db: Session = Depends(database.get_db)
 ):
-    """Get doctors with optional filtering and search."""
+    """Get doctors with optional search."""
     
     query = db.query(models.Doctor)
-    
-    # Apply filters
-    if specialization:
-        query = query.filter(models.Doctor.specialization.ilike(f"%{specialization}%"))
-    
-    if is_active is not None:
-        query = query.filter(models.Doctor.is_active == is_active)
     
     # Apply search
     if search:
@@ -95,6 +89,7 @@ async def get_doctors(
             or_(
                 models.Doctor.first_name.ilike(search_term),
                 models.Doctor.last_name.ilike(search_term),
+                models.Doctor.specialization.ilike(search_term),
                 models.Doctor.license_number.ilike(search_term)
             )
         )
@@ -110,7 +105,7 @@ async def get_doctor(
     current_user: models.User = Depends(auth.require_staff),
     db: Session = Depends(database.get_db)
 ):
-    """Get a specific doctor by ID."""
+    """Get a doctor by ID."""
     
     doctor = db.query(models.Doctor).filter(models.Doctor.id == doctor_id).first()
     if not doctor:
@@ -149,7 +144,7 @@ async def update_doctor(
     db: Session = Depends(database.get_db),
     request: Request = None
 ):
-    """Update a doctor."""
+    """Update a doctor's information."""
     
     doctor = db.query(models.Doctor).filter(models.Doctor.id == doctor_id).first()
     if not doctor:
@@ -185,13 +180,8 @@ async def update_doctor(
         "first_name": doctor.first_name,
         "last_name": doctor.last_name,
         "specialization": doctor.specialization,
-        "qualification": doctor.qualification,
         "license_number": doctor.license_number,
-        "phone": doctor.phone,
-        "email": doctor.email,
-        "address": doctor.address,
-        "consultation_fee": doctor.consultation_fee,
-        "is_active": doctor.is_active
+        "email": doctor.email
     }
     
     # Update doctor fields
@@ -218,7 +208,7 @@ async def delete_doctor(
     db: Session = Depends(database.get_db),
     request: Request = None
 ):
-    """Delete a doctor (admin only)."""
+    """Delete a doctor."""
     
     doctor = db.query(models.Doctor).filter(models.Doctor.id == doctor_id).first()
     if not doctor:
@@ -232,18 +222,10 @@ async def delete_doctor(
         models.Appointment.doctor_id == doctor_id
     ).first() is not None
     
-    has_medical_records = db.query(models.MedicalRecord).filter(
-        models.MedicalRecord.doctor_id == doctor_id
-    ).first() is not None
-    
-    has_prescriptions = db.query(models.Prescription).filter(
-        models.Prescription.doctor_id == doctor_id
-    ).first() is not None
-    
-    if has_appointments or has_medical_records or has_prescriptions:
+    if has_appointments:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Cannot delete doctor with existing appointments, medical records, or prescriptions"
+            detail="Cannot delete doctor with existing appointments"
         )
     
     # Store old values for audit
@@ -304,72 +286,6 @@ async def get_doctor_appointments(
     
     return appointments
 
-@router.get("/{doctor_id}/medical-records", response_model=List[schemas.MedicalRecord])
-async def get_doctor_medical_records(
-    doctor_id: int,
-    start_date: Optional[datetime] = Query(None, description="Filter by start date"),
-    end_date: Optional[datetime] = Query(None, description="Filter by end date"),
-    current_user: models.User = Depends(auth.require_doctor),
-    db: Session = Depends(database.get_db)
-):
-    """Get all medical records created by a specific doctor."""
-    
-    # Verify doctor exists
-    doctor = db.query(models.Doctor).filter(models.Doctor.id == doctor_id).first()
-    if not doctor:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Doctor not found"
-        )
-    
-    query = db.query(models.MedicalRecord).filter(models.MedicalRecord.doctor_id == doctor_id)
-    
-    # Apply filters
-    if start_date:
-        query = query.filter(models.MedicalRecord.visit_date >= start_date)
-    
-    if end_date:
-        query = query.filter(models.MedicalRecord.visit_date <= end_date)
-    
-    medical_records = query.order_by(models.MedicalRecord.visit_date.desc()).all()
-    
-    return medical_records
-
-@router.get("/{doctor_id}/prescriptions", response_model=List[schemas.Prescription])
-async def get_doctor_prescriptions(
-    doctor_id: int,
-    start_date: Optional[datetime] = Query(None, description="Filter by start date"),
-    end_date: Optional[datetime] = Query(None, description="Filter by end date"),
-    is_active: Optional[bool] = Query(None, description="Filter by active status"),
-    current_user: models.User = Depends(auth.require_doctor),
-    db: Session = Depends(database.get_db)
-):
-    """Get all prescriptions created by a specific doctor."""
-    
-    # Verify doctor exists
-    doctor = db.query(models.Doctor).filter(models.Doctor.id == doctor_id).first()
-    if not doctor:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Doctor not found"
-        )
-    
-    query = db.query(models.Prescription).filter(models.Prescription.doctor_id == doctor_id)
-    
-    # Apply filters
-    if start_date:
-        query = query.filter(models.Prescription.prescribed_date >= start_date)
-    
-    if end_date:
-        query = query.filter(models.Prescription.prescribed_date <= end_date)
-    
-    if is_active is not None:
-        query = query.filter(models.Prescription.is_active == is_active)
-    
-    prescriptions = query.order_by(models.Prescription.prescribed_date.desc()).all()
-    
-    return prescriptions
-
 @router.get("/{doctor_id}/schedule")
 async def get_doctor_schedule(
     doctor_id: int,
@@ -419,91 +335,6 @@ async def get_doctor_schedule(
             "cancelled_appointments": cancelled_appointments,
             "no_shows": no_shows,
             "completion_rate": (completed_appointments / total_appointments * 100) if total_appointments > 0 else 0
-        }
-    }
-
-@router.get("/{doctor_id}/performance")
-async def get_doctor_performance(
-    doctor_id: int,
-    start_date: Optional[datetime] = Query(None, description="Start date for performance period"),
-    end_date: Optional[datetime] = Query(None, description="End date for performance period"),
-    current_user: models.User = Depends(auth.require_admin),
-    db: Session = Depends(database.get_db)
-):
-    """Get doctor's performance metrics."""
-    
-    # Verify doctor exists
-    doctor = db.query(models.Doctor).filter(models.Doctor.id == doctor_id).first()
-    if not doctor:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Doctor not found"
-        )
-    
-    # Build base queries
-    appointment_query = db.query(models.Appointment).filter(models.Appointment.doctor_id == doctor_id)
-    medical_record_query = db.query(models.MedicalRecord).filter(models.MedicalRecord.doctor_id == doctor_id)
-    prescription_query = db.query(models.Prescription).filter(models.Prescription.doctor_id == doctor_id)
-    
-    # Apply date filters if provided
-    if start_date:
-        appointment_query = appointment_query.filter(models.Appointment.scheduled_datetime >= start_date)
-        medical_record_query = medical_record_query.filter(models.MedicalRecord.visit_date >= start_date)
-        prescription_query = prescription_query.filter(models.Prescription.prescribed_date >= start_date)
-    
-    if end_date:
-        appointment_query = appointment_query.filter(models.Appointment.scheduled_datetime <= end_date)
-        medical_record_query = medical_record_query.filter(models.MedicalRecord.visit_date <= end_date)
-        prescription_query = prescription_query.filter(models.Prescription.prescribed_date <= end_date)
-    
-    # Get appointment statistics
-    total_appointments = appointment_query.count()
-    completed_appointments = appointment_query.filter(
-        models.Appointment.status == models.AppointmentStatusEnum.COMPLETED
-    ).count()
-    cancelled_appointments = appointment_query.filter(
-        models.Appointment.status == models.AppointmentStatusEnum.CANCELLED
-    ).count()
-    no_shows = appointment_query.filter(
-        models.Appointment.status == models.AppointmentStatusEnum.NO_SHOW
-    ).count()
-    
-    # Get medical record statistics
-    total_medical_records = medical_record_query.count()
-    
-    # Get prescription statistics
-    total_prescriptions = prescription_query.count()
-    active_prescriptions = prescription_query.filter(
-        models.Prescription.is_active == True
-    ).count()
-    
-    # Calculate metrics
-    completion_rate = (completed_appointments / total_appointments * 100) if total_appointments > 0 else 0
-    cancellation_rate = (cancelled_appointments / total_appointments * 100) if total_appointments > 0 else 0
-    no_show_rate = (no_shows / total_appointments * 100) if total_appointments > 0 else 0
-    
-    return {
-        "doctor": doctor,
-        "period": {
-            "start_date": start_date,
-            "end_date": end_date
-        },
-        "appointments": {
-            "total": total_appointments,
-            "completed": completed_appointments,
-            "cancelled": cancelled_appointments,
-            "no_shows": no_shows,
-            "completion_rate": completion_rate,
-            "cancellation_rate": cancellation_rate,
-            "no_show_rate": no_show_rate
-        },
-        "medical_records": {
-            "total": total_medical_records
-        },
-        "prescriptions": {
-            "total": total_prescriptions,
-            "active": active_prescriptions,
-            "inactive": total_prescriptions - active_prescriptions
         }
     }
 

@@ -8,7 +8,10 @@ from sqlalchemy.orm import Session
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 
-import database, models, schemas, auth, audit
+from backend.core import database
+from backend import models, schemas
+from backend.core import security as auth
+from backend import audit
 
 # Configuration
 SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-change-in-production")

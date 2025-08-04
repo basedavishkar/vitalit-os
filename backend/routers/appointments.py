@@ -3,8 +3,12 @@ from datetime import datetime, timedelta, date
 from fastapi import APIRouter, Depends, HTTPException, status, Request, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, func
-import models, schemas, database, auth, audit
-from auth import generate_appointment_id
+from backend import models, schemas
+from backend.core import database
+from backend.core import security as auth
+from backend import audit
+from backend.core.security import generate_appointment_id
+from backend.models.appointment import AppointmentStatusEnum
 
 router = APIRouter(prefix="/appointments", tags=["Appointments"])
 
@@ -47,8 +51,8 @@ async def create_appointment(
         and_(
             models.Appointment.doctor_id == appointment_data.doctor_id,
             models.Appointment.status.in_([
-                models.AppointmentStatusEnum.SCHEDULED,
-                models.AppointmentStatusEnum.CONFIRMED
+                AppointmentStatusEnum.SCHEDULED,
+                AppointmentStatusEnum.CONFIRMED
             ]),
             models.Appointment.scheduled_datetime < appointment_end
         )
@@ -65,8 +69,8 @@ async def create_appointment(
         and_(
             models.Appointment.patient_id == appointment_data.patient_id,
             models.Appointment.status.in_([
-                models.AppointmentStatusEnum.SCHEDULED,
-                models.AppointmentStatusEnum.CONFIRMED
+                AppointmentStatusEnum.SCHEDULED,
+                AppointmentStatusEnum.CONFIRMED
             ]),
             models.Appointment.scheduled_datetime < appointment_end
         )
@@ -89,7 +93,7 @@ async def create_appointment(
         scheduled_datetime=appointment_data.scheduled_datetime,
         duration_minutes=appointment_data.duration_minutes,
         reason=appointment_data.reason,
-        status=models.AppointmentStatusEnum.SCHEDULED,
+        status=AppointmentStatusEnum.SCHEDULED,
         notes=appointment_data.notes,
         created_by=current_user.id if current_user else None
     )
@@ -219,8 +223,8 @@ async def update_appointment(
                 models.Appointment.id != appointment_id,
                 models.Appointment.doctor_id == new_doctor_id,
                 models.Appointment.status.in_([
-                    models.AppointmentStatusEnum.SCHEDULED,
-                    models.AppointmentStatusEnum.CONFIRMED
+                    AppointmentStatusEnum.SCHEDULED,
+                    AppointmentStatusEnum.CONFIRMED
                 ]),
                 or_(
                     and_(
@@ -276,8 +280,8 @@ async def delete_appointment(
     
     # Check if appointment can be cancelled
     if appointment.status in [
-        models.AppointmentStatusEnum.COMPLETED,
-        models.AppointmentStatusEnum.IN_PROGRESS
+        AppointmentStatusEnum.COMPLETED,
+        AppointmentStatusEnum.IN_PROGRESS
     ]:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -308,7 +312,7 @@ async def delete_appointment(
 @router.put("/{appointment_id}/status")
 async def update_appointment_status(
     appointment_id: int,
-    status: models.AppointmentStatusEnum,
+    status: AppointmentStatusEnum,
     current_user: models.User = Depends(auth.require_staff),
     db: Session = Depends(database.get_db),
     request: Request = None
@@ -439,8 +443,8 @@ async def check_scheduling_conflicts(
         and_(
             models.Appointment.doctor_id == doctor_id,
             models.Appointment.status.in_([
-                models.AppointmentStatusEnum.SCHEDULED,
-                models.AppointmentStatusEnum.CONFIRMED
+                AppointmentStatusEnum.SCHEDULED,
+                AppointmentStatusEnum.CONFIRMED
             ]),
             or_(
                 and_(
