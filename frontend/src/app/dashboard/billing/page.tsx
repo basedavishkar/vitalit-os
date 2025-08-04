@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import type { Bill } from '@/types/api';
 
-interface Bill {
+interface BillDisplay {
   id: number;
   patientName: string;
   doctorName: string;
@@ -14,7 +15,7 @@ interface Bill {
 }
 
 export default function BillingPage() {
-  const [bills, setBills] = useState<Bill[]>([]);
+  const [bills, setBills] = useState<BillDisplay[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');

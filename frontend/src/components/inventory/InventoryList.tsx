@@ -1,28 +1,26 @@
-import Table from "@/components/ui/table";
-import { InventoryItem } from '@/types';
+import { InventoryItem } from '@/types/api';
 
 export default function InventoryList({ items }: { items: InventoryItem[] }) {
   return (
-    <Table
-      headers={["Name", "Quantity", "Price", "Expiry Date", "Vendor"]}
-    >
-      {items.length === 0 ? (
+    <table>
+      <thead>
         <tr>
-          <td colSpan={5} className="text-center py-8 text-emerald-400">
-            No inventory items found.
-          </td>
+          <th>Name</th>
+          <th>Quantity</th>
+          <th>Price</th>
+          <th>Supplier</th>
         </tr>
-      ) : (
-        items.map((item) => (
+      </thead>
+      <tbody>
+        {items.map((item) => (
           <tr key={item.id}>
             <td className="font-semibold">{item.name}</td>
-            <td>{item.quantity}</td>
-            <td>${item.price}</td>
-            <td>{item.expiry_date}</td>
-            <td>{item.vendor}</td>
+            <td>{item.current_quantity}</td>
+            <td>${item.unit_price}</td>
+            <td>{item.supplier}</td>
           </tr>
-        ))
-      )}
-    </Table>
+        ))}
+      </tbody>
+    </table>
   );
 } 

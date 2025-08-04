@@ -1,15 +1,15 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { getPatients } from "@/api/patients";
-import { Bill } from '@/types';
+import { patientsAPI } from "@/lib/api";
+import { Bill } from '@/types/api';
 
 export default function BillDetails({ bill, onClose }: { bill: Bill; onClose: () => void }) {
   const printRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     (async () => {
-      await getPatients();
+      await patientsAPI.getAll();
     })();
   }, [bill]);
 

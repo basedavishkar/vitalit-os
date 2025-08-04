@@ -17,7 +17,7 @@ import {
 } from 'lucide-react'
 import { patientsAPI } from '@/lib/api'
 import { formatDate } from '@/lib/utils'
-import type { Patient } from '@/types'
+import type { Patient } from '@/types/api'
 import toast from 'react-hot-toast'
 
 export default function PatientsPage() {
@@ -33,7 +33,7 @@ export default function PatientsPage() {
     try {
       setLoading(true)
       // Using the simple endpoint for development (no auth required)
-      const data = await patientsAPI.getSimple()
+      const data = await patientsAPI.getSimplePatients()
       setPatients(data)
     } catch (error) {
       console.error('Failed to fetch patients:', error)

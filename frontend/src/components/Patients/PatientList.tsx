@@ -1,7 +1,7 @@
 "use client";
 
 import Table from "@/components/ui/table";
-import { Patient } from '@/types';
+import { Patient } from '@/types/api';
 
 export default function PatientList({ patients }: { patients: Patient[] }) {
   return (
@@ -15,11 +15,9 @@ export default function PatientList({ patients }: { patients: Patient[] }) {
       ) : (
         patients.map((p) => (
           <tr key={p.id}>
-            <td>{p.name}</td>
-            <td>{p.age}</td>
+            <td>{`${p.first_name} ${p.last_name}`}</td>
             <td>{p.gender}</td>
             <td>{p.address}</td>
-            <td>{p.contact}</td>
           </tr>
         ))
       )}

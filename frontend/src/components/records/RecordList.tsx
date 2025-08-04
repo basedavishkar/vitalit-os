@@ -1,29 +1,30 @@
 "use client";
 
-import Table from "@/components/ui/table";
-import { MedicalRecord } from '@/types';
+import { MedicalRecord } from '@/types/api';
 
 export default function RecordList({ records }: { records: MedicalRecord[] }) {
   return (
-    <Table headers={["Patient ID", "Doctor ID", "Diagnosis", "Prescription", "Notes", "Date"]}>
-      {records.length === 0 ? (
+    <table>
+      <thead>
         <tr>
-          <td colSpan={6} className="text-center py-8 text-emerald-400">
-            No records found.
-          </td>
+          <th>Patient ID</th>
+          <th>Doctor ID</th>
+          <th>Diagnosis</th>
+          <th>Prescription Notes</th>
+          <th>Visit Date</th>
         </tr>
-      ) : (
-        records.map((r) => (
+      </thead>
+      <tbody>
+        {records.map((r) => (
           <tr key={r.id}>
             <td>{r.patient_id}</td>
             <td>{r.doctor_id}</td>
             <td>{r.diagnosis}</td>
-            <td>{r.prescription}</td>
-            <td>{r.notes}</td>
-            <td>{r.date}</td>
+            <td>{r.prescription_notes}</td>
+            <td>{r.visit_date}</td>
           </tr>
-        ))
-      )}
-    </Table>
+        ))}
+      </tbody>
+    </table>
   );
 } 

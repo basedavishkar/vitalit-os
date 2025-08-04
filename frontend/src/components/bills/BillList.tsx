@@ -1,25 +1,26 @@
 "use client";
 
 import Table from "@/components/ui/table";
-import { Bill, Patient } from '@/types';
+import { Bill, Patient } from '@/types/api';
 
 export default function BillList({ bills, patients }: { bills: Bill[]; patients: Patient[] }) {
-  const getPatientName = (id: number) => patients.find((p) => p.id === id)?.name || id;
+  const getPatientName = (id: number) => {
+    const p = patients.find((p) => p.id === id);
+    return p ? `${p.first_name} ${p.last_name}` : id;
+  };
   return (
     <Table headers={["Patient", "Amount", "Date", "Description"]}>
       {bills.length === 0 ? (
         <tr>
-          <td colSpan={4} className="text-center py-8 text-emerald-400">
-            No bills found.
-          </td>
+          <td colSpan={4}>No bills found.</td>
         </tr>
       ) : (
-        bills.map((b) => (
-          <tr key={b.id}>
-            <td>{getPatientName(b.patient_id)}</td>
-            <td>${b.amount}</td>
-            <td>{b.date}</td>
-            <td>{b.description}</td>
+        bills.map((bill) => (
+          <tr key={bill.id}>
+            <td>{getPatientName(bill.patient_id)}</td>
+            <td>{bill.total_amount}</td>
+            <td>{bill.bill_date}</td>
+            <td>{bill.notes}</td>
           </tr>
         ))
       )}

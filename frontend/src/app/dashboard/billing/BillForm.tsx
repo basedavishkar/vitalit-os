@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { createBill } from "@/api/bills";
+import { billingAPI } from "@/lib/api";
 import { Card } from "@/components/ui/card";
-import { Patient } from '@/types';
+import { Patient } from '@/types/api';
 
 export default function BillForm({ onBillAdded, patients }: { onBillAdded?: () => void; patients: Patient[] }) {
   const [form, setForm] = useState({
@@ -29,7 +29,7 @@ export default function BillForm({ onBillAdded, patients }: { onBillAdded?: () =
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    await createBill(form);
+    await billingAPI.createBill(form);
     setForm({ patient_id: 0, amount: 0, date: "", description: "", paid: false });
     if (onBillAdded) onBillAdded();
   };
@@ -43,7 +43,7 @@ export default function BillForm({ onBillAdded, patients }: { onBillAdded?: () =
           <select name="patient_id" value={form.patient_id} onChange={handleChange} required>
             <option value={0}>Select Patient</option>
             {patients.map((p) => (
-              <option key={p.id} value={p.id}>{p.name}</option>
+              <option key={p.id} value={p.id}>{p.first_name} {p.last_name}</option>
             ))}
           </select>
         </div>

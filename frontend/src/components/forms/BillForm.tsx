@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { createBill } from "@/api/bills";
-import { Patient } from '@/types';
+import { billingAPI } from "@/lib/api";
+import { Patient } from '@/types/api';
 import { Card } from "@/components/ui/card";
 
 export default function BillForm({ onBillAdded, patients }: { onBillAdded?: () => void; patients: Patient[] }) {
@@ -18,13 +18,13 @@ export default function BillForm({ onBillAdded, patients }: { onBillAdded?: () =
     const { name, value, type } = e.target;
     setForm({
       ...form,
-      [name]: type === 'number' ? Number(value) : value,
+      [name]: type === 'checkbox' && 'checked' in e.target ? (e.target as HTMLInputElement).checked : value
     });
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    await createBill(form);
+    await billingAPI.createBill(form);
     setForm({ patient_id: 0, amount: 0, date: "", description: "", paid: false });
     if (onBillAdded) onBillAdded();
   };
@@ -42,7 +42,7 @@ export default function BillForm({ onBillAdded, patients }: { onBillAdded?: () =
           >
             <option value={0}>Select Patient</option>
             {patients.map((p) => (
-              <option key={p.id} value={p.id}>{p.name}</option>
+              <option key={p.id} value={p.id}>{`${p.first_name} ${p.last_name}`}</option>
             ))}
           </select>
         </div>

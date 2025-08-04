@@ -18,7 +18,7 @@ import {
 } from 'lucide-react'
 import { doctorsAPI } from '@/lib/api'
 import { formatDate } from '@/lib/utils'
-import type { Doctor } from '@/types'
+import type { Doctor } from '@/types/api'
 import toast from 'react-hot-toast'
 
 export default function DoctorsPage() {
@@ -34,7 +34,7 @@ export default function DoctorsPage() {
     try {
       setLoading(true)
       // Using the simple endpoint for development (no auth required)
-      const data = await doctorsAPI.getSimple()
+      const data = await doctorsAPI.getSimpleDoctors()
       setDoctors(data)
     } catch (error) {
       console.error('Failed to fetch doctors:', error)

@@ -1,7 +1,7 @@
 "use client";
 
 import Table from "@/components/ui/table";
-import { Appointment } from '@/types';
+import { Appointment } from '@/types/api';
 
 export default function AppointmentList({ appointments }: { appointments: Appointment[] }) {
   return (
@@ -17,7 +17,7 @@ export default function AppointmentList({ appointments }: { appointments: Appoin
           <tr key={a.id}>
             <td>{a.patient_id}</td>
             <td>{a.doctor_id}</td>
-            <td>{new Date(a.datetime).toLocaleString()}</td>
+            <td>{new Date(a.scheduled_datetime).toLocaleString()}</td>
             <td>{a.reason}</td>
           </tr>
         ))

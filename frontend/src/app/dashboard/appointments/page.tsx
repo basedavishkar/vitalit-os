@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import type { Appointment } from '@/types/api';
 
-interface Appointment {
+interface AppointmentDisplay {
   id: number;
   patientName: string;
   doctorName: string;
@@ -14,7 +15,7 @@ interface Appointment {
 }
 
 export default function AppointmentsPage() {
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [appointments, setAppointments] = useState<AppointmentDisplay[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');

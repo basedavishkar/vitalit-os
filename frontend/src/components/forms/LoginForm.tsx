@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { login } from "@/api/auth";
+import { authAPI } from "@/lib/api";
 
 export default function LoginForm() {
   const [role, setRole] = useState("");
@@ -13,7 +13,7 @@ export default function LoginForm() {
     e.preventDefault();
     setError("");
     try {
-      const data = await login(role, password);
+      const data = await authAPI.login({ username: role, password });
       localStorage.setItem("token", data.access_token);
       router.push("/dashboard");
     } catch (error) {

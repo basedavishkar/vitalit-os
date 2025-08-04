@@ -1,32 +1,35 @@
 "use client";
 
 import { useState } from "react";
-import { createRecord } from "@/api/records";
+import { recordsAPI } from "@/lib/api";
 import { Card } from "@/components/ui/card";
-import { Patient, Doctor } from '@/types';
+import { Patient, Doctor } from '@/types/api';
 
-export default function RecordForm({ onRecordAdded, patients = [], doctors = [] }: { onRecordAdded?: () => void; patients?: Patient[]; doctors?: Doctor[] }) {
+export default function RecordForm({ onRecordAdded, patients = [], doctors = [], currentUserId = 1 }: { onRecordAdded?: () => void; patients?: Patient[]; doctors?: Doctor[]; currentUserId?: number }) {
   const [form, setForm] = useState({
     patient_id: 0,
     doctor_id: 0,
-    date: "",
+    visit_date: "",
+    chief_complaint: "",
     diagnosis: "",
-    prescription: "",
+    treatment_plan: "",
+    prescription_notes: "",
     notes: "",
+    created_by: currentUserId
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setForm({
       ...form,
-      [name]: (name === 'patient_id' || name === 'doctor_id') ? Number(value) : value,
+      [name]: (name === 'patient_id' || name === 'doctor_id' || name === 'created_by') ? Number(value) : value,
     });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await createRecord(form);
-    setForm({ patient_id: 0, doctor_id: 0, date: "", diagnosis: "", prescription: "", notes: "" });
+    await recordsAPI.create(form);
+    setForm({ patient_id: 0, doctor_id: 0, visit_date: "", chief_complaint: "", diagnosis: "", treatment_plan: "", prescription_notes: "", notes: "", created_by: currentUserId });
     if (onRecordAdded) onRecordAdded();
   };
 
@@ -43,7 +46,7 @@ export default function RecordForm({ onRecordAdded, patients = [], doctors = [] 
           >
             <option value={0}>Select Patient</option>
             {patients.map((p) => (
-              <option key={p.id} value={p.id}>{p.name}</option>
+              <option key={p.id} value={p.id}>{`${p.first_name} ${p.last_name}`}</option>
             ))}
           </select>
         </div>
@@ -57,18 +60,28 @@ export default function RecordForm({ onRecordAdded, patients = [], doctors = [] 
           >
             <option value={0}>Select Doctor</option>
             {doctors.map((d) => (
-              <option key={d.id} value={d.id}>{d.name}</option>
+              <option key={d.id} value={d.id}>{`${d.first_name} ${d.last_name}`}</option>
             ))}
           </select>
         </div>
         <div className="flex flex-col gap-2">
-          <label className="font-bold text-emerald-700 text-lg">Date</label>
+          <label className="font-bold text-emerald-700 text-lg">Visit Date</label>
           <input
-            name="date"
+            name="visit_date"
             type="date"
-            value={form.date}
+            value={form.visit_date}
             onChange={handleChange}
             required
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="font-bold text-emerald-700 text-lg">Chief Complaint</label>
+          <input
+            name="chief_complaint"
+            value={form.chief_complaint}
+            onChange={handleChange}
+            required
+            placeholder="e.g. Headache"
           />
         </div>
         <div className="flex flex-col gap-2">
@@ -78,17 +91,25 @@ export default function RecordForm({ onRecordAdded, patients = [], doctors = [] 
             value={form.diagnosis}
             onChange={handleChange}
             required
-            placeholder="e.g. Flu"
+            placeholder="e.g. Migraine"
           />
         </div>
         <div className="flex flex-col gap-2">
-          <label className="font-bold text-emerald-700 text-lg">Prescription</label>
+          <label className="font-bold text-emerald-700 text-lg">Treatment Plan</label>
           <input
-            name="prescription"
-            value={form.prescription}
+            name="treatment_plan"
+            value={form.treatment_plan}
             onChange={handleChange}
-            required
-            placeholder="e.g. Paracetamol"
+            placeholder="e.g. Rest, hydration, medication"
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="font-bold text-emerald-700 text-lg">Prescription Notes</label>
+          <input
+            name="prescription_notes"
+            value={form.prescription_notes}
+            onChange={handleChange}
+            placeholder="e.g. Paracetamol 500mg"
           />
         </div>
         <div className="flex flex-col gap-2">
@@ -97,8 +118,7 @@ export default function RecordForm({ onRecordAdded, patients = [], doctors = [] 
             name="notes"
             value={form.notes}
             onChange={handleChange}
-            required
-            placeholder="e.g. Rest and hydrate"
+            placeholder="e.g. Follow up in 2 weeks"
           />
         </div>
         <button type="submit" className="mt-4 w-full flex items-center justify-center gap-2 text-lg">

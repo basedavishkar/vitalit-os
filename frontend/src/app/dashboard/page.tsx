@@ -17,7 +17,7 @@ import {
 } from 'lucide-react'
 import { dashboardAPI } from '@/lib/api'
 import { formatCurrency } from '@/lib/utils'
-import type { DashboardStats } from '@/types'
+import type { DashboardStats } from '@/types/api'
 import toast from 'react-hot-toast'
 
 interface RecentActivity {
