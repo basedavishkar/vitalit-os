@@ -1,6 +1,6 @@
 import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
-import Sidebar from '@/components/shared/Sidebar'
+import { Sidebar } from '@/components/dashboard/Sidebar'
 
 // Mock useAuth hook
 jest.mock('@/contexts/AuthContext', () => ({

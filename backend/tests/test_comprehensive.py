@@ -9,7 +9,7 @@ from sqlalchemy.pool import StaticPool
 from backend.main import app
 from backend.database import get_db, Base
 from backend.models import User, Patient, Doctor, Appointment, MedicalRecord, Bill, Payment
-from backend.auth_enhanced import get_password_hash, create_access_token
+from backend.auth import get_password_hash, create_access_token
 
 # Test database setup
 SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
