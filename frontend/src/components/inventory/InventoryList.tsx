@@ -1,4 +1,4 @@
-import Table from "@/components/ui/Table";
+import Table from "@/components/ui/table";
 import { InventoryItem } from '@/types';
 
 export default function InventoryList({ items }: { items: InventoryItem[] }) {

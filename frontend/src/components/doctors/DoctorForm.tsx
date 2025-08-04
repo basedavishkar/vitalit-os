@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { createDoctor } from "@/api/doctors";
-import { Card } from "@/components/ui/Card";
+import { Card } from "@/components/ui/card";
 
 export default function DoctorForm({ onDoctorAdded }: { onDoctorAdded?: () => void }) {
   const [form, setForm] = useState({

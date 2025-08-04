@@ -1,340 +1,309 @@
-'use client';
+'use client'
 
-import { Card } from '@/components/ui/Card';
+import { useState, useEffect } from 'react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { 
+  Users, 
+  UserCheck, 
+  Calendar, 
+  DollarSign,
+  TrendingUp,
+  TrendingDown,
+  Activity,
+  Clock,
+  Plus
+} from 'lucide-react'
+import { dashboardAPI } from '@/lib/api'
+import { formatCurrency } from '@/lib/utils'
+import type { DashboardStats } from '@/types'
+import toast from 'react-hot-toast'
 
-const stats = [
-  {
-    title: 'Total Patients',
-    value: '1,247',
-    change: '+12%',
-    changeType: 'positive',
-    icon: '👥',
-    color: 'from-blue-500 to-blue-600',
-    description: 'Active patients in system'
-  },
-  {
-    title: 'Active Doctors',
-    value: '23',
-    change: '+3%',
-    changeType: 'positive',
-    icon: '👨‍⚕️',
-    color: 'from-green-500 to-green-600',
-    description: 'Available medical staff'
-  },
-  {
-    title: "Today's Appointments",
-    value: '89',
-    change: '+8%',
-    changeType: 'positive',
-    icon: '📅',
-    color: 'from-purple-500 to-purple-600',
-    description: 'Scheduled for today'
-  },
-  {
-    title: 'Monthly Revenue',
-    value: '$45,678',
-    change: '+15%',
-    changeType: 'positive',
-    icon: '💰',
-    color: 'from-yellow-500 to-yellow-600',
-    description: 'This month\'s earnings'
-  }
-];
-
-const appointments = [
-  {
-    id: 1,
-    patientName: 'Sarah Johnson',
-    doctorName: 'Dr. Michael Chen',
-    date: '2024-01-15',
-    time: '10:00 AM',
-    status: 'scheduled',
-    type: 'General Checkup'
-  },
-  {
-    id: 2,
-    patientName: 'Robert Davis',
-    doctorName: 'Dr. Emily Wilson',
-    date: '2024-01-15',
-    time: '11:30 AM',
-    status: 'completed',
-    type: 'Cardiology'
-  },
-  {
-    id: 3,
-    patientName: 'Lisa Thompson',
-    doctorName: 'Dr. James Brown',
-    date: '2024-01-15',
-    time: '2:00 PM',
-    status: 'scheduled',
-    type: 'Dermatology'
-  },
-  {
-    id: 4,
-    patientName: 'David Miller',
-    doctorName: 'Dr. Amanda Garcia',
-    date: '2024-01-14',
-    time: '3:30 PM',
-    status: 'cancelled',
-    type: 'Orthopedics'
-  }
-];
-
-const quickActions = [
-  {
-    title: 'Add Patient',
-    description: 'Register new patient',
-    icon: '➕',
-    href: '/dashboard/patients',
-    color: 'from-blue-500 to-blue-600'
-  },
-  {
-    title: 'Schedule Appointment',
-    description: 'Book new appointment',
-    icon: '📅',
-    href: '/dashboard/appointments',
-    color: 'from-green-500 to-green-600'
-  },
-  {
-    title: 'View Reports',
-    description: 'Analytics & insights',
-    icon: '📊',
-    href: '/dashboard/system',
-    color: 'from-purple-500 to-purple-600'
-  }
-];
+interface RecentActivity {
+  id: string
+  type: 'appointment' | 'patient' | 'payment' | 'record'
+  title: string
+  description: string
+  time: string
+  status: 'completed' | 'pending' | 'cancelled'
+  amount?: number
+}
 
 export default function DashboardPage() {
+  const [stats, setStats] = useState<DashboardStats | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchDashboardData()
+  }, [])
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true)
+      const data = await dashboardAPI.getStats()
+      setStats(data)
+    } catch (error) {
+      console.error('Failed to fetch dashboard data:', error)
+      toast.error('Failed to load dashboard data')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const recentActivity: RecentActivity[] = [
+    {
+      id: '1',
+      type: 'appointment',
+      title: 'New Appointment Scheduled',
+      description: 'Dr. Sarah Johnson - Cardiology consultation',
+      time: '2 minutes ago',
+      status: 'pending'
+    },
+    {
+      id: '2',
+      type: 'patient',
+      title: 'New Patient Registered',
+      description: 'John Doe - Patient ID: P001234',
+      time: '15 minutes ago',
+      status: 'completed'
+    },
+    {
+      id: '3',
+      type: 'payment',
+      title: 'Payment Received',
+      description: 'Consultation fee',
+      time: '1 hour ago',
+      status: 'completed',
+      amount: 250.00
+    },
+    {
+      id: '4',
+      type: 'record',
+      title: 'Medical Record Updated',
+      description: 'Patient: Jane Smith - Follow-up notes',
+      time: '2 hours ago',
+      status: 'completed'
+    },
+    {
+      id: '5',
+      type: 'appointment',
+      title: 'Appointment Cancelled',
+      description: 'Dr. Michael Chen - Neurology',
+      time: '3 hours ago',
+      status: 'cancelled'
+    }
+  ]
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'completed': return 'bg-green-100 text-green-800'
+      case 'pending': return 'bg-yellow-100 text-yellow-800'
+      case 'cancelled': return 'bg-red-100 text-red-800'
+      default: return 'bg-gray-100 text-gray-800'
+    }
+  }
+
+  const getActivityIcon = (type: string) => {
+    switch (type) {
+      case 'appointment': return Calendar
+      case 'patient': return Users
+      case 'payment': return DollarSign
+      case 'record': return Activity
+      default: return Clock
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="loading-spinner w-12 h-12 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading dashboard...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Welcome Section */}
-      <div className="text-center space-y-3">
-        <h1 className="text-2xl font-bold gradient-primary">
-          Welcome back, Admin! 👋
-        </h1>
-        <p className="text-sm text-neutral-300 max-w-2xl mx-auto">
-          Here's what's happening at VITALIt today. Your healthcare system is running smoothly with excellent patient care metrics.
-        </p>
+    <div className="space-y-6">
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+        <p className="text-gray-600">Welcome to your healthcare management dashboard</p>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((stat, index) => (
-          <div
-            key={stat.title}
-            className="card-elevated group p-4"
-            style={{
-              animationDelay: `${index * 0.1}s`,
-              padding: '1rem'
-            }}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <p className="text-xs text-neutral-400 mb-1 font-medium">{stat.title}</p>
-                <div className="flex items-baseline space-x-2">
-                  <p className="text-xl font-bold text-white">{stat.value}</p>
-                  <span 
-                    className={`text-xs font-semibold ${
-                      stat.changeType === 'positive' ? 'text-green-400' : 'text-red-400'
-                    }`}
-                  >
-                    {stat.change}
-                  </span>
-                </div>
-                <p className="text-xs text-neutral-400 mt-1">{stat.description}</p>
+      {stats && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Patients</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.totalPatients.toLocaleString()}</div>
+              <div className="flex items-center text-xs text-green-600">
+                <TrendingUp className="w-3 h-3 mr-1" />
+                +12% from last month
               </div>
-              <div 
-                className={`w-12 h-12 bg-gradient-to-br ${stat.color} rounded-xl flex items-center justify-center text-white text-lg shadow-lg group-hover:scale-110 transition-transform duration-300`}
-                style={{
-                  width: '3rem',
-                  height: '3rem',
-                  borderRadius: '0.75rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'white',
-                  fontSize: '1.125rem',
-                  boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.3)',
-                  transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-                }}
-              >
-                {stat.icon}
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+            </CardContent>
+          </Card>
 
-      {/* Recent Appointments & Quick Actions */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Recent Appointments */}
-        <div className="lg:col-span-2">
-          <div className="card-elevated p-4">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-white">Recent Appointments</h2>
-              <button className="btn-ghost text-xs">View All</button>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Doctors</CardTitle>
+              <UserCheck className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.totalDoctors.toLocaleString()}</div>
+              <div className="flex items-center text-xs text-green-600">
+                <TrendingUp className="w-3 h-3 mr-1" />
+                +5% from last month
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Today&apos;s Appointments</CardTitle>
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.todayAppointments.toLocaleString()}</div>
+              <div className="flex items-center text-xs text-red-600">
+                <TrendingDown className="w-3 h-3 mr-1" />
+                -3% from yesterday
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Monthly Revenue</CardTitle>
+              <DollarSign className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{formatCurrency(stats.monthlyRevenue)}</div>
+              <div className="flex items-center text-xs text-green-600">
+                <TrendingUp className="w-3 h-3 mr-1" />
+                +18% from last month
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Additional Stats */}
+      {stats && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Active Patients</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.activePatients.toLocaleString()}</div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Pending Appointments</CardTitle>
+              <Clock className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.pendingAppointments.toLocaleString()}</div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Appointments</CardTitle>
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.totalAppointments.toLocaleString()}</div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Recent Activity */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Recent Activity</CardTitle>
+              <CardDescription>Latest updates from your healthcare system</CardDescription>
             </div>
-            <div className="space-y-3">
-              {appointments.map((appointment, index) => (
-                <div
-                  key={appointment.id}
-                  className="flex items-center justify-between p-3 rounded-lg border border-white/10 hover:bg-white/5 transition-all duration-300 group"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '0.75rem',
-                    borderRadius: '0.5rem',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-                    e.currentTarget.style.transform = 'translateX(4px)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'transparent';
-                    e.currentTarget.style.transform = 'translateX(0)';
-                  }}
-                >
-                  <div className="flex items-center space-x-3">
-                    <div 
-                      className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-semibold shadow-lg"
-                      style={{
-                        width: '2.5rem',
-                        height: '2.5rem',
-                        background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
-                        borderRadius: '0.5rem',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: 'white',
-                        fontWeight: '600',
-                        boxShadow: '0 10px 15px -3px rgba(59, 130, 246, 0.3)'
-                      }}
-                    >
-                      {appointment.patientName.charAt(0)}
-                    </div>
-                    <div>
-                      <p className="font-semibold text-white text-sm">{appointment.patientName}</p>
-                      <p className="text-xs text-neutral-400">{appointment.doctorName}</p>
-                      <p className="text-xs text-neutral-500">{appointment.type}</p>
+            <Button variant="outline" size="sm">
+              View All
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {recentActivity.map((activity) => {
+              const IconComponent = getActivityIcon(activity.type)
+              return (
+                <div key={activity.id} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                  <div className="flex-shrink-0">
+                    <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm">
+                      <IconComponent className="w-5 h-5 text-gray-600" />
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-xs text-white font-medium">
-                      {appointment.date} at {appointment.time}
-                    </p>
-                    <span 
-                      className={`inline-block px-2 py-1 rounded-full text-xs font-semibold ${
-                        appointment.status === 'completed' ? 'bg-green-500/20 text-green-400' :
-                        appointment.status === 'scheduled' ? 'bg-blue-500/20 text-blue-400' :
-                        'bg-red-500/20 text-red-400'
-                      }`}
-                      style={{
-                        display: 'inline-block',
-                        padding: '0.25rem 0.5rem',
-                        borderRadius: '9999px',
-                        fontSize: '0.75rem',
-                        fontWeight: '600'
-                      }}
-                    >
-                      {appointment.status}
-                    </span>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-sm font-semibold text-gray-900">{activity.title}</h3>
+                    <p className="text-sm text-gray-600">{activity.description}</p>
+                    {activity.amount && (
+                      <p className="text-sm font-medium text-green-600">{formatCurrency(activity.amount)}</p>
+                    )}
+                  </div>
+                  <div className="flex-shrink-0 text-right">
+                    <Badge className={getStatusColor(activity.status)}>
+                      {activity.status}
+                    </Badge>
+                    <p className="text-xs text-gray-500 mt-1">{activity.time}</p>
                   </div>
                 </div>
-              ))}
-            </div>
+              )
+            })}
           </div>
-        </div>
+        </CardContent>
+      </Card>
 
-        {/* Quick Actions */}
-        <div>
-          <div className="card-elevated p-4">
-            <h2 className="text-lg font-bold text-white mb-4">Quick Actions</h2>
-            <div className="space-y-3">
-              {quickActions.map((action, index) => (
-                <a
-                  key={action.title}
-                  href={action.href}
-                  className="block group"
-                  style={{ textDecoration: 'none' }}
-                >
-                  <div 
-                    className="p-3 rounded-lg border border-white/10 hover:bg-white/5 transition-all duration-300 group-hover:scale-105"
-                    style={{
-                      padding: '0.75rem',
-                      borderRadius: '0.5rem',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-                    }}
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div 
-                        className={`w-10 h-10 bg-gradient-to-br ${action.color} rounded-lg flex items-center justify-center text-white text-lg shadow-lg group-hover:scale-110 transition-transform duration-300`}
-                        style={{
-                          width: '2.5rem',
-                          height: '2.5rem',
-                          borderRadius: '0.5rem',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: 'white',
-                          fontSize: '1.125rem',
-                          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.3)',
-                          transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-                        }}
-                      >
-                        {action.icon}
-                      </div>
-                      <div>
-                        <p className="font-semibold text-white text-sm">{action.title}</p>
-                        <p className="text-xs text-neutral-400">{action.description}</p>
-                      </div>
-                    </div>
-                  </div>
-                </a>
-              ))}
-            </div>
+      {/* Quick Actions */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Quick Actions</CardTitle>
+          <CardDescription>Common tasks and shortcuts</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Button variant="outline" className="h-24 flex-col space-y-2">
+              <Plus className="w-6 h-6" />
+              <span>Add Patient</span>
+            </Button>
+            
+            <Button variant="outline" className="h-24 flex-col space-y-2">
+              <UserCheck className="w-6 h-6" />
+              <span>Add Doctor</span>
+            </Button>
+            
+            <Button variant="outline" className="h-24 flex-col space-y-2">
+              <Calendar className="w-6 h-6" />
+              <span>Schedule Appointment</span>
+            </Button>
+            
+            <Button variant="outline" className="h-24 flex-col space-y-2">
+              <DollarSign className="w-6 h-6" />
+              <span>Create Bill</span>
+            </Button>
           </div>
-        </div>
-      </div>
-
-      {/* System Health */}
-      <div className="card-elevated p-4">
-        <h2 className="text-lg font-bold text-white mb-4">System Health</h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="text-center p-3 rounded-lg bg-green-500/10 border border-green-500/20">
-            <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-2">
-              <span className="text-white text-lg">✅</span>
-            </div>
-            <p className="font-semibold text-green-400 text-sm">Database</p>
-            <p className="text-xs text-neutral-400">Healthy</p>
-          </div>
-          <div className="text-center p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
-            <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-2">
-              <span className="text-white text-lg">⚡</span>
-            </div>
-            <p className="font-semibold text-blue-400 text-sm">API</p>
-            <p className="text-xs text-neutral-400">Online</p>
-          </div>
-          <div className="text-center p-3 rounded-lg bg-purple-500/10 border border-purple-500/20">
-            <div className="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-2">
-              <span className="text-white text-lg">🔒</span>
-            </div>
-            <p className="font-semibold text-purple-400 text-sm">Security</p>
-            <p className="text-xs text-neutral-400">Protected</p>
-          </div>
-          <div className="text-center p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
-            <div className="w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center mx-auto mb-2">
-              <span className="text-white text-lg">📊</span>
-            </div>
-            <p className="font-semibold text-yellow-400 text-sm">Analytics</p>
-            <p className="text-xs text-neutral-400">Active</p>
-          </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
-  );
+  )
 }
   

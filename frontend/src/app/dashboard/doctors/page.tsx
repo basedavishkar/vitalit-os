@@ -1,306 +1,196 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-
-interface Doctor {
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-  specialization: string;
-  experience: number;
-  status: 'active' | 'inactive' | 'on_leave';
-  patientsCount: number;
-  rating: number;
-}
+import { useState, useEffect } from 'react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Badge } from '@/components/ui/badge'
+import { 
+  Users, 
+  Plus, 
+  Search, 
+  Filter,
+  MoreHorizontal,
+  Edit,
+  Trash2,
+  Eye,
+  UserCheck
+} from 'lucide-react'
+import { doctorsAPI } from '@/lib/api'
+import { formatDate } from '@/lib/utils'
+import type { Doctor } from '@/types'
+import toast from 'react-hot-toast'
 
 export default function DoctorsPage() {
-  const [doctors, setDoctors] = useState<Doctor[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [doctors, setDoctors] = useState<Doctor[]>([])
+  const [loading, setLoading] = useState(true)
+  const [searchTerm, setSearchTerm] = useState('')
 
   useEffect(() => {
-    // Simulate loading data
-    setTimeout(() => {
-      setDoctors([
-        { id: 1, name: "Dr. Michael Chen", email: "michael.chen@vitalit.com", phone: "+1-555-0101", specialization: "Cardiology", experience: 12, status: "active", patientsCount: 156, rating: 4.8 },
-        { id: 2, name: "Dr. Emily Wilson", email: "emily.wilson@vitalit.com", phone: "+1-555-0102", specialization: "Dermatology", experience: 8, status: "active", patientsCount: 89, rating: 4.9 },
-        { id: 3, name: "Dr. James Brown", email: "james.brown@vitalit.com", phone: "+1-555-0103", specialization: "Orthopedics", experience: 15, status: "on_leave", patientsCount: 203, rating: 4.7 },
-        { id: 4, name: "Dr. Amanda Garcia", email: "amanda.garcia@vitalit.com", phone: "+1-555-0104", specialization: "Pediatrics", experience: 6, status: "active", patientsCount: 67, rating: 4.6 },
-        { id: 5, name: "Dr. Robert Davis", email: "robert.davis@vitalit.com", phone: "+1-555-0105", specialization: "Neurology", experience: 18, status: "inactive", patientsCount: 134, rating: 4.5 },
-      ]);
-      setLoading(false);
-    }, 1000);
-  }, []);
+    fetchDoctors()
+  }, [])
+
+  const fetchDoctors = async () => {
+    try {
+      setLoading(true)
+      // Using the simple endpoint for development (no auth required)
+      const data = await doctorsAPI.getSimple()
+      setDoctors(data)
+    } catch (error) {
+      console.error('Failed to fetch doctors:', error)
+      toast.error('Failed to load doctors')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const filteredDoctors = doctors.filter(doctor =>
-    doctor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    doctor.specialization.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+    doctor.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    doctor.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    doctor.specialization.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    doctor.email.toLowerCase().includes(searchTerm.toLowerCase())
+  )
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active': return 'bg-green-500/20 text-green-400';
-      case 'inactive': return 'bg-neutral-500/20 text-neutral-400';
-      case 'on_leave': return 'bg-yellow-500/20 text-yellow-400';
-      default: return 'bg-neutral-500/20 text-neutral-400';
-    }
-  };
+  const getStatusColor = (isActive: boolean) => {
+    return isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+  }
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin"></div>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="loading-spinner w-12 h-12 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading doctors...</p>
+        </div>
       </div>
-    );
+    )
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold gradient-primary">
-            Doctors Management
-          </h1>
-          <p className="text-sm text-neutral-300 mt-1">Manage medical staff and specialists</p>
+          <h1 className="text-3xl font-bold text-gray-900">Doctors</h1>
+          <p className="text-gray-600">Manage doctor profiles and specializations</p>
         </div>
-        <button
-          className="btn-primary px-4 py-2 text-sm"
-          style={{
-            background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
-            color: 'white',
-            border: 'none',
-            borderRadius: '0.5rem',
-            padding: '0.5rem 1rem',
-            fontWeight: '600',
-            fontSize: '0.875rem',
-            cursor: 'pointer',
-            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-2px)';
-            e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1)';
-            e.currentTarget.style.filter = 'brightness(1.1)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
-            e.currentTarget.style.filter = 'brightness(1)';
-          }}
-        >
-          + Add Doctor
-        </button>
+        <Button className="flex items-center space-x-2">
+          <Plus className="w-4 h-4" />
+          <span>Add Doctor</span>
+        </Button>
       </div>
 
-      {/* Search */}
-      <div className="card-elevated p-4">
-        <div className="relative">
-          <input
-            type="text"
-            placeholder="Search doctors by name or specialization..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="input-field w-full pl-10"
-            style={{
-              padding: '0.5rem 0.75rem 0.5rem 2.5rem',
-              background: 'rgba(255, 255, 255, 0.05)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              borderRadius: '0.5rem',
-              outline: 'none',
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              backdropFilter: 'blur(20px)',
-              WebkitBackdropFilter: 'blur(20px)',
-              color: 'white',
-              fontSize: '0.875rem'
-            }}
-            onFocus={(e) => {
-              e.target.style.border = '1px solid rgba(59, 130, 246, 0.5)';
-              e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
-              e.target.style.background = 'rgba(255, 255, 255, 0.1)';
-            }}
-            onBlur={(e) => {
-              e.target.style.border = '1px solid rgba(255, 255, 255, 0.1)';
-              e.target.style.boxShadow = 'none';
-              e.target.style.background = 'rgba(255, 255, 255, 0.05)';
-            }}
-          />
-          <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400">🔍</span>
-        </div>
-      </div>
+      {/* Search and Filters */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Search & Filter</CardTitle>
+          <CardDescription>Find doctors by name, specialization, or email</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center space-x-4">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Input
+                placeholder="Search doctors..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <Button variant="outline" className="flex items-center space-x-2">
+              <Filter className="w-4 h-4" />
+              <span>Filters</span>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="card-elevated p-4">
+      {/* Doctors List */}
+      <Card>
+        <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs text-neutral-400 font-medium">Total Doctors</p>
-              <p className="text-xl font-bold text-white">{doctors.length}</p>
-            </div>
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-              <span className="text-lg">👨‍⚕️</span>
+              <CardTitle>All Doctors</CardTitle>
+              <CardDescription>
+                {filteredDoctors.length} of {doctors.length} doctors
+              </CardDescription>
             </div>
           </div>
-        </div>
-        
-        <div className="card-elevated p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-neutral-400 font-medium">Active Doctors</p>
-              <p className="text-xl font-bold text-white">{doctors.filter(d => d.status === 'active').length}</p>
-            </div>
-            <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center">
-              <span className="text-lg">✅</span>
-            </div>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-gray-200">
+                  <th className="text-left py-3 px-4 font-medium text-gray-900">Doctor</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-900">ID</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-900">Specialization</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-900">Contact</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-900">Status</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-900">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredDoctors.map((doctor) => (
+                  <tr key={doctor.id} className="border-b border-gray-100 hover:bg-gray-50">
+                    <td className="py-4 px-4">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                          <UserCheck className="w-5 h-5 text-blue-600" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900">
+                            Dr. {doctor.first_name} {doctor.last_name}
+                          </p>
+                          <p className="text-sm text-gray-500">{doctor.email}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4">
+                      <Badge variant="secondary">{doctor.doctor_id}</Badge>
+                    </td>
+                    <td className="py-4 px-4">
+                      <p className="text-gray-900">{doctor.specialization}</p>
+                      <p className="text-sm text-gray-500">{doctor.qualification}</p>
+                    </td>
+                    <td className="py-4 px-4">
+                      <p className="text-gray-900">{doctor.phone}</p>
+                    </td>
+                    <td className="py-4 px-4">
+                      <Badge className={getStatusColor(doctor.is_active)}>
+                        {doctor.is_active ? 'Active' : 'Inactive'}
+                      </Badge>
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="flex items-center space-x-2">
+                        <Button variant="ghost" size="sm">
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm">
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm">
+                          <MoreHorizontal className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-        </div>
-        
-        <div className="card-elevated p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-neutral-400 font-medium">Avg Experience</p>
-              <p className="text-xl font-bold text-white">
-                {Math.round(doctors.reduce((sum, d) => sum + d.experience, 0) / doctors.length)}y
+          
+          {filteredDoctors.length === 0 && (
+            <div className="text-center py-12">
+              <UserCheck className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No doctors found</h3>
+              <p className="text-gray-600">
+                {searchTerm ? 'Try adjusting your search terms.' : 'Get started by adding your first doctor.'}
               </p>
             </div>
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
-              <span className="text-lg">📊</span>
-            </div>
-          </div>
-        </div>
-        
-        <div className="card-elevated p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-neutral-400 font-medium">Avg Rating</p>
-              <p className="text-xl font-bold text-white">
-                {(doctors.reduce((sum, d) => sum + d.rating, 0) / doctors.length).toFixed(1)}
-              </p>
-            </div>
-            <div className="w-10 h-10 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-lg flex items-center justify-center">
-              <span className="text-lg">⭐</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Doctors grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredDoctors.map((doctor) => (
-          <div 
-            key={doctor.id} 
-            className="card-elevated p-4 hover:scale-105 transition-all duration-300 cursor-pointer"
-            style={{
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-            }}
-          >
-            <div className="flex items-start justify-between mb-4">
-              <div 
-                className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-semibold text-sm"
-                style={{
-                  width: '2.5rem',
-                  height: '2.5rem',
-                  background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
-                  borderRadius: '0.5rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'white',
-                  fontWeight: '600',
-                  fontSize: '0.875rem',
-                  boxShadow: '0 10px 15px -3px rgba(59, 130, 246, 0.3)'
-                }}
-              >
-                {doctor.name.split(' ')[1]?.charAt(0) || doctor.name.charAt(0)}
-              </div>
-              <span 
-                className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(doctor.status)}`}
-                style={{
-                  display: 'inline-flex',
-                  padding: '0.25rem 0.5rem',
-                  borderRadius: '9999px',
-                  fontSize: '0.75rem',
-                  fontWeight: '500'
-                }}
-              >
-                {doctor.status.replace('_', ' ')}
-              </span>
-            </div>
-            
-            <h3 className="text-sm font-semibold text-white mb-1">{doctor.name}</h3>
-            <p className="text-xs text-neutral-400 mb-3">{doctor.specialization}</p>
-            
-            <div className="space-y-2 text-xs">
-              <div className="flex justify-between">
-                <span className="text-neutral-500">Email:</span>
-                <span className="text-white">{doctor.email}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-neutral-500">Experience:</span>
-                <span className="text-white">{doctor.experience} years</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-neutral-500">Patients:</span>
-                <span className="text-white">{doctor.patientsCount}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-neutral-500">Rating:</span>
-                <span className="text-white">⭐ {doctor.rating}</span>
-              </div>
-            </div>
-            
-            <div className="flex space-x-2 mt-4 pt-4 border-t border-white/10">
-              <button 
-                className="flex-1 px-3 py-2 bg-blue-500/20 text-blue-400 rounded-lg text-xs font-medium hover:bg-blue-500/30 transition-colors"
-                style={{
-                  flex: 1,
-                  padding: '0.5rem 0.75rem',
-                  background: 'rgba(59, 130, 246, 0.2)',
-                  color: '#60a5fa',
-                  borderRadius: '0.5rem',
-                  fontSize: '0.75rem',
-                  fontWeight: '500',
-                  transition: 'background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                  border: 'none',
-                  cursor: 'pointer'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(59, 130, 246, 0.3)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'rgba(59, 130, 246, 0.2)';
-                }}
-              >
-                View Profile
-              </button>
-              <button 
-                className="flex-1 px-3 py-2 bg-neutral-500/20 text-neutral-400 rounded-lg text-xs font-medium hover:bg-neutral-500/30 transition-colors"
-                style={{
-                  flex: 1,
-                  padding: '0.5rem 0.75rem',
-                  background: 'rgba(115, 115, 115, 0.2)',
-                  color: '#a3a3a3',
-                  borderRadius: '0.5rem',
-                  fontSize: '0.75rem',
-                  fontWeight: '500',
-                  transition: 'background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                  border: 'none',
-                  cursor: 'pointer'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(115, 115, 115, 0.3)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'rgba(115, 115, 115, 0.2)';
-                }}
-              >
-                Schedule
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
-  );
+  )
 }

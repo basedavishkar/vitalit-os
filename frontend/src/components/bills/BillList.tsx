@@ -1,6 +1,6 @@
 "use client";
 
-import Table from "@/components/ui/Table";
+import Table from "@/components/ui/table";
 import { Bill, Patient } from '@/types';
 
 export default function BillList({ bills, patients }: { bills: Bill[]; patients: Patient[] }) {

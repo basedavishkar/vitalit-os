@@ -1,6 +1,6 @@
 "use client";
 
-import Table from "@/components/ui/Table";
+import Table from "@/components/ui/table";
 import { MedicalRecord } from '@/types';
 
 export default function RecordList({ records }: { records: MedicalRecord[] }) {

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { createRecord } from "@/api/records";
-import { Card } from "@/components/ui/Card";
+import { Card } from "@/components/ui/card";
 import { Patient, Doctor } from '@/types';
 
 export default function RecordForm({ onRecordAdded, patients = [], doctors = [] }: { onRecordAdded?: () => void; patients?: Patient[]; doctors?: Doctor[] }) {

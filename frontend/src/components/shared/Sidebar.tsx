@@ -10,13 +10,14 @@ interface SidebarProps {
 }
 
 const menuItems = [
-  { name: 'Dashboard', icon: '🏠', href: '/dashboard' },
+  { name: 'Dashboard', icon: '📊', href: '/dashboard' },
   { name: 'Patients', icon: '👥', href: '/dashboard/patients' },
   { name: 'Doctors', icon: '👨‍⚕️', href: '/dashboard/doctors' },
   { name: 'Appointments', icon: '📅', href: '/dashboard/appointments' },
+  { name: 'Medical Records', icon: '📋', href: '/dashboard/records' },
   { name: 'Billing', icon: '💰', href: '/dashboard/billing' },
-  { name: 'Records', icon: '📋', href: '/dashboard/records' },
   { name: 'Inventory', icon: '📦', href: '/dashboard/inventory' },
+  { name: 'Analytics', icon: '📈', href: '/dashboard/analytics' },
   { name: 'System', icon: '⚙️', href: '/dashboard/system' },
 ];
 
@@ -37,200 +38,48 @@ export default function Sidebar({ onWidthChange }: SidebarProps) {
 
   return (
     <div 
-      className="fixed left-0 top-0 h-full z-50 transition-all duration-500 ease-out"
+      className="fixed left-0 top-0 h-full z-40 transition-all duration-300 ease-out bg-white shadow-lg"
       style={{ 
         width: currentWidth,
         minWidth: currentWidth
       }}
     >
-      <div 
-        className="h-full w-full glass-elevated border-r border-white/10"
-        style={{
-          backdropFilter: 'blur(30px)',
-          WebkitBackdropFilter: 'blur(30px)',
-          background: 'rgba(255, 255, 255, 0.05)',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
-        }}
-      >
+      <div className="h-full w-full border-r border-gray-200">
         <div className="flex flex-col h-full">
-          {/* Premium Logo Section */}
-          <div 
-            className="p-4 border-b border-white/10"
-            style={{ 
-              padding: '1rem', 
-              borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%)'
-            }}
-          >
+          {/* Logo Section */}
+          <div className="p-6 border-b border-gray-200 bg-blue-600">
             <div className="flex items-center justify-center">
-              <div 
-                className="flex items-center space-x-3"
-                style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}
-              >
-                <div 
-                  className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg"
-                  style={{
-                    width: '2.5rem',
-                    height: '2.5rem',
-                    background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
-                    borderRadius: '0.75rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    boxShadow: '0 10px 15px -3px rgba(59, 130, 246, 0.4)',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'scale(1.1) rotate(5deg)';
-                    e.currentTarget.style.boxShadow = '0 25px 50px -12px rgba(59, 130, 246, 0.6)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'scale(1) rotate(0deg)';
-                    e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(59, 130, 246, 0.4)';
-                  }}
-                >
-                  <span 
-                    className="text-white font-bold"
-                    style={{ fontSize: '1rem', fontWeight: '800' }}
-                  >
-                    V
-                  </span>
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm">
+                  <span className="text-blue-600 font-bold text-lg">V</span>
                 </div>
                 {!isCollapsed && (
-                  <div 
-                    className="flex flex-col animate-fade-in"
-                    style={{ display: 'flex', flexDirection: 'column' }}
-                  >
-                    <h1 
-                      className="text-lg font-bold gradient-primary"
-                      style={{
-                        fontSize: '1.125rem',
-                        fontWeight: '800',
-                        background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                        backgroundClip: 'text',
-                        margin: 0
-                      }}
-                    >
-                      VITALIt
-                    </h1>
-                    <p 
-                      className="text-xs text-neutral-400"
-                      style={{ 
-                        fontSize: '0.75rem', 
-                        color: '#a3a3a3', 
-                        margin: 0,
-                        fontWeight: '500',
-                        letterSpacing: '0.05em'
-                      }}
-                    >
-                      Healthcare
-                    </p>
+                  <div className="flex flex-col">
+                    <h1 className="text-white font-bold text-lg">VITALIt</h1>
+                    <p className="text-blue-100 text-xs">Healthcare</p>
                   </div>
                 )}
               </div>
             </div>
           </div>
 
-          {/* Premium Navigation Menu */}
-          <nav 
-            className="flex-1 px-3 py-4 space-y-1"
-            style={{ 
-              padding: '1rem 0.75rem',
-              flex: 1
-            }}
-          >
+          {/* Navigation Menu */}
+          <nav className="flex-1 px-4 py-6 space-y-2">
             {menuItems.map((item, index) => {
               const isActive = pathname === item.href;
               return (
-                <div 
-                  key={item.name} 
-                  className="animate-slide-in"
-                  style={{ 
-                    marginBottom: '0.25rem',
-                    animationDelay: `${index * 0.1}s`
-                  }}
-                >
+                <div key={item.name} className="mb-1">
                   <Link href={item.href} className="block">
                     <div
-                      className={`sidebar-item ${isActive ? 'sidebar-item-active' : ''}`}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        padding: '0.75rem',
-                        borderRadius: '0.75rem',
-                        fontSize: '0.875rem',
-                        fontWeight: '500',
-                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                        cursor: 'pointer',
-                        color: isActive ? 'white' : '#d4d4d4',
-                        background: isActive 
-                          ? 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)' 
-                          : 'transparent',
-                        border: isActive ? '1px solid rgba(255, 255, 255, 0.3)' : '1px solid transparent',
-                        boxShadow: isActive ? '0 10px 15px -3px rgba(59, 130, 246, 0.3)' : 'none',
-                        transform: isActive ? 'translateX(8px)' : 'translateX(0)',
-                        position: 'relative',
-                        overflow: 'hidden'
-                      }}
-                      onMouseEnter={(e) => {
-                        if (!isActive) {
-                          e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
-                          e.currentTarget.style.transform = 'translateX(8px)';
-                          e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (!isActive) {
-                          e.currentTarget.style.background = 'transparent';
-                          e.currentTarget.style.transform = 'translateX(0)';
-                          e.currentTarget.style.boxShadow = 'none';
-                        }
-                      }}
+                      className={`flex items-center px-4 py-3 rounded-lg transition-all duration-200 cursor-pointer ${
+                        isActive 
+                          ? 'bg-blue-50 text-blue-700 border-l-4 border-blue-600' 
+                          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                      }`}
                     >
-                      <span 
-                        className="text-base mr-3"
-                        style={{ 
-                          fontSize: '1rem', 
-                          marginRight: '0.75rem',
-                          transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.transform = 'scale(1.2)';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.transform = 'scale(1)';
-                        }}
-                      >
-                        {item.icon}
-                      </span>
+                      <span className="text-lg mr-3">{item.icon}</span>
                       {!isCollapsed && (
-                        <span 
-                          className="truncate font-medium"
-                          style={{ 
-                            whiteSpace: 'nowrap', 
-                            overflow: 'hidden', 
-                            textOverflow: 'ellipsis',
-                            fontWeight: '500'
-                          }}
-                        >
-                          {item.name}
-                        </span>
-                      )}
-                      {isActive && (
-                        <div 
-                          className="ml-auto w-2 h-2 bg-white rounded-full animate-pulse"
-                          style={{
-                            marginLeft: 'auto',
-                            width: '0.5rem',
-                            height: '0.5rem',
-                            background: 'white',
-                            borderRadius: '50%',
-                            animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
-                          }}
-                        />
+                        <span className="font-medium">{item.name}</span>
                       )}
                     </div>
                   </Link>
@@ -239,120 +88,32 @@ export default function Sidebar({ onWidthChange }: SidebarProps) {
             })}
           </nav>
 
-          {/* Premium User Profile Section */}
+          {/* User Profile Section */}
           {!isCollapsed && user && (
-            <div 
-              className="mx-3 mb-3 animate-fade-in"
-              style={{ margin: '0 0.75rem 0.75rem 0.75rem' }}
-            >
-              <div 
-                className="card-elevated p-3"
-                style={{
-                  padding: '0.75rem',
-                  background: 'rgba(255, 255, 255, 0.15)',
-                  backdropFilter: 'blur(30px)',
-                  WebkitBackdropFilter: 'blur(30px)',
-                  border: '1px solid rgba(255, 255, 255, 0.25)',
-                  borderRadius: '1rem',
-                  boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
-                }}
-              >
-                <div 
-                  className="flex items-center space-x-3"
-                  style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}
-                >
-                  <div 
-                    className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm shadow-lg"
-                    style={{
-                      width: '2rem',
-                      height: '2rem',
-                      background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
-                      borderRadius: '50%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: 'white',
-                      fontWeight: '600',
-                      fontSize: '0.875rem',
-                      boxShadow: '0 10px 15px -3px rgba(59, 130, 246, 0.3)'
-                    }}
-                  >
-                    {user.username?.charAt(0).toUpperCase() || 'U'}
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p 
-                      className="text-sm font-semibold text-white truncate"
-                      style={{
-                        fontSize: '0.875rem',
-                        fontWeight: '600',
-                        color: 'white',
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        margin: 0
-                      }}
-                    >
-                      {user.username || 'User'}
-                    </p>
-                    <p 
-                      className="text-xs text-neutral-300 capitalize truncate"
-                      style={{
-                        fontSize: '0.75rem',
-                        color: '#d4d4d4',
-                        textTransform: 'capitalize',
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        margin: 0
-                      }}
-                    >
-                      {user.role || 'Admin'}
-                    </p>
-                  </div>
+            <div className="p-4 border-t border-gray-200">
+              <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                  {user.username?.charAt(0).toUpperCase() || 'U'}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-gray-900 truncate">
+                    {user.username || 'User'}
+                  </p>
+                  <p className="text-xs text-gray-500 capitalize">
+                    {user.role || 'Admin'}
+                  </p>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Premium Collapse Button */}
-          <div 
-            className="p-3 border-t border-white/10"
-            style={{ 
-              padding: '0.75rem', 
-              borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-              display: 'flex',
-              justifyContent: 'center'
-            }}
-          >
+          {/* Collapse Button */}
+          <div className="p-4 border-t border-gray-200">
             <button
               onClick={() => setIsCollapsed(!isCollapsed)}
-              className="btn-ghost p-2 rounded-lg hover:bg-white/10 transition-all duration-300"
-              style={{
-                padding: '0.5rem',
-                borderRadius: '0.5rem',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                border: 'none',
-                background: 'transparent',
-                cursor: 'pointer',
-                color: '#d4d4d4'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
-                e.currentTarget.style.color = 'white';
-                e.currentTarget.style.transform = 'scale(1.1)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'transparent';
-                e.currentTarget.style.color = '#d4d4d4';
-                e.currentTarget.style.transform = 'scale(1)';
-              }}
+              className="w-full p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors duration-200"
             >
-              <span 
-                style={{ 
-                  fontSize: '1rem',
-                  transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
-                }}
-              >
+              <span className="text-lg">
                 {isCollapsed ? '→' : '←'}
               </span>
             </button>
