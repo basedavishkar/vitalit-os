@@ -2,16 +2,27 @@
 
 import { useState } from "react";
 import { billingAPI } from "@/lib/api";
-import { Patient } from '@/types/api';
+import { Patient, BillCreate } from '@/types/api';
 import { Card } from "@/components/ui/card";
 
 export default function BillForm({ onBillAdded, patients }: { onBillAdded?: () => void; patients: Patient[] }) {
   const [form, setForm] = useState({
     patient_id: 0,
-    amount: 0,
-    date: "",
-    description: "",
-    paid: false,
+    appointment_id: undefined as number | undefined,
+    bill_date: "",
+    due_date: "",
+    subtotal: 0,
+    tax_amount: 0,
+    discount_amount: 0,
+    total_amount: 0,
+    notes: "",
+    bill_items: [{
+      item_name: "",
+      description: "",
+      quantity: 1,
+      unit_price: 0,
+      total_price: 0
+    }]
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -24,8 +35,32 @@ export default function BillForm({ onBillAdded, patients }: { onBillAdded?: () =
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    await billingAPI.createBill(form);
-    setForm({ patient_id: 0, amount: 0, date: "", description: "", paid: false });
+    const billData: BillCreate = {
+      ...form,
+      patient_id: form.patient_id,
+      bill_date: new Date(form.bill_date).toISOString(),
+      due_date: new Date(form.due_date).toISOString(),
+      bill_items: form.bill_items
+    };
+    await billingAPI.create(billData);
+    setForm({
+      patient_id: 0,
+      appointment_id: undefined,
+      bill_date: "",
+      due_date: "",
+      subtotal: 0,
+      tax_amount: 0,
+      discount_amount: 0,
+      total_amount: 0,
+      notes: "",
+      bill_items: [{
+        item_name: "",
+        description: "",
+        quantity: 1,
+        unit_price: 0,
+        total_price: 0
+      }]
+    });
     if (onBillAdded) onBillAdded();
   };
 
@@ -47,43 +82,73 @@ export default function BillForm({ onBillAdded, patients }: { onBillAdded?: () =
           </select>
         </div>
         <div className="flex flex-col gap-2">
-          <label className="font-bold text-emerald-700 text-lg">Amount</label>
+          <label className="font-bold text-emerald-700 text-lg">Bill Date</label>
           <input
-            name="amount"
+            name="bill_date"
+            type="date"
+            value={form.bill_date}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="font-bold text-emerald-700 text-lg">Due Date</label>
+          <input
+            name="due_date"
+            type="date"
+            value={form.due_date}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="font-bold text-emerald-700 text-lg">Subtotal</label>
+          <input
+            name="subtotal"
             type="number"
-            value={form.amount}
+            value={form.subtotal}
             onChange={handleChange}
             required
             placeholder="e.g. 1000"
           />
         </div>
         <div className="flex flex-col gap-2">
-          <label className="font-bold text-emerald-700 text-lg">Date</label>
+          <label className="font-bold text-emerald-700 text-lg">Tax Amount</label>
           <input
-            name="date"
-            type="date"
-            value={form.date}
+            name="tax_amount"
+            type="number"
+            value={form.tax_amount}
             onChange={handleChange}
             required
           />
         </div>
         <div className="flex flex-col gap-2">
-          <label className="font-bold text-emerald-700 text-lg">Description</label>
+          <label className="font-bold text-emerald-700 text-lg">Discount Amount</label>
           <input
-            name="description"
-            value={form.description}
+            name="discount_amount"
+            type="number"
+            value={form.discount_amount}
             onChange={handleChange}
             required
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="font-bold text-emerald-700 text-lg">Total Amount</label>
+          <input
+            name="total_amount"
+            type="number"
+            value={form.total_amount}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="flex flex-col gap-2">
+          <label className="font-bold text-emerald-700 text-lg">Notes</label>
+          <input
+            name="notes"
+            value={form.notes}
+            onChange={handleChange}
             placeholder="e.g. Consultation Fee"
-          />
-        </div>
-        <div className="flex flex-col gap-2">
-          <label className="font-bold text-emerald-700 text-lg">Paid</label>
-          <input
-            name="paid"
-            type="checkbox"
-            checked={form.paid}
-            onChange={handleChange}
           />
         </div>
         <button type="submit" className="mt-4 w-full flex items-center justify-center gap-2 text-lg">
