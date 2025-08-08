@@ -6,10 +6,12 @@ pydantic==2.11.7
 pydantic-settings==2.3.0
 pydantic-core==2.33.2
 
-# Database
+# Database and Caching
 SQLAlchemy==2.0.41
 alembic==1.12.1
 psycopg2-binary==2.9.10
+redis==5.0.1
+hiredis==2.3.2
 
 # Authentication & Security
 python-jose[cryptography]==3.3.0

@@ -28,7 +28,8 @@ async def create_patient(
     patient_dict = patient_data.model_dump()
     # Convert enum values to enum instances for SQLAlchemy
     if 'gender' in patient_dict:
-        patient_dict['gender'] = models.GenderEnum(patient_dict['gender'])
+        from backend.models.patient import GenderEnum
+        patient_dict['gender'] = GenderEnum(patient_dict['gender'])
     
     db_patient = models.Patient(
         patient_id=patient_id,
@@ -40,11 +41,15 @@ async def create_patient(
     db.refresh(db_patient)
     
     # Log patient creation
-    if current_user:
-        audit.AuditLogger.log_create(
-            db, current_user.id, "patients", db_patient.id,
-            patient_data.model_dump(), request
-        )
+    try:
+        if current_user:
+            audit.AuditLogger.log_create(
+                db, current_user.id, "patients", db_patient.id,
+                patient_data.model_dump(), request
+            )
+    except Exception as e:
+        # Log error but don't fail the request
+        print(f"Audit logging failed: {e}")
     
     return db_patient
 

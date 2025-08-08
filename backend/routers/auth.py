@@ -1,30 +1,20 @@
 import os
 from datetime import datetime, timedelta
-from typing import Optional, List
-
+from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status, Request
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm, HTTPBearer
+from fastapi.security import OAuth2PasswordRequestForm, HTTPBearer
 from sqlalchemy.orm import Session
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 
-from backend.core import database
 from backend import models, schemas
-from backend.core import security as auth
+from backend.core import database, security
+from backend.core.config import settings
 from backend import audit
-
-# Configuration
-SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-change-in-production")
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
-
-# Security contexts
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 # Router
 router = APIRouter(prefix="/auth", tags=["Authentication"])
-security = HTTPBearer()
+security_scheme = HTTPBearer()
 
 # Role credentials mapping - simple approach for your requirement
 ROLE_CREDENTIALS = {
@@ -32,6 +22,9 @@ ROLE_CREDENTIALS = {
     "doctor": "doctor123", 
     "staff": "staff123"
 }
+
+# Password hashing
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # Utility functions
 def get_password_hash(password: str) -> str:
@@ -44,10 +37,8 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     """Create a JWT access token."""
-    to_encode = data.copy()
-    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=15))
-    to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return security.create_access_token(data, expires_delta)
+
 
 # Registration endpoint
 @router.post("/register", response_model=schemas.User, status_code=201)
@@ -98,6 +89,7 @@ async def register_user(
     
     return db_user
 
+
 # Authentication endpoint
 @router.post("/login", response_model=schemas.Token)
 async def login(
@@ -107,8 +99,35 @@ async def login(
 ):
     """Authenticate user and return access token."""
     
-    # Authenticate user
-    user = auth.authenticate_user(db, form_data.username, form_data.password)
+    # For development, check against role credentials first
+    if form_data.username in ROLE_CREDENTIALS and ROLE_CREDENTIALS[form_data.username] == form_data.password:
+        # Create a simple token for development
+        token_data = {
+            "sub": form_data.username,
+            "user_id": 1,
+            "role": form_data.username
+        }
+        
+        access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
+        access_token = create_access_token(token_data, access_token_expires)
+        
+        return {
+            "access_token": access_token,
+            "token_type": "bearer",
+            "expires_in": settings.access_token_expire_minutes * 60,
+            "user": {
+                "id": 1,
+                "username": form_data.username,
+                "email": f"{form_data.username}@vitalit.com",
+                "role": form_data.username,
+                "is_active": True,
+                "created_at": datetime.utcnow().isoformat(),
+                "updated_at": None
+            }
+        }
+    
+    # Authenticate user against database
+    user = security.authenticate_user(db, form_data.username, form_data.password)
     
     if not user:
         # Log failed login attempt
@@ -127,7 +146,7 @@ async def login(
         )
     
     # Create access token
-    access_token_expires = timedelta(minutes=auth.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
     access_token = create_access_token(
         data={
             "sub": user.username,
@@ -143,7 +162,7 @@ async def login(
     return {
         "access_token": access_token,
         "token_type": "bearer",
-        "expires_in": auth.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        "expires_in": settings.access_token_expire_minutes * 60,
         "user": schemas.User.model_validate(user)
     }
 
@@ -160,20 +179,25 @@ async def get_token(
 
 @router.post("/logout")
 async def logout(
-    current_user: models.User = Depends(auth.get_current_active_user),
+    current_user: models.User = Depends(security.get_current_active_user),
     db: Session = Depends(database.get_db),
     request: Request = None
 ):
     """Logout user and invalidate token."""
     
-    # Log logout
-    audit.AuditLogger.log_logout(db, current_user.id, request)
+    try:
+        # Log logout only if user exists in database
+        if current_user and hasattr(current_user, 'id') and current_user.id:
+            audit.AuditLogger.log_logout(db, current_user.id, request)
+    except Exception as e:
+        # For development tokens, skip audit logging
+        print(f"Audit logging skipped for development token: {e}")
     
     return {"message": "Successfully logged out"}
 
 @router.get("/me", response_model=schemas.User)
 async def get_current_user_info(
-    current_user: models.User = Depends(auth.get_current_active_user)
+    current_user: models.User = Depends(security.get_current_active_user)
 ):
     """Get current user information."""
     return current_user
@@ -181,7 +205,7 @@ async def get_current_user_info(
 @router.post("/users", response_model=schemas.User)
 async def create_user(
     user_data: schemas.UserCreate,
-    current_user: models.User = Depends(auth.require_admin),
+    current_user: models.User = Depends(security.require_admin),
     db: Session = Depends(database.get_db),
     request: Request = None
 ):
@@ -233,7 +257,7 @@ async def create_user(
 async def get_users(
     skip: int = 0,
     limit: int = 100,
-    current_user: models.User = Depends(auth.require_admin),
+    current_user: models.User = Depends(security.require_admin),
     db: Session = Depends(database.get_db)
 ):
     """Get all users (admin only)."""
@@ -244,7 +268,7 @@ async def get_users(
 @router.get("/users/{user_id}", response_model=schemas.User)
 async def get_user(
     user_id: int,
-    current_user: models.User = Depends(auth.require_admin),
+    current_user: models.User = Depends(security.require_admin),
     db: Session = Depends(database.get_db)
 ):
     """Get user by ID (admin only)."""
@@ -262,7 +286,7 @@ async def get_user(
 async def update_user(
     user_id: int,
     user_data: schemas.UserUpdate,
-    current_user: models.User = Depends(auth.require_admin),
+    current_user: models.User = Depends(security.require_admin),
     db: Session = Depends(database.get_db),
     request: Request = None
 ):
@@ -302,7 +326,7 @@ async def update_user(
 @router.delete("/users/{user_id}")
 async def delete_user(
     user_id: int,
-    current_user: models.User = Depends(auth.require_admin),
+    current_user: models.User = Depends(security.require_admin),
     db: Session = Depends(database.get_db),
     request: Request = None
 ):
@@ -345,7 +369,7 @@ async def delete_user(
 async def reset_user_password(
     user_id: int,
     new_password: str,
-    current_user: models.User = Depends(auth.require_admin),
+    current_user: models.User = Depends(security.require_admin),
     db: Session = Depends(database.get_db),
     request: Request = None
 ):
@@ -375,14 +399,14 @@ async def reset_user_password(
 async def change_own_password(
     current_password: str,
     new_password: str,
-    current_user: models.User = Depends(auth.get_current_active_user),
+    current_user: models.User = Depends(security.get_current_active_user),
     db: Session = Depends(database.get_db),
     request: Request = None
 ):
     """Change own password."""
     
     # Verify current password
-    if not auth.verify_password(current_password, current_user.hashed_password):
+    if not security.verify_password(current_password, current_user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Current password is incorrect"
@@ -408,7 +432,7 @@ async def get_audit_logs(
     table_name: str = None,
     limit: int = 100,
     offset: int = 0,
-    current_user: models.User = Depends(auth.require_admin),
+    current_user: models.User = Depends(security.require_admin),
     db: Session = Depends(database.get_db)
 ):
     """Get audit logs (admin only)."""
@@ -424,7 +448,7 @@ async def get_audit_logs(
 async def get_user_activity(
     user_id: int,
     days: int = 30,
-    current_user: models.User = Depends(auth.require_admin),
+    current_user: models.User = Depends(security.require_admin),
     db: Session = Depends(database.get_db)
 ):
     """Get user activity summary (admin only)."""
@@ -435,7 +459,7 @@ async def get_user_activity(
 @router.post("/export-audit-logs")
 async def export_audit_logs(
     format: str = "json",
-    current_user: models.User = Depends(auth.require_admin),
+    current_user: models.User = Depends(security.require_admin),
     db: Session = Depends(database.get_db)
 ):
     """Export audit logs (admin only)."""

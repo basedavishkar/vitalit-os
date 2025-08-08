@@ -8,6 +8,7 @@ from backend.core import database
 from backend.core import security as auth
 from backend import audit
 from backend.core.security import generate_bill_id, generate_payment_id
+from backend.models.billing import PaymentStatusEnum
 
 router = APIRouter(prefix="/billing", tags=["Billing"])
 
@@ -56,7 +57,7 @@ async def create_bill(
         discount_amount=bill_data.discount_amount,
         total_amount=bill_data.total_amount,
         paid_amount=0.0,
-        payment_status=models.PaymentStatusEnum.PENDING,
+        payment_status=PaymentStatusEnum.PENDING,
         notes=bill_data.notes
     )
     
@@ -180,11 +181,11 @@ async def update_bill(
     
     # Recalculate payment status
     if bill.paid_amount >= bill.total_amount:
-        bill.payment_status = models.PaymentStatusEnum.PAID
+        bill.payment_status = PaymentStatusEnum.PAID
     elif bill.paid_amount > 0:
-        bill.payment_status = models.PaymentStatusEnum.PARTIAL
+        bill.payment_status = PaymentStatusEnum.PARTIAL
     else:
-        bill.payment_status = models.PaymentStatusEnum.PENDING
+        bill.payment_status = PaymentStatusEnum.PENDING
     
     db.commit()
     db.refresh(bill)
@@ -293,9 +294,9 @@ async def create_payment(
     bill.paid_amount += payment_data.amount
     
     if bill.paid_amount >= bill.total_amount:
-        bill.payment_status = models.PaymentStatusEnum.PAID
+        bill.payment_status = PaymentStatusEnum.PAID
     else:
-        bill.payment_status = models.PaymentStatusEnum.PARTIAL
+        bill.payment_status = PaymentStatusEnum.PARTIAL
     
     db.commit()
     db.refresh(db_payment)
@@ -425,8 +426,8 @@ async def get_outstanding_bills_report(
     # Get outstanding bills
     outstanding_bills = db.query(models.Bill).filter(
         models.Bill.payment_status.in_([
-            models.PaymentStatusEnum.PENDING,
-            models.PaymentStatusEnum.PARTIAL
+            PaymentStatusEnum.PENDING,
+            PaymentStatusEnum.PARTIAL
         ])
     ).all()
     
@@ -435,8 +436,8 @@ async def get_outstanding_bills_report(
     total_bills = len(outstanding_bills)
     
     # Group by status
-    pending_bills = [b for b in outstanding_bills if b.payment_status == models.PaymentStatusEnum.PENDING]
-    partial_bills = [b for b in outstanding_bills if b.payment_status == models.PaymentStatusEnum.PARTIAL]
+    pending_bills = [b for b in outstanding_bills if b.payment_status == PaymentStatusEnum.PENDING]
+    partial_bills = [b for b in outstanding_bills if b.payment_status == PaymentStatusEnum.PARTIAL]
     
     return {
         "total_outstanding_amount": float(total_outstanding),

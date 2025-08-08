@@ -17,7 +17,7 @@ class PatientBase(BaseModel):
     gender: GenderEnum
     blood_group: Optional[str] = Field(None, max_length=5)
     address: str = Field(..., min_length=1)
-    phone: str = Field(..., min_length=10, max_length=20)
+    phone: str = Field(..., min_length=7, max_length=20)
     email: Optional[EmailStr] = None
     emergency_contact_name: Optional[str] = Field(None, max_length=100)
     emergency_contact_phone: Optional[str] = Field(None, max_length=20)
@@ -44,7 +44,7 @@ class PatientUpdate(BaseModel):
     gender: Optional[GenderEnum] = None
     blood_group: Optional[str] = Field(None, max_length=5)
     address: Optional[str] = Field(None, min_length=1)
-    phone: Optional[str] = Field(None, min_length=10, max_length=20)
+    phone: Optional[str] = Field(None, min_length=7, max_length=20)
     email: Optional[EmailStr] = None
     emergency_contact_name: Optional[str] = Field(None, max_length=100)
     emergency_contact_phone: Optional[str] = Field(None, max_length=20)

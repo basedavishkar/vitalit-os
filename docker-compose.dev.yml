@@ -1,22 +1,60 @@
 version: '3.8'
 
 services:
+  # Database for development
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${DB_NAME:-vitalit_dev}
+      POSTGRES_USER: ${DB_USER:-vitalit_dev}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-vitalit_dev}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-vitalit_dev}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for development
+  redis:
+    image: redis:7-alpine
+    command: redis-server --requirepass ${REDIS_PASSWORD:-vitalit_dev}
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_dev_data:/data
+
+  # Backend API with hot reload
   backend:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile
-    ports:
-      - "8000:8000"
+      args:
+        - BUILD_ENV=development
     environment:
-      - DATABASE_URL=sqlite:///./hospital.db
-      - SECRET_KEY=dev-secret-key-change-in-production
+      - DATABASE_URL=postgresql://${DB_USER:-vitalit_dev}:${DB_PASSWORD:-vitalit_dev}@db:5432/${DB_NAME:-vitalit_dev}
+      - REDIS_HOST=redis
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-vitalit_dev}
+      - DEBUG=true
+      - DEV_MODE=true
+      - TOKEN_SECRET_KEY=dev_secret_key
+      - REFRESH_TOKEN_SECRET_KEY=dev_refresh_key
       - LOG_LEVEL=DEBUG
     volumes:
-      - ./data:/app/data
+      - ./backend:/app/backend
       - ./logs:/app/logs
-      - ./backups:/app/backups
       - ./uploads:/app/uploads
-      - ./backend:/app/backend  # For development hot reload
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    command: uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
@@ -25,27 +63,31 @@ services:
       retries: 3
       start_period: 40s
 
+  # Frontend development server
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile.dev
-    ports:
-      - "3000:3000"
+      target: development
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
     volumes:
       - ./frontend:/app
       - /app/node_modules
-    environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - /app/.next
+    ports:
+      - "3000:3000"
+    command: npm run dev
     depends_on:
       - backend
     restart: unless-stopped
 
 volumes:
-  data:
+  postgres_dev_data:
+  redis_dev_data:
   logs:
-  backups:
   uploads:
 
 networks:
   default:
-    name: vitalit-dev-network 
+    name: vitalit-dev-network

@@ -3,7 +3,7 @@ from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from backend.routers import (
-    patients, doctors, appointments, billing, auth
+    patients, doctors, appointments, billing, auth, dashboard
 )
 from backend.models import Base
 from backend.core.database import engine
@@ -47,11 +47,24 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for development
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:3001",
+        "http://127.0.0.1:3001",
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:8080",
+        "http://127.0.0.1:8080",
+        "https://vitalit.vercel.app",
+        "https://vitalit-os-l6br-git-main-av1shkars-projects.vercel.app",
+        "https://vitalit-os-l6br-m9d5wbdpt-av1shkars-projects.vercel.app",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # Global exception handler
 # @app.exception_handler(VitalitException)
@@ -64,6 +77,8 @@ app.add_middleware(
 async def global_exception_handler(request: Request, exc: Exception):
     """Handle all other exceptions."""
     print(f"Unhandled exception: {str(exc)}")
+    import traceback
+    print(f"Full stack trace: {traceback.format_exc()}")
     return JSONResponse(
         status_code=500,
         content={
@@ -72,174 +87,230 @@ async def global_exception_handler(request: Request, exc: Exception):
         }
     )
 
+
 # Health check endpoint
 @app.get("/health")
 async def health_check():
     """Health check endpoint."""
     return {"status": "healthy", "version": settings.version}
 
+# Test endpoint for frontend debugging
+@app.get("/test")
+async def test_endpoint():
+    """Test endpoint for frontend debugging."""
+    return {"message": "Backend is working!", "timestamp": "2025-08-06T20:22:27Z"}
 
-# Dashboard endpoint
-@app.get("/dashboard/stats")
-async def get_dashboard_stats():
-    """Get dashboard statistics."""
-    return {
-        "totalPatients": 150,
-        "totalDoctors": 25,
-        "totalAppointments": 45,
-        "todayAppointments": 12,
-        "monthlyRevenue": 125000.00,
-        "activePatients": 120,
-        "pendingAppointments": 8
-    }
-
-
-# Simple login endpoint for development
-@app.post("/auth/login")
-async def simple_login(request: dict):
-    """Simple login endpoint for development using role credentials."""
-    from backend.routers.auth import ROLE_CREDENTIALS
-    from datetime import datetime, timedelta
-    import jwt
-    import os
-    
-    username = request.get("username")
-    password = request.get("password")
-    
-    if not username or not password:
-        raise HTTPException(
-            status_code=400, 
-            detail="Username and password required"
-        )
-    
-    # Check if username is a valid role and password matches
-    if (username in ROLE_CREDENTIALS and 
-        ROLE_CREDENTIALS[username] == password):
-        # Create a simple token
-        token_data = {
-            "sub": username,
-            "user_id": 1,
-            "role": username,
-            "exp": datetime.utcnow() + timedelta(minutes=30)
+# Test patients endpoint (no auth required)
+@app.get("/test/patients")
+async def test_patients():
+    """Test patients endpoint for frontend debugging."""
+    return [
+        {
+            "id": 1,
+            "first_name": "John",
+            "last_name": "Doe",
+            "date_of_birth": "1990-01-01",
+            "gender": "male",
+            "address": "123 Main St",
+            "phone": "555-1234",
+            "email": "john@example.com"
+        },
+        {
+            "id": 2,
+            "first_name": "Jane",
+            "last_name": "Smith",
+            "date_of_birth": "1985-05-15",
+            "gender": "female",
+            "address": "456 Oak Ave",
+            "phone": "555-5678",
+            "email": "jane@example.com"
         }
-        
-        secret_key = os.getenv("SECRET_KEY", "your-secret-key")
-        token = jwt.encode(token_data, secret_key, algorithm="HS256")
-        
-        return {
-            "access_token": token,
-            "token_type": "bearer",
-            "expires_in": 1800,
-            "user": {
-                "id": 1,
-                "username": username,
-                "email": f"{username}@vitalit.com",
-                "role": username,
-                "is_active": True,
-                "created_at": datetime.utcnow().isoformat(),
-                "updated_at": datetime.utcnow().isoformat()
-            }
-        }
-    else:
-        raise HTTPException(
-            status_code=401, 
-            detail="Invalid credentials"
-        )
+    ]
 
 
-# Development endpoints (no auth required)
+# Development endpoints for testing
 @app.get("/dev/patients")
 async def get_dev_patients():
-    """Get patients for development (no auth required)."""
+    """Get development patients data."""
     return [
-        {"id": 1, "first_name": "John", "last_name": "Doe", "email": "john.doe@email.com"},
-        {"id": 2, "first_name": "Jane", "last_name": "Smith", "email": "jane.smith@email.com"},
-        {"id": 3, "first_name": "Bob", "last_name": "Johnson", "email": "bob.johnson@email.com"},
-        {"id": 4, "first_name": "Alice", "last_name": "Brown", "email": "alice.brown@email.com"},
-        {"id": 5, "first_name": "Charlie", "last_name": "Wilson", "email": "charlie.wilson@email.com"}
+        {
+            "id": 1,
+            "patient_id": "P001",
+            "first_name": "John",
+            "last_name": "Doe",
+            "date_of_birth": "1990-01-01",
+            "gender": "male",
+            "blood_group": "A+",
+            "address": "123 Main St",
+            "phone": "555-0123",
+            "email": "john.doe@email.com",
+            "emergency_contact_name": "Jane Doe",
+            "emergency_contact_phone": "555-0124",
+            "emergency_contact_relationship": "Spouse",
+            "insurance_provider": "Blue Cross",
+            "insurance_number": "BC123456",
+            "allergies": "None",
+            "medical_history": "Hypertension",
+            "created_at": "2024-01-01T00:00:00",
+            "updated_at": None
+        },
+        {
+            "id": 2,
+            "patient_id": "P002",
+            "first_name": "Jane",
+            "last_name": "Smith",
+            "date_of_birth": "1985-05-15",
+            "gender": "female",
+            "blood_group": "O+",
+            "address": "456 Oak Ave",
+            "phone": "555-0125",
+            "email": "jane.smith@email.com",
+            "emergency_contact_name": "John Smith",
+            "emergency_contact_phone": "555-0126",
+            "emergency_contact_relationship": "Spouse",
+            "insurance_provider": "Aetna",
+            "insurance_number": "AE789012",
+            "allergies": "Penicillin",
+            "medical_history": "Diabetes Type 2",
+            "created_at": "2024-01-02T00:00:00",
+            "updated_at": None
+        }
     ]
 
 
 @app.get("/dev/doctors")
 async def get_dev_doctors():
-    """Get doctors for development (no auth required)."""
+    """Get development doctors data."""
     return [
-        {"id": 1, "first_name": "Dr. Sarah", "last_name": "Johnson", "specialization": "Cardiology"},
-        {"id": 2, "first_name": "Dr. Michael", "last_name": "Chen", "specialization": "Neurology"},
-        {"id": 3, "first_name": "Dr. Emily", "last_name": "Davis", "specialization": "Pediatrics"},
-        {"id": 4, "first_name": "Dr. Robert", "last_name": "Wilson", "specialization": "Orthopedics"},
-        {"id": 5, "first_name": "Dr. Lisa", "last_name": "Garcia", "specialization": "Dermatology"}
+        {
+            "id": 1,
+            "doctor_id": "D001",
+            "first_name": "Dr. Sarah",
+            "last_name": "Johnson",
+            "specialization": "Cardiology",
+            "qualification": "MD, FACC",
+            "license_number": "MD123456",
+            "phone": "555-0201",
+            "email": "sarah.johnson@vitalit.com",
+            "address": "789 Medical Center Dr",
+            "consultation_fee": 150.00,
+            "is_active": True,
+            "created_at": "2024-01-01T00:00:00",
+            "updated_at": None
+        },
+        {
+            "id": 2,
+            "doctor_id": "D002",
+            "first_name": "Dr. Michael",
+            "last_name": "Chen",
+            "specialization": "Neurology",
+            "qualification": "MD, PhD",
+            "license_number": "MD789012",
+            "phone": "555-0202",
+            "email": "michael.chen@vitalit.com",
+            "address": "321 Neurology Ave",
+            "consultation_fee": 200.00,
+            "is_active": True,
+            "created_at": "2024-01-02T00:00:00",
+            "updated_at": None
+        }
     ]
 
 
-# Simple patients endpoint for testing (no auth required)
 @app.get("/patients/simple")
 async def get_patients_simple():
-    """Get patients list (no auth required for development)."""
-    try:
-        from backend.core.database import SessionLocal
-        from backend.models import Patient
-        
-        db = SessionLocal()
-        patients = db.query(Patient).all()
-        result = [
-            {
-                "id": p.id,
-                "patient_id": p.patient_id,
-                "first_name": p.first_name,
-                "last_name": p.last_name,
-                "email": p.email,
-                "phone": p.phone,
-                "date_of_birth": p.date_of_birth.isoformat() if p.date_of_birth else None,
-                "gender": p.gender.value if p.gender else None,
-                "address": p.address,
-                "created_at": p.created_at.isoformat() if p.created_at else None
-            }
-            for p in patients
-        ]
-        db.close()
-        return result
-    except Exception as e:
-        print(f"Error in get_patients_simple: {e}")
-        return {"error": str(e)}
+    """Get simple patients list for development."""
+    return [
+        {
+            "id": 1,
+            "patient_id": "P001",
+            "first_name": "John",
+            "last_name": "Doe",
+            "date_of_birth": "1990-01-01",
+            "gender": "male",
+            "blood_group": "A+",
+            "address": "123 Main St",
+            "phone": "555-0123",
+            "email": "john.doe@email.com",
+            "emergency_contact_name": "Jane Doe",
+            "emergency_contact_phone": "555-0124",
+            "emergency_contact_relationship": "Spouse",
+            "insurance_provider": "Blue Cross",
+            "insurance_number": "BC123456",
+            "allergies": "None",
+            "medical_history": "Hypertension",
+            "created_at": "2024-01-01T00:00:00",
+            "updated_at": None
+        },
+        {
+            "id": 2,
+            "patient_id": "P002",
+            "first_name": "Jane",
+            "last_name": "Smith",
+            "date_of_birth": "1985-05-15",
+            "gender": "female",
+            "blood_group": "O+",
+            "address": "456 Oak Ave",
+            "phone": "555-0125",
+            "email": "jane.smith@email.com",
+            "emergency_contact_name": "John Smith",
+            "emergency_contact_phone": "555-0126",
+            "emergency_contact_relationship": "Spouse",
+            "insurance_provider": "Aetna",
+            "insurance_number": "AE789012",
+            "allergies": "Penicillin",
+            "medical_history": "Diabetes Type 2",
+            "created_at": "2024-01-02T00:00:00",
+            "updated_at": None
+        }
+    ]
 
 
-# Simple doctors endpoint for testing (no auth required)
 @app.get("/doctors/simple")
 async def get_doctors_simple():
-    """Get doctors list (no auth required for development)."""
-    try:
-        from backend.core.database import SessionLocal
-        from backend.models import Doctor
-        
-        db = SessionLocal()
-        doctors = db.query(Doctor).filter(Doctor.is_active == True).all()
-        result = [
-            {
-                "id": d.id,
-                "doctor_id": d.doctor_id,
-                "first_name": d.first_name,
-                "last_name": d.last_name,
-                "email": d.email,
-                "phone": d.phone,
-                "specialization": d.specialization,
-                "license_number": d.license_number,
-                "is_active": d.is_active,
-                "created_at": d.created_at.isoformat() if d.created_at else None
-            }
-            for d in doctors
-        ]
-        db.close()
-        return result
-    except Exception as e:
-        print(f"Error in get_doctors_simple: {e}")
-        return {"error": str(e)}
+    """Get simple doctors list for development."""
+    return [
+        {
+            "id": 1,
+            "doctor_id": "D001",
+            "first_name": "Dr. Sarah",
+            "last_name": "Johnson",
+            "specialization": "Cardiology",
+            "qualification": "MD, FACC",
+            "license_number": "MD123456",
+            "phone": "555-0201",
+            "email": "sarah.johnson@vitalit.com",
+            "address": "789 Medical Center Dr",
+            "consultation_fee": 150.00,
+            "is_active": True,
+            "created_at": "2024-01-01T00:00:00",
+            "updated_at": None
+        },
+        {
+            "id": 2,
+            "doctor_id": "D002",
+            "first_name": "Dr. Michael",
+            "last_name": "Chen",
+            "specialization": "Neurology",
+            "qualification": "MD, PhD",
+            "license_number": "MD789012",
+            "phone": "555-0202",
+            "email": "michael.chen@vitalit.com",
+            "address": "321 Neurology Ave",
+            "consultation_fee": 200.00,
+            "is_active": True,
+            "created_at": "2024-01-02T00:00:00",
+            "updated_at": None
+        }
+    ]
 
-# Include routers with API prefix
-app.include_router(auth.router, prefix=settings.api_prefix)
-app.include_router(patients.router, prefix=settings.api_prefix)
-app.include_router(doctors.router, prefix=settings.api_prefix)
-app.include_router(appointments.router, prefix=settings.api_prefix)
-app.include_router(billing.router, prefix=settings.api_prefix)
+
+# Include routers
+app.include_router(auth.router)
+app.include_router(patients.router)
+app.include_router(doctors.router)
+app.include_router(appointments.router)
+app.include_router(billing.router)
+app.include_router(dashboard.router)
 
 

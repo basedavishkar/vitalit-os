@@ -9,7 +9,7 @@ class DoctorBase(BaseModel):
     specialization: str = Field(..., min_length=1, max_length=100)
     qualification: str = Field(..., min_length=1, max_length=100)
     license_number: str = Field(..., min_length=1, max_length=50)
-    phone: str = Field(..., min_length=10, max_length=20)
+    phone: str = Field(..., min_length=7, max_length=20)
     email: EmailStr
     address: Optional[str] = None
     consultation_fee: float = Field(0.0, ge=0)
@@ -32,7 +32,7 @@ class DoctorUpdate(BaseModel):
     specialization: Optional[str] = Field(None, min_length=1, max_length=100)
     qualification: Optional[str] = Field(None, min_length=1, max_length=100)
     license_number: Optional[str] = Field(None, min_length=1, max_length=50)
-    phone: Optional[str] = Field(None, min_length=10, max_length=20)
+    phone: Optional[str] = Field(None, min_length=7, max_length=20)
     email: Optional[EmailStr] = None
     address: Optional[str] = None
     consultation_fee: Optional[float] = Field(None, ge=0)
