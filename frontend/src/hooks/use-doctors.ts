@@ -20,10 +20,7 @@ export function useDoctors() {
   const fetchDoctors = useCallback(async (params?: any) => {
     try {
       setState(prev => ({ ...prev, isLoading: true, error: null }))
-      
-      // Use development endpoint for now
-      const data = await doctorsAPI.getDevDoctors()
-      
+      const data = await doctorsAPI.getAll(params)
       setState({
         doctors: data,
         isLoading: false,

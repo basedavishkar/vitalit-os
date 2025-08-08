@@ -50,20 +50,14 @@ const DashboardStats: React.FC = () => {
 
   const fetchDashboardStats = async () => {
     try {
-      // In a real app, you'd fetch this from your API
-      // For now, we'll use mock data
-      const mockStats: DashboardStats = {
-        totalPatients: 1247,
-        totalDoctors: 23,
-        totalAppointments: 89,
-        totalRecords: 3456,
-        totalRevenue: 125000,
-        totalInventory: 456,
-        appointmentsToday: 12,
-        pendingBills: 34
-      };
-      
-      setStats(mockStats);
+      const response = await fetch('http://localhost:8000/dashboard/stats', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+        },
+      });
+      if (!response.ok) throw new Error('Failed to fetch dashboard stats');
+      const stats = await response.json();
+      setStats(stats);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching dashboard stats:', error);

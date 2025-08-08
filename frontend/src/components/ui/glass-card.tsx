@@ -12,7 +12,7 @@ const GlassCard = React.forwardRef<HTMLDivElement, GlassCardProps>(
     
     const variantClasses = {
       default: "bg-white/80 shadow-soft-md",
-      colored: `bg-soft-${color}/80 shadow-${color}`,
+      colored: `bg-white/80 shadow-soft-md`,
       strong: "bg-white/90 shadow-glass-strong"
     }
     

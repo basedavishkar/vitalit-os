@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
+import { ROUTES } from '@/lib/constants'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { 
@@ -23,28 +24,27 @@ import {
 } from 'lucide-react'
 
 const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Patients', href: '/dashboard/patients', icon: Users },
-  { name: 'Doctors', href: '/dashboard/doctors', icon: UserCheck },
-  { name: 'Appointments', href: '/dashboard/appointments', icon: Calendar },
-  { name: 'Medical Records', href: '/dashboard/records', icon: FileText },
-  { name: 'Billing', href: '/dashboard/billing', icon: CreditCard },
-  { name: 'Inventory', href: '/dashboard/inventory', icon: Package },
-  { name: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
-  { name: 'System', href: '/dashboard/system', icon: Settings },
+  { name: 'Dashboard', href: ROUTES.DASHBOARD, icon: LayoutDashboard },
+  { name: 'Patients', href: ROUTES.PATIENTS, icon: Users },
+  { name: 'Doctors', href: ROUTES.DOCTORS, icon: UserCheck },
+  { name: 'Appointments', href: ROUTES.APPOINTMENTS, icon: Calendar },
+  { name: 'Medical Records', href: ROUTES.RECORDS, icon: FileText },
+  { name: 'Billing', href: ROUTES.BILLING, icon: CreditCard },
+  { name: 'Inventory', href: ROUTES.INVENTORY, icon: Package },
+  { name: 'Analytics', href: ROUTES.ANALYTICS, icon: BarChart3 },
+  { name: 'System', href: ROUTES.SYSTEM, icon: Settings },
 ]
 
 export function Sidebar() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const pathname = usePathname()
   const { user, logout } = useAuth()
-
+  const currentUser = user
   const handleLogout = async () => {
     await logout()
   }
-
   return (
-    <>
+    <div>
       {/* Mobile sidebar */}
       <div className={`fixed inset-0 z-50 lg:hidden ${sidebarOpen ? 'block' : 'hidden'}`}>
         <div className="fixed inset-0 bg-gray-900/80" onClick={() => setSidebarOpen(false)} />
@@ -85,32 +85,34 @@ export function Sidebar() {
                 )
               })}
             </nav>
-            {user && (
-              <div className="border-t border-gray-200 p-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                    {user.username?.charAt(0).toUpperCase() || 'U'}
+            <div className="border-t border-gray-200 p-4">
+              {currentUser ? (
+                <>
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                      {currentUser.username?.charAt(0).toUpperCase() || 'U'}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-gray-900 truncate">
+                        {currentUser.username}
+                      </p>
+                      <Badge variant="secondary" className="text-xs">
+                        {currentUser.role}
+                      </Badge>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-gray-900 truncate">
-                      {user.username}
-                    </p>
-                    <Badge variant="secondary" className="text-xs">
-                      {user.role}
-                    </Badge>
-                  </div>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="w-full mt-3"
-                  onClick={handleLogout}
-                >
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Sign out
-                </Button>
-              </div>
-            )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full mt-3"
+                    onClick={handleLogout}
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sign out
+                  </Button>
+                </>
+              ) : null}
+            </div>
           </div>
         </div>
       </div>
@@ -150,34 +152,36 @@ export function Sidebar() {
                   })}
                 </ul>
               </li>
-              {user && (
-                <li className="mt-auto">
-                  <div className="border-t border-gray-200 pt-4">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                        {user.username?.charAt(0).toUpperCase() || 'U'}
+              <li className="mt-auto">
+                <div className="border-t border-gray-200 pt-4">
+                  {currentUser ? (
+                    <>
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                          {currentUser.username?.charAt(0).toUpperCase() || 'U'}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-gray-900 truncate">
+                            {currentUser.username}
+                          </p>
+                          <Badge variant="secondary" className="text-xs">
+                            {currentUser.role}
+                          </Badge>
+                        </div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-gray-900 truncate">
-                          {user.username}
-                        </p>
-                        <Badge variant="secondary" className="text-xs">
-                          {user.role}
-                        </Badge>
-                      </div>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="w-full mt-3"
-                      onClick={handleLogout}
-                    >
-                      <LogOut className="w-4 h-4 mr-2" />
-                      Sign out
-                    </Button>
-                  </div>
-                </li>
-              )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-full mt-3"
+                        onClick={handleLogout}
+                      >
+                        <LogOut className="w-4 h-4 mr-2" />
+                        Sign out
+                      </Button>
+                    </>
+                  ) : null}
+                </div>
+              </li>
             </ul>
           </nav>
         </div>
@@ -196,6 +200,6 @@ export function Sidebar() {
           Dashboard
         </div>
       </div>
-    </>
+    </div>
   )
 } 

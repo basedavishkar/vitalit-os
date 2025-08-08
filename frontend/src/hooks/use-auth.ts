@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { authAPI } from '@/lib/api'
 import { User } from '@/types/api'
-import { STORAGE_KEYS, ROUTES } from '@/lib/constants'
+import { ROUTES } from '@/lib/constants'
 
 interface AuthState {
   user: User | null
@@ -19,31 +19,44 @@ export function useAuth() {
     error: null
   })
   
+  const [hasCheckedAuth, setHasCheckedAuth] = useState(false)
   const router = useRouter()
-
-  // Check if user is authenticated on mount
-  useEffect(() => {
-    checkAuth()
-  }, [])
 
   const checkAuth = useCallback(async () => {
     try {
-      const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN)
-      if (!token) {
+      const token = localStorage.getItem('access_token')
+      const userData = localStorage.getItem('user_data')
+      
+      if (!token || !userData) {
         setAuthState(prev => ({ ...prev, isLoading: false, isAuthenticated: false }))
+        localStorage.clear() // Clear any partial auth state
         return
       }
 
-      const user = await authAPI.getCurrentUser()
-      setAuthState({
-        user,
-        isAuthenticated: true,
-        isLoading: false,
-        error: null
-      })
+      try {
+        // Verify token is still valid with backend
+        const user = await authAPI.getCurrentUser()
+        
+        setAuthState({
+          user,
+          isAuthenticated: true,
+          isLoading: false,
+          error: null
+        })
+      } catch (error) {
+        // Token is invalid or expired
+        console.error('Auth validation failed:', error)
+        localStorage.clear()
+        setAuthState({
+          user: null,
+          isAuthenticated: false,
+          isLoading: false,
+          error: 'Authentication failed'
+        })
+      }
     } catch (error) {
       console.error('Auth check failed:', error)
-      localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN)
+      localStorage.clear()
       setAuthState({
         user: null,
         isAuthenticated: false,
@@ -53,15 +66,30 @@ export function useAuth() {
     }
   }, [])
 
+  // Check if user is authenticated on mount
+  // FIX: Ensure checkAuth is memoized with useCallback. Only run when hasCheckedAuth or checkAuth changes.
+  useEffect(() => {
+    if (!hasCheckedAuth) {
+      checkAuth()
+      setHasCheckedAuth(true)
+    }
+  }, [hasCheckedAuth, checkAuth])
+
   const login = useCallback(async (username: string, password: string) => {
     try {
+      // Clear any existing auth state before attempting login
+      localStorage.clear()
       setAuthState(prev => ({ ...prev, isLoading: true, error: null }))
       
       const response = await authAPI.login({ username, password })
       
-      // Store token
-      localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, response.access_token)
-      localStorage.setItem(STORAGE_KEYS.USER_DATA, JSON.stringify(response.user))
+      if (!response?.access_token || !response?.user) {
+        throw new Error('Invalid login response')
+      }
+      
+      // Store token and user data
+      localStorage.setItem('access_token', response.access_token)
+      setUser(response.user)
       
       setAuthState({
         user: response.user,
@@ -70,10 +98,11 @@ export function useAuth() {
         error: null
       })
       
-      router.push(ROUTES.DASHBOARD)
       return response
     } catch (error: any) {
-      const errorMessage = error.response?.data?.detail || 'Login failed'
+      // Clear any partial auth state on error
+      localStorage.clear()
+      const errorMessage = error.response?.data?.detail || error.message || 'Login failed'
       setAuthState(prev => ({
         ...prev,
         isLoading: false,
@@ -90,8 +119,8 @@ export function useAuth() {
       console.error('Logout API call failed:', error)
     } finally {
       // Clear local storage regardless of API call success
-      localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN)
-      localStorage.removeItem(STORAGE_KEYS.USER_DATA)
+      localStorage.removeItem('access_token')
+      setUser(null)
       
       setAuthState({
         user: null,
@@ -100,16 +129,28 @@ export function useAuth() {
         error: null
       })
       
-      router.push(ROUTES.LOGIN)
+      router.replace(ROUTES.LOGIN)
     }
   }, [router])
+
+  const setUser = useCallback((user: User | null) => {
+    if (user) {
+      localStorage.setItem('user_data', JSON.stringify(user))
+    } else {
+      localStorage.removeItem('user_data')
+    }
+  }, [])
 
   const clearError = useCallback(() => {
     setAuthState(prev => ({ ...prev, error: null }))
   }, [])
 
+  // Memoize returned object to avoid causing infinite loops in consumers
   return {
-    ...authState,
+    user: authState.user,
+    isAuthenticated: authState.isAuthenticated,
+    isLoading: authState.isLoading,
+    error: authState.error,
     login,
     logout,
     checkAuth,

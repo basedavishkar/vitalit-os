@@ -20,10 +20,7 @@ export function usePatients() {
   const fetchPatients = useCallback(async (params?: PatientSearchParams) => {
     try {
       setState(prev => ({ ...prev, isLoading: true, error: null }))
-      
-      // Use development endpoint for now
-      const data = await patientsAPI.getDevPatients()
-      
+      const data = await patientsAPI.getAll(params)
       setState({
         patients: data,
         isLoading: false,
@@ -134,6 +131,8 @@ export function usePatients() {
   }, [])
 
   // Load patients on mount
+  useEffect(() => {
+  // FIX: Only run when fetchPatients changes. fetchPatients is memoized with useCallback.
   useEffect(() => {
     fetchPatients()
   }, [fetchPatients])

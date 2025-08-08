@@ -13,6 +13,8 @@ import { usePathname } from 'next/navigation'
 
 export function Header() {
   const { user } = useAuth()
+  
+  const currentUser = user
   const pathname = usePathname()
 
   const getPageTitle = () => {
@@ -83,18 +85,18 @@ export function Header() {
           </div>
 
           {/* User Profile */}
-          {user && (
+          {currentUser && (
             <div className="flex items-center space-x-3">
               <div className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
                 <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                  {user.username?.charAt(0).toUpperCase() || 'U'}
+                  {currentUser.username?.charAt(0).toUpperCase() || 'U'}
                 </div>
                 <div className="hidden md:block">
                   <p className="text-sm font-semibold text-gray-900">
-                    {user.username}
+                    {currentUser.username}
                   </p>
                   <Badge variant="secondary" className="text-xs">
-                    {user.role}
+                    {currentUser.role}
                   </Badge>
                 </div>
               </div>
