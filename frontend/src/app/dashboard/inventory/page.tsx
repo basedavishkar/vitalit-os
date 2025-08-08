@@ -1,58 +1,87 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import InventoryForm from '@/components/inventory/InventoryForm';
+import InventoryList from '@/components/inventory/InventoryList';
+import { inventoryAPI } from '@/lib/api';
+import { InventoryItem } from '@/types/api';
+
 export default function InventoryPage() {
+  const [items, setItems] = useState<InventoryItem[]>([]);
+  const [open, setOpen] = useState(false);
+
+  const loadItems = async () => {
+    try {
+      const res = await inventoryAPI.getAll();
+      // Support both paginated and array responses
+      setItems((res as any).items ?? (res as any));
+    } catch {
+      setItems([]);
+    }
+  };
+
+  useEffect(() => {
+    loadItems();
+  }, []);
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold gradient-primary">
-            Inventory Management
-          </h1>
-          <p className="text-sm text-neutral-300 mt-1">Manage medical supplies and equipment</p>
+          <h1 className="text-[28px] leading-tight font-semibold tracking-tight">Inventory</h1>
+          <p className="text-sm text-muted-foreground">Manage medical supplies and equipment</p>
         </div>
-        <button className="btn-primary px-4 py-2 text-sm">+ Add Item</button>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button variant="primary">Add Item</Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add Inventory Item</DialogTitle>
+            </DialogHeader>
+            <InventoryForm onItemAdded={() => { setOpen(false); loadItems(); }} />
+          </DialogContent>
+        </Dialog>
       </div>
 
-      <div className="card-elevated p-4">
-        <h2 className="text-lg font-bold text-white mb-4">Medical Supplies</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="p-4 rounded-lg border border-white/10">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                <span className="text-white text-lg">💊</span>
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-white">Medications</p>
-                <p className="text-xs text-neutral-400">1,247 items</p>
-              </div>
-            </div>
+      <Card>
+        <CardContent className="pt-4">
+          <div className="overflow-auto">
+            <table className="table min-w-[700px]">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Quantity</th>
+                  <th>Unit</th>
+                  <th>Unit Price</th>
+                  <th>Supplier</th>
+                  <th>Location</th>
+                </tr>
+              </thead>
+              <tbody>
+                {items.map((item) => (
+                  <tr key={item.id}>
+                    <td className="font-medium">{item.name}</td>
+                    <td>{item.quantity}</td>
+                    <td>{item.unit}</td>
+                    <td>${item.price?.toFixed ? item.price.toFixed(2) : item.price}</td>
+                    <td>{item.supplier}</td>
+                    <td>{item.status}</td>
+                  </tr>
+                ))}
+                {items.length === 0 && (
+                  <tr>
+                    <td colSpan={6} className="text-center text-sm text-muted-foreground py-8">No items yet</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
-          
-          <div className="p-4 rounded-lg border border-white/10">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center">
-                <span className="text-white text-lg">🩹</span>
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-white">Bandages</p>
-                <p className="text-xs text-neutral-400">856 items</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="p-4 rounded-lg border border-white/10">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-lg flex items-center justify-center">
-                <span className="text-white text-lg">🔬</span>
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-white">Lab Equipment</p>
-                <p className="text-xs text-neutral-400">234 items</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

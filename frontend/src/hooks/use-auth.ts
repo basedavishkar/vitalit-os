@@ -77,13 +77,17 @@ export function useAuth() {
 
   const login = useCallback(async (username: string, password: string) => {
     try {
+      console.log('Login attempt:', { username, password });
+      
       // Clear any existing auth state before attempting login
       localStorage.clear()
       setAuthState(prev => ({ ...prev, isLoading: true, error: null }))
       
       const response = await authAPI.login({ username, password })
+      console.log('Login response:', response);
       
       if (!response?.access_token || !response?.user) {
+        console.error('Invalid login response:', response);
         throw new Error('Invalid login response')
       }
       
@@ -100,6 +104,7 @@ export function useAuth() {
       
       return response
     } catch (error: any) {
+      console.error('Login error:', error);
       // Clear any partial auth state on error
       localStorage.clear()
       const errorMessage = error.response?.data?.detail || error.message || 'Login failed'

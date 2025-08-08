@@ -1,6 +1,5 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  darkMode: ["class"],
   content: [
     "./src/**/*.{js,ts,jsx,tsx}",
     "./components/**/*.{js,ts,jsx,tsx}",
@@ -16,107 +15,85 @@ module.exports = {
     },
     extend: {
       colors: {
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
+        border: "rgb(var(--border))",
+        input: "rgb(var(--input))",
+        ring: "rgb(var(--ring))",
+        background: "rgb(var(--background))",
+        foreground: "rgb(var(--foreground))",
         primary: {
-          DEFAULT: "#007aff",
-          foreground: "hsl(var(--primary-foreground))",
+          DEFAULT: "rgb(var(--primary))",
+          foreground: "rgb(var(--primary-foreground))",
         },
         secondary: {
-          DEFAULT: "#5e5ce6",
-          foreground: "hsl(var(--secondary-foreground))",
+          DEFAULT: "rgb(var(--secondary))",
+          foreground: "rgb(var(--secondary-foreground))",
         },
         destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
+          DEFAULT: "rgb(var(--health-error))",
+          foreground: "rgb(var(--primary-foreground))",
         },
         muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
+          DEFAULT: "rgb(var(--muted))",
+          foreground: "rgb(var(--muted-foreground))",
         },
         accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
+          DEFAULT: "rgb(var(--accent))",
+          foreground: "rgb(var(--accent-foreground))",
         },
         popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))",
+          DEFAULT: "rgb(var(--popover))",
+          foreground: "rgb(var(--popover-foreground))",
         },
         card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
+          DEFAULT: "rgb(var(--card))",
+          foreground: "rgb(var(--card-foreground))",
         },
-        // Apple-like color palette
-        apple: {
-          blue: "#007aff",
-          purple: "#5e5ce6",
-          pink: "#ff2d92",
-          red: "#ff3b30",
-          orange: "#ff9500",
-          yellow: "#ffcc00",
-          green: "#34c759",
-          teal: "#5ac8fa",
-          indigo: "#5856d6",
-          gray: {
-            50: "#f9f9f9",
-            100: "#f2f2f2",
-            200: "#e5e5e5",
-            300: "#d1d1d1",
-            400: "#b0b0b0",
-            500: "#8e8e93",
-            600: "#636366",
-            700: "#48484a",
-            800: "#3a3a3c",
-            900: "#1c1c1e",
-          }
+        // Healthcare-specific color palette
+        health: {
+          success: "rgb(var(--health-success))",
+          warning: "rgb(var(--health-warning))",
+          error: "rgb(var(--health-error))",
+          info: "rgb(var(--health-info))",
         },
-        // Soft backgrounds for glassmorphism
-        soft: {
-          blue: "rgba(0, 122, 255, 0.1)",
-          purple: "rgba(94, 92, 230, 0.1)",
-          pink: "rgba(255, 45, 146, 0.1)",
-          green: "rgba(52, 199, 89, 0.1)",
-          orange: "rgba(255, 149, 0, 0.1)",
-          yellow: "rgba(255, 204, 0, 0.1)",
-          teal: "rgba(90, 200, 250, 0.1)",
-          indigo: "rgba(88, 86, 214, 0.1)",
-          gray: "rgba(142, 142, 147, 0.1)",
-          white: "rgba(255, 255, 255, 0.8)",
-          black: "rgba(0, 0, 0, 0.05)",
+        // Modern gray scale
+        gray: {
+          50: "#fafafa",
+          100: "#f5f5f5",
+          200: "#e5e5e5",
+          300: "#d4d4d4",
+          400: "#a3a3a3",
+          500: "#737373",
+          600: "#525252",
+          700: "#404040",
+          800: "#262626",
+          900: "#171717",
         }
       },
       borderRadius: {
-        lg: "1rem",
-        xl: "1.5rem",
-        "2xl": "2rem",
+        lg: "var(--radius)",
+        xl: "var(--radius-lg)",
+        "2xl": "var(--radius-xl)",
         "3xl": "2.5rem",
       },
       boxShadow: {
-        // Soft, layered shadows for depth
+        // Modern healthcare shadows
         'soft': '0 2px 8px 0 rgba(0, 0, 0, 0.04), 0 1px 3px 0 rgba(0, 0, 0, 0.08)',
         'soft-md': '0 4px 16px 0 rgba(0, 0, 0, 0.06), 0 2px 8px 0 rgba(0, 0, 0, 0.12)',
         'soft-lg': '0 8px 32px 0 rgba(0, 0, 0, 0.08), 0 4px 16px 0 rgba(0, 0, 0, 0.16)',
         'soft-xl': '0 16px 64px 0 rgba(0, 0, 0, 0.1), 0 8px 32px 0 rgba(0, 0, 0, 0.2)',
         
-        // Apple-style shadows
-        'apple': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
-        'apple-md': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-        'apple-lg': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-        'apple-xl': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+        // Healthcare-specific shadows
+        'health': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+        'health-md': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+        'health-lg': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+        'health-xl': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
         
-        // Glassmorphism shadows
-        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
-        'glass-soft': '0 4px 16px 0 rgba(0, 0, 0, 0.1), 0 2px 8px 0 rgba(0, 0, 0, 0.05)',
-        'glass-strong': '0 16px 64px 0 rgba(31, 38, 135, 0.5), 0 8px 32px 0 rgba(0, 0, 0, 0.15)',
-        
-        // Colored shadows for depth
+        // Colored shadows for healthcare
         'blue': '0 4px 16px 0 rgba(0, 122, 255, 0.15), 0 2px 8px 0 rgba(0, 122, 255, 0.1)',
-        'purple': '0 4px 16px 0 rgba(94, 92, 230, 0.15), 0 2px 8px 0 rgba(94, 92, 230, 0.1)',
         'green': '0 4px 16px 0 rgba(52, 199, 89, 0.15), 0 2px 8px 0 rgba(52, 199, 89, 0.1)',
+        'purple': '0 4px 16px 0 rgba(147, 51, 234, 0.15), 0 2px 8px 0 rgba(147, 51, 234, 0.1)',
         'orange': '0 4px 16px 0 rgba(255, 149, 0, 0.15), 0 2px 8px 0 rgba(255, 149, 0, 0.1)',
+        'red': '0 4px 16px 0 rgba(255, 59, 48, 0.15), 0 2px 8px 0 rgba(255, 59, 48, 0.1)',
       },
       backdropBlur: {
         'xs': '2px',
@@ -150,16 +127,26 @@ module.exports = {
           to: { height: 0 },
         },
         "fade-in": {
-          "0%": { opacity: "0", transform: "translateY(10px)" },
+          "0%": { opacity: "0", transform: "translateY(20px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
         "slide-in": {
-          "0%": { opacity: "0", transform: "translateX(-20px)" },
+          "0%": { opacity: "0", transform: "translateX(-30px)" },
           "100%": { opacity: "1", transform: "translateX(0)" },
         },
         "scale-in": {
           "0%": { opacity: "0", transform: "scale(0.95)" },
           "100%": { opacity: "1", transform: "scale(1)" },
+        },
+        "pulse": {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.7" },
+        },
+        "bounce": {
+          "0%, 20%, 53%, 80%, 100%": { transform: "translate3d(0,0,0)" },
+          "40%, 43%": { transform: "translate3d(0, -8px, 0)" },
+          "70%": { transform: "translate3d(0, -4px, 0)" },
+          "90%": { transform: "translate3d(0, -2px, 0)" },
         },
         "glow": {
           "0%, 100%": { boxShadow: "0 0 20px rgba(0, 122, 255, 0.3)" },
@@ -172,7 +159,23 @@ module.exports = {
         "fade-in": "fade-in 0.3s ease-out",
         "slide-in": "slide-in 0.3s ease-out",
         "scale-in": "scale-in 0.2s ease-out",
+        "pulse": "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        "bounce": "bounce 1s infinite",
         "glow": "glow 2s ease-in-out infinite",
+      },
+      fontFamily: {
+        'sans': ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', 'Arial', 'system-ui', 'sans-serif'],
+      },
+      fontSize: {
+        'xs': ['var(--font-size-xs)', { lineHeight: '1.4' }],
+        'sm': ['var(--font-size-sm)', { lineHeight: '1.5' }],
+        'base': ['var(--font-size-base)', { lineHeight: '1.6' }],
+        'lg': ['var(--font-size-lg)', { lineHeight: '1.5' }],
+        'xl': ['var(--font-size-xl)', { lineHeight: '1.4' }],
+        '2xl': ['var(--font-size-2xl)', { lineHeight: '1.3' }],
+        '3xl': ['var(--font-size-3xl)', { lineHeight: '1.2' }],
+        '4xl': ['var(--font-size-4xl)', { lineHeight: '1.1' }],
+        '5xl': ['var(--font-size-5xl)', { lineHeight: '1.1' }],
       },
     },
   },

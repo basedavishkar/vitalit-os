@@ -68,14 +68,22 @@ export default function DoctorsPage() {
   }
 
   const filteredDoctors = doctors.filter(doctor =>
-    doctor.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    doctor.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    doctor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     doctor.specialization.toLowerCase().includes(searchTerm.toLowerCase()) ||
     doctor.email.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
-  const getStatusColor = (isActive: boolean) => {
-    return isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active':
+        return 'bg-green-100 text-green-800';
+      case 'inactive':
+        return 'bg-red-100 text-red-800';
+      case 'on_leave':
+        return 'bg-yellow-100 text-yellow-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
   }
 
   if (loading) {
@@ -164,25 +172,25 @@ export default function DoctorsPage() {
                           </div>
                           <div>
                             <p className="font-medium text-gray-900">
-                              Dr. {doctor.first_name} {doctor.last_name}
+                              Dr. {doctor.name}
                             </p>
                             <p className="text-sm text-gray-500">{doctor.email}</p>
                           </div>
                         </div>
                       </td>
                       <td className="py-4 px-4">
-                        <Badge variant="secondary">{doctor.doctor_id}</Badge>
+                        <Badge variant="secondary">{doctor.id}</Badge>
                       </td>
                       <td className="py-4 px-4">
                         <p className="text-gray-900">{doctor.specialization}</p>
-                        <p className="text-sm text-gray-500">{doctor.qualification}</p>
+                        <p className="text-sm text-gray-500">{doctor.education}</p>
                       </td>
                       <td className="py-4 px-4">
                         <p className="text-gray-900">{doctor.phone}</p>
                       </td>
                       <td className="py-4 px-4">
-                        <Badge className={getStatusColor(doctor.is_active)}>
-                          {doctor.is_active ? 'Active' : 'Inactive'}
+                        <Badge className={getStatusColor(doctor.status)}>
+                          {doctor.status}
                         </Badge>
                       </td>
                       <td className="py-4 px-4">

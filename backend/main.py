@@ -1,15 +1,16 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request, HTTPException
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from backend.routers import (
-    patients, doctors, appointments, billing, auth, dashboard
+    patients, doctors, appointments, billing, auth, dashboard,
 )
 from backend.models import Base
 from backend.core.database import engine
 from backend.core.config import settings
 # If you have custom middleware, exceptions, logger, update their imports here
-# from backend.core.middleware import LoggingMiddleware, SecurityMiddleware, RateLimitMiddleware
+# from backend.core.middleware import LoggingMiddleware, SecurityMiddleware,
+# RateLimitMiddleware
 # from backend.core.exceptions import VitalitException, create_http_exception
 # from backend.core.logger import logger
 
@@ -19,25 +20,24 @@ async def lifespan(app: FastAPI):
     """Application lifespan manager."""
     # Startup
     print("🏥 Vitalit OS starting up...")
-    print(f"Version: {settings.version}")
-    print(f"Database: {settings.database_url}")
-    
+    print(f"Version: {settings.APP_VERSION}")
+    print(f"Database: {settings.DATABASE_URL}")
+
     # Create database tables
     Base.metadata.create_all(bind=engine)
-    
+
     yield
-    
+
     # Shutdown
     print("🏥 Vitalit OS shutting down...")
 
 
 app = FastAPI(
-    title=settings.title,
-    version=settings.version,
-    description=settings.description,
+    title=settings.APP_NAME,
+    version=settings.APP_VERSION,
     docs_url="/docs",
     redoc_url="/redoc",
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 # Add middleware
@@ -45,6 +45,7 @@ app = FastAPI(
 # app.add_middleware(SecurityMiddleware)
 # app.add_middleware(RateLimitMiddleware, requests_per_minute=60)
 
+# CORS configuration
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -60,9 +61,20 @@ app.add_middleware(
         "https://vitalit-os-l6br-git-main-av1shkars-projects.vercel.app",
         "https://vitalit-os-l6br-m9d5wbdpt-av1shkars-projects.vercel.app",
     ],
+    allow_origin_regex=(
+        r"https?://(localhost|127\.0\.0\.1)(:\d{1,5})?"
+    ),
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=[
+        "GET",
+        "POST",
+        "PUT",
+        "DELETE",
+        "OPTIONS",
+        "PATCH",
+    ],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 
@@ -78,13 +90,17 @@ async def global_exception_handler(request: Request, exc: Exception):
     """Handle all other exceptions."""
     print(f"Unhandled exception: {str(exc)}")
     import traceback
+
     print(f"Full stack trace: {traceback.format_exc()}")
     return JSONResponse(
         status_code=500,
         content={
             "message": "Internal server error",
-            "error_code": "INTERNAL_ERROR"
-        }
+            "error_code": "INTERNAL_ERROR",
+            "detail": (
+                str(exc) if settings.DEBUG else "An unexpected error occurred"
+            ),
+        },
     )
 
 
@@ -92,13 +108,18 @@ async def global_exception_handler(request: Request, exc: Exception):
 @app.get("/health")
 async def health_check():
     """Health check endpoint."""
-    return {"status": "healthy", "version": settings.version}
+    return {"status": "healthy", "version": settings.APP_VERSION}
+
 
 # Test endpoint for frontend debugging
 @app.get("/test")
 async def test_endpoint():
     """Test endpoint for frontend debugging."""
-    return {"message": "Backend is working!", "timestamp": "2025-08-06T20:22:27Z"}
+    return {
+        "message": "Backend is working!",
+        "timestamp": "2025-08-06T20:22:27Z",
+    }
+
 
 # Test patients endpoint (no auth required)
 @app.get("/test/patients")
@@ -113,7 +134,7 @@ async def test_patients():
             "gender": "male",
             "address": "123 Main St",
             "phone": "555-1234",
-            "email": "john@example.com"
+            "email": "john@example.com",
         },
         {
             "id": 2,
@@ -123,8 +144,8 @@ async def test_patients():
             "gender": "female",
             "address": "456 Oak Ave",
             "phone": "555-5678",
-            "email": "jane@example.com"
-        }
+            "email": "jane@example.com",
+        },
     ]
 
 
@@ -152,7 +173,7 @@ async def get_dev_patients():
             "allergies": "None",
             "medical_history": "Hypertension",
             "created_at": "2024-01-01T00:00:00",
-            "updated_at": None
+            "updated_at": None,
         },
         {
             "id": 2,
@@ -173,8 +194,8 @@ async def get_dev_patients():
             "allergies": "Penicillin",
             "medical_history": "Diabetes Type 2",
             "created_at": "2024-01-02T00:00:00",
-            "updated_at": None
-        }
+            "updated_at": None,
+        },
     ]
 
 
@@ -196,7 +217,7 @@ async def get_dev_doctors():
             "consultation_fee": 150.00,
             "is_active": True,
             "created_at": "2024-01-01T00:00:00",
-            "updated_at": None
+            "updated_at": None,
         },
         {
             "id": 2,
@@ -212,8 +233,8 @@ async def get_dev_doctors():
             "consultation_fee": 200.00,
             "is_active": True,
             "created_at": "2024-01-02T00:00:00",
-            "updated_at": None
-        }
+            "updated_at": None,
+        },
     ]
 
 
@@ -240,7 +261,7 @@ async def get_patients_simple():
             "allergies": "None",
             "medical_history": "Hypertension",
             "created_at": "2024-01-01T00:00:00",
-            "updated_at": None
+            "updated_at": None,
         },
         {
             "id": 2,
@@ -261,8 +282,8 @@ async def get_patients_simple():
             "allergies": "Penicillin",
             "medical_history": "Diabetes Type 2",
             "created_at": "2024-01-02T00:00:00",
-            "updated_at": None
-        }
+            "updated_at": None,
+        },
     ]
 
 
@@ -284,7 +305,7 @@ async def get_doctors_simple():
             "consultation_fee": 150.00,
             "is_active": True,
             "created_at": "2024-01-01T00:00:00",
-            "updated_at": None
+            "updated_at": None,
         },
         {
             "id": 2,
@@ -300,8 +321,8 @@ async def get_doctors_simple():
             "consultation_fee": 200.00,
             "is_active": True,
             "created_at": "2024-01-02T00:00:00",
-            "updated_at": None
-        }
+            "updated_at": None,
+        },
     ]
 
 

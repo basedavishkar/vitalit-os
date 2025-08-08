@@ -34,7 +34,7 @@ export default function BillList({ bills: initialBills, onBillsChange }: BillLis
         billingAPI.getAll(),
         patientsAPI.getAll()
       ]);
-      setBills(billsData);
+      setBills(billsData as Bill[]);
       setPatients(patientsData);
     } catch (error: any) {
       toast.error(error.message || 'Failed to load bills');
@@ -47,7 +47,7 @@ export default function BillList({ bills: initialBills, onBillsChange }: BillLis
     try {
       if (editingBill) {
         const updatedBill = await billingAPI.update(editingBill.id, billData as BillUpdate);
-        setBills(prev => prev.map(b => b.id === editingBill.id ? updatedBill : b));
+        setBills(prev => prev.map(b => b.id === editingBill.id ? updatedBill as Bill : b));
         setShowEditForm(false);
         setEditingBill(null);
         toast.success('Bill updated successfully');
@@ -67,8 +67,8 @@ export default function BillList({ bills: initialBills, onBillsChange }: BillLis
     if (!confirm('Are you sure you want to delete this bill?')) return;
     
     try {
-      await billingAPI.delete(billId);
-      setBills(prev => prev.filter(b => b.id !== billId));
+      await billingAPI.delete(billId.toString());
+      setBills(prev => prev.filter(b => b.id !== billId.toString()));
       toast.success('Bill deleted successfully');
       if (onBillsChange) onBillsChange();
     } catch (error: any) {
@@ -85,9 +85,9 @@ export default function BillList({ bills: initialBills, onBillsChange }: BillLis
     setShowAddForm(true);
   };
 
-  const getPatientName = (patientId: number) => {
+  const getPatientName = (patientId: string) => {
     const patient = patients.find(p => p.id === patientId);
-    return patient ? `${patient.first_name} ${patient.last_name}` : `Patient ${patientId}`;
+    return patient ? patient.name : `Patient ${patientId}`;
   };
 
   const getStatusColor = (status: string) => {
@@ -130,47 +130,79 @@ export default function BillList({ bills: initialBills, onBillsChange }: BillLis
             </div>
           </div>
         ) : (
-          <Table headers={["Patient", "Amount", "Date", "Status", "Description", "Actions"]}>
-            {bills.length === 0 ? (
-              <tr>
-                <td colSpan={6} className="text-center py-8 text-emerald-400">
-                  No bills found.
-                </td>
-              </tr>
-            ) : (
-              bills.map((bill) => (
-                <tr key={bill.id}>
-                  <td>{getPatientName(bill.patient_id)}</td>
-                  <td>{formatCurrency(bill.total_amount)}</td>
-                  <td>{new Date(bill.bill_date).toLocaleDateString()}</td>
-                  <td>
-                    <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(bill.payment_status)}`}>
-                      {bill.payment_status}
-                    </span>
-                  </td>
-                  <td>{bill.notes || '-'}</td>
-                  <td>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => openEditForm(bill)}
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => handleDeleteBill(bill.id)}
-                      >
-                        Delete
-                      </Button>
-                    </div>
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-gray-200">
+                  <th className="text-left py-3 px-4 font-medium text-gray-900">Patient</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-900">Amount</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-900">Date</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-900">Status</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-900">Description</th>
+                  <th className="text-left py-3 px-4 font-medium text-gray-900">Actions</th>
                 </tr>
-              ))
-            )}
-          </Table>
+              </thead>
+              <tbody>
+                {bills.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="text-center py-8 text-gray-500">
+                      No bills found
+                    </td>
+                  </tr>
+                ) : (
+                  bills.map((bill) => (
+                    <tr key={bill.id} className="border-b border-gray-100 hover:bg-gray-50">
+                      <td className="py-4 px-4">
+                        <div>
+                          <p className="font-medium text-gray-900">{getPatientName(bill.patientId)}</p>
+                          <p className="text-sm text-gray-500">{bill.patientId}</p>
+                        </div>
+                      </td>
+                      <td className="py-4 px-4">
+                        <span className="font-medium text-gray-900">${bill.amount.toFixed(2)}</span>
+                      </td>
+                      <td className="py-4 px-4">
+                        <span className="text-sm text-gray-900">
+                          {new Date(bill.date).toLocaleDateString()}
+                        </span>
+                      </td>
+                      <td className="py-4 px-4">
+                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                          bill.status === 'paid' ? 'bg-green-100 text-green-800' :
+                          bill.status === 'cancelled' ? 'bg-red-100 text-red-800' :
+                          bill.status === 'overdue' ? 'bg-orange-100 text-orange-800' :
+                          'bg-yellow-100 text-yellow-800'
+                        }`}>
+                          {bill.status}
+                        </span>
+                      </td>
+                      <td className="py-4 px-4">
+                        <span className="text-sm text-gray-900">{bill.description}</span>
+                      </td>
+                      <td className="py-4 px-4">
+                        <div className="flex items-center space-x-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => openEditForm(bill)}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteBill(bill.id)}
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         )}
       </CardContent>
 
