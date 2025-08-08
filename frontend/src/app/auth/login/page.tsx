@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
+import { ROUTES } from '@/lib/constants';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
@@ -18,14 +19,15 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      const success = await login(username, password);
-      if (success) {
-        router.push('/dashboard');
-      } else {
-        setError('Invalid username or password');
-      }
-    } catch (err) {
-      setError('Login failed. Please try again.');
+      await login(username, password);
+      // After successful login, redirect to dashboard
+      router.replace(ROUTES.DASHBOARD);
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.detail || 'Login failed. Please try again.';
+      setError(errorMessage);
+      // Clear any stale auth data on error
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('user_data');
     } finally {
       setIsLoading(false);
     }

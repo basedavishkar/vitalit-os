@@ -3,6 +3,7 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
+import { ROUTES } from '@/lib/constants'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { Header } from '@/components/layout/Header'
 
@@ -15,10 +16,21 @@ export default function DashboardLayout({
   const router = useRouter()
 
   useEffect(() => {
-    if (!isLoading && !user) {
-      router.push('/')
+    const checkAuthAndRedirect = async () => {
+      try {
+        const token = localStorage.getItem('access_token')
+        if (!token || (!isLoading && !user)) {
+          router.replace(ROUTES.LOGIN)
+          return
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error)
+        router.replace(ROUTES.LOGIN)
+      }
     }
-  }, [user, isLoading, router])
+    
+    checkAuthAndRedirect()
+  }, [isLoading, user, router])
 
   if (isLoading) {
     return (
@@ -40,7 +52,7 @@ export default function DashboardLayout({
       <Sidebar />
       <div className="lg:pl-72">
         <Header />
-        <main className="py-10">
+        <main className="py-4">
           <div className="px-4 sm:px-6 lg:px-8">
             {children}
           </div>

@@ -164,6 +164,39 @@ VITALIt is not just another hospital management system. It's a comprehensive hea
 - **Username**: `admin`
 - **Password**: `admin123`
 
+## 🚀 Development
+
+### Quick Start
+```bash
+# 1. Install dependencies
+pip install -r requirements.txt
+cd frontend && npm install
+
+# 2. Start backend
+cd backend
+source ../venv/bin/activate
+uvicorn main:app --reload --port 8000
+
+# 3. Start frontend (in new terminal)
+cd frontend
+npm run dev
+
+# 4. Run verification script
+./scripts/verify.sh
+```
+
+### Environment Variables
+Required environment variables:
+- `NEXT_PUBLIC_API_URL`: Frontend API URL (default: http://localhost:8000)
+- `SECRET_KEY`: Backend JWT secret key
+- `DATABASE_URL`: Database connection string
+
+### Verification
+Run the verification script to test authentication and CRUD flows:
+```bash
+./scripts/verify.sh
+```
+
 ## 🧪 Testing
 
 ### Frontend Tests
