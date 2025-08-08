@@ -1,8 +1,8 @@
 # 🏥 VITALIt
 
-![Demo](demo.gif)
-
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE) ![Stars](https://img.shields.io/github/stars/basedavishkar/vitalit-os?style=social) ![Issues](https://img.shields.io/github/issues/basedavishkar/vitalit-os) ![PRs](https://img.shields.io/github/issues-pr/basedavishkar/vitalit-os)
+
+![Demo](demo.gif)
 
 Open source hospital management system.
 Built to replace 💰 expensive, outdated enterprise software.
