@@ -7,12 +7,27 @@ from alembic import context
 
 import sys
 import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'backend')))
-from backend import models, database
+from pathlib import Path
+from dotenv import load_dotenv
+
+# Load environment variables from backend/.env
+backend_dir = Path(__file__).parent.parent / 'backend'
+env_file = backend_dir / '.env'
+if env_file.exists():
+    load_dotenv(dotenv_path=env_file)
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from backend import models
+from backend.core import database
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
+
+# Override sqlalchemy.url with environment variable if available
+# This prevents credentials from being hardcoded in alembic.ini
+if os.getenv('DATABASE_URL'):
+    config.set_main_option('sqlalchemy.url', os.getenv('DATABASE_URL'))
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
