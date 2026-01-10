@@ -1,9 +1,16 @@
 import os
+from pathlib import Path
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy.engine import Engine
 from sqlalchemy.pool import QueuePool
 import logging
+from dotenv import load_dotenv
+
+# Load environment variables from backend/.env
+backend_dir = Path(__file__).parent.parent
+env_file = backend_dir / ".env"
+load_dotenv(dotenv_path=env_file)
 
 # Configure logging
 logger = logging.getLogger(__name__)
