@@ -24,7 +24,7 @@ VITALIt-OS is a fast, open-source hospital management system built with FastAPI 
 Clone the repo:
 
 ```bash
-git clone https://github.com/basedavishkar/vitalit-os.git
+git clone https://github.com/danchengash/vitalit-os.git
 cd vitalit-os
 ```
 

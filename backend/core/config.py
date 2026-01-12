@@ -3,6 +3,8 @@ from typing import Optional, List
 from pydantic_settings import BaseSettings
 from pydantic import validator, AnyHttpUrl
 import secrets
+import os
+from pathlib import Path
 
 
 class Settings(BaseSettings):
@@ -85,7 +87,8 @@ class Settings(BaseSettings):
     ENABLE_FILE_UPLOAD: bool = True
     
     class Config:
-        env_file = ".env"
+        # Look for .env file in backend directory
+        env_file = str(Path(__file__).parent.parent / ".env")
         case_sensitive = True
         extra = "ignore"
         
@@ -108,7 +111,11 @@ class Settings(BaseSettings):
 
 
 # Create settings instance
+# Get the path to backend/.env
+backend_dir = Path(__file__).parent.parent
+env_file_path = backend_dir / ".env"
+
 settings = Settings(
-    _env_file=".env",
+    _env_file=str(env_file_path),
     _env_file_encoding="utf-8"
 )

@@ -3,7 +3,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from backend.routers import (
-    patients, doctors, appointments, billing, auth, dashboard,
+    patients, doctors, appointments, billing, auth, dashboard, analytics, drug_inventory,
 )
 from backend.models import Base
 from backend.core.database import engine
@@ -333,5 +333,7 @@ app.include_router(doctors.router)
 app.include_router(appointments.router)
 app.include_router(billing.router)
 app.include_router(dashboard.router)
+app.include_router(analytics.router)
+app.include_router(drug_inventory.router)
 
 
